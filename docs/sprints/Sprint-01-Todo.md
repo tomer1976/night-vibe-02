@@ -13,7 +13,7 @@
 
 ## Firebase Tasks (if applicable)
 - [x] Add environment placeholders for Firebase config (dev/staging/prod keys empty or stubbed).
-- [ ] Implement runtime guard to prevent accidental real Firebase calls in Phase 1.
+- [x] Implement runtime guard to prevent accidental real Firebase calls in Phase 1.
 
 ## Mock-Data Tasks
 - [ ] Create deterministic fixture sets for users, roles, venues, sessions, interactions.
