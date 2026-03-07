@@ -1,0 +1,59 @@
+import { BackendServiceContracts } from '../src/contracts';
+
+describe('backend service contracts', () => {
+  it('supports a complete typed service locator without concrete implementations', async () => {
+    const services: BackendServiceContracts = {
+      auth: {
+        getSession: async () => ({ status: 'SUCCESS', request_id: 'req-1', data: { uid: 'u1', status: 'active', roles: ['RegularUser'], activeRoleContext: 'RegularUser' } }),
+        signInWithProvider: async () => ({ status: 'FAIL', request_id: 'req-2', error: { code: 'UNAUTHORIZED', message: 'Mock' } }),
+        signOut: async () => ({ status: 'SUCCESS', request_id: 'req-3', data: { signedOut: true } }),
+      },
+      profile: {
+        getMyProfile: async () => ({ status: 'SUCCESS', request_id: 'req-4', data: { uid: 'u1', displayName: 'Alex', profileCompleted: true } }),
+        updateMyProfile: async () => ({ status: 'SUCCESS', request_id: 'req-5', data: { uid: 'u1', displayName: 'Alex', profileCompleted: true } }),
+      },
+      roles: {
+        getAvailableRoles: async () => ({ status: 'SUCCESS', request_id: 'req-6', data: ['RegularUser'] }),
+        setActiveRoleContext: async () => ({ status: 'SUCCESS', request_id: 'req-7', data: { activeRoleContext: 'RegularUser' } }),
+      },
+      venues: {
+        getNearbyVenues: async () => ({ status: 'SUCCESS', request_id: 'req-8', data: [] }),
+      },
+      presence: {
+        getActiveSession: async () => ({ status: 'SUCCESS', request_id: 'req-9', data: null }),
+        checkIn: async () => ({ status: 'SUCCESS', request_id: 'req-10', data: { sessionId: 's1', userId: 'u1', venueId: 'v1', status: 'active' } }),
+        checkOut: async () => ({ status: 'SUCCESS', request_id: 'req-11', data: { sessionClosed: true } }),
+      },
+      discovery: {
+        getCandidates: async () => ({ status: 'SUCCESS', request_id: 'req-12', data: { items: [] } }),
+      },
+      interactions: {
+        like: async () => ({ status: 'SUCCESS', request_id: 'req-13', data: { action: 'like', targetUserId: 'u2' } }),
+        pass: async () => ({ status: 'SUCCESS', request_id: 'req-14', data: { action: 'pass', targetUserId: 'u2' } }),
+      },
+      match: {
+        getMatches: async () => ({ status: 'SUCCESS', request_id: 'req-15', data: [] }),
+      },
+      chat: {
+        getThreads: async () => ({ status: 'SUCCESS', request_id: 'req-16', data: [] }),
+        sendMessage: async () => ({ status: 'SUCCESS', request_id: 'req-17', data: { chatId: 'c1', sent: true } }),
+      },
+      safety: {
+        blockUser: async () => ({ status: 'SUCCESS', request_id: 'req-18', data: { blocked: true, targetUserId: 'u2' } }),
+        reportUser: async () => ({ status: 'SUCCESS', request_id: 'req-19', data: { reportId: 'r1', reporterId: 'u1', reportedUserId: 'u2', status: 'pending' } }),
+      },
+      notifications: {
+        getNotifications: async () => ({ status: 'SUCCESS', request_id: 'req-20', data: [] }),
+        markAsRead: async () => ({ status: 'SUCCESS', request_id: 'req-21', data: { notificationId: 'n1', read: true } }),
+      },
+      analytics: {
+        getVenueAnalytics: async () => ({ status: 'SUCCESS', request_id: 'req-22', data: { venueId: 'v1', population: 10, popularityScore: 0.7, updatedAt: '2026-03-08T00:00:00Z' } }),
+      },
+    };
+
+    const session = await services.auth.getSession();
+    expect(session.status).toBe('SUCCESS');
+    expect(typeof services.discovery.getCandidates).toBe('function');
+    expect(typeof services.analytics.getVenueAnalytics).toBe('function');
+  });
+});

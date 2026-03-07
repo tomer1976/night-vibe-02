@@ -8,7 +8,7 @@
 - [x] Add reusable primitive components (Button, Input, Card, Badge, ListItem, StateView).
 
 ## Backend Tasks (if applicable)
-- [ ] Define placeholder backend contract interfaces (no implementation).
+- [x] Define placeholder backend contract interfaces (no implementation).
 - [ ] Document expected API envelope and error model mapping for client handling.
 
 ## Firebase Tasks (if applicable)
