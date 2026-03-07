@@ -10,12 +10,23 @@ export const ROUTE_NAMES = {
 
 export type AppRouteName = (typeof ROUTE_NAMES)[keyof typeof ROUTE_NAMES];
 
-export const ROUTE_GROUP_OWNERSHIP: Record<AppRouteName, string> = {
-  [ROUTE_NAMES.Splash]: 'app-shell',
-  [ROUTE_NAMES.AuthGroup]: 'auth',
-  [ROUTE_NAMES.UserGroup]: 'user',
-  [ROUTE_NAMES.OwnerGroup]: 'venue-owner',
-  [ROUTE_NAMES.ModeratorGroup]: 'moderation',
-  [ROUTE_NAMES.AdminGroup]: 'administration',
-  [ROUTE_NAMES.UnknownRouteFallback]: 'app-shell',
+export const ROUTE_MODULE_OWNERS = {
+  AppShell: 'app-shell',
+  Auth: 'auth',
+  User: 'user',
+  VenueOwner: 'venue-owner',
+  Moderation: 'moderation',
+  Administration: 'administration',
+} as const;
+
+export type RouteModuleOwner = (typeof ROUTE_MODULE_OWNERS)[keyof typeof ROUTE_MODULE_OWNERS];
+
+export const ROUTE_GROUP_OWNERSHIP: Record<AppRouteName, RouteModuleOwner> = {
+  [ROUTE_NAMES.Splash]: ROUTE_MODULE_OWNERS.AppShell,
+  [ROUTE_NAMES.AuthGroup]: ROUTE_MODULE_OWNERS.Auth,
+  [ROUTE_NAMES.UserGroup]: ROUTE_MODULE_OWNERS.User,
+  [ROUTE_NAMES.OwnerGroup]: ROUTE_MODULE_OWNERS.VenueOwner,
+  [ROUTE_NAMES.ModeratorGroup]: ROUTE_MODULE_OWNERS.Moderation,
+  [ROUTE_NAMES.AdminGroup]: ROUTE_MODULE_OWNERS.Administration,
+  [ROUTE_NAMES.UnknownRouteFallback]: ROUTE_MODULE_OWNERS.AppShell,
 };

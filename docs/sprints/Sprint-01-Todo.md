@@ -21,7 +21,7 @@
 - [x] Add mock clock utility for deterministic timestamps.
 
 ## Navigation Tasks
-- [ ] Define route names and module ownership map.
+- [x] Define route names and module ownership map.
 - [ ] Implement protected-route placeholder logic for role context simulation.
 - [ ] Add fallback navigation for unknown route or invalid role context.
 
