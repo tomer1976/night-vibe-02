@@ -12,7 +12,7 @@
 - [x] Document expected API envelope and error model mapping for client handling.
 
 ## Firebase Tasks (if applicable)
-- [ ] Add environment placeholders for Firebase config (dev/staging/prod keys empty or stubbed).
+- [x] Add environment placeholders for Firebase config (dev/staging/prod keys empty or stubbed).
 - [ ] Implement runtime guard to prevent accidental real Firebase calls in Phase 1.
 
 ## Mock-Data Tasks
