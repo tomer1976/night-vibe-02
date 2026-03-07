@@ -9,7 +9,7 @@
 
 ## Backend Tasks (if applicable)
 - [x] Define placeholder backend contract interfaces (no implementation).
-- [ ] Document expected API envelope and error model mapping for client handling.
+- [x] Document expected API envelope and error model mapping for client handling.
 
 ## Firebase Tasks (if applicable)
 - [ ] Add environment placeholders for Firebase config (dev/staging/prod keys empty or stubbed).
