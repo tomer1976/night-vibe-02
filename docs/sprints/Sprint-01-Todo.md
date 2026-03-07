@@ -3,7 +3,7 @@
 ## Frontend Tasks
 - [x] Initialize mobile app shell with React Native + TypeScript.
 - [x] Configure global theme provider and shared token access.
-- [ ] Implement base navigation container and route groups.
+- [x] Implement base navigation container and route groups.
 - [ ] Create shell screens for Auth, User, Owner, Moderator, Admin entry points.
 - [ ] Add reusable primitive components (Button, Input, Card, Badge, ListItem, StateView).
 
