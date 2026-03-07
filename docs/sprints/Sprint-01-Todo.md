@@ -17,7 +17,7 @@
 
 ## Mock-Data Tasks
 - [x] Create deterministic fixture sets for users, roles, venues, sessions, interactions.
-- [ ] Build mock response factory with success/error scenario toggles.
+- [x] Build mock response factory with success/error scenario toggles.
 - [ ] Add mock clock utility for deterministic timestamps.
 
 ## Navigation Tasks
