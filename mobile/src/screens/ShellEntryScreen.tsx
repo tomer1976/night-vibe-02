@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { Card } from '../components';
 import { useTheme } from '../theme';
 
 type ShellEntryScreenProps = {
@@ -12,10 +13,10 @@ export function ShellEntryScreen({ title, subtitle }: ShellEntryScreenProps) {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
-      <View style={[styles.card, { backgroundColor: theme.colors.surfaceCard }]}> 
+      <Card>
         <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{title}</Text>
         <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>{subtitle}</Text>
-      </View>
+      </Card>
     </View>
   );
 }
@@ -27,16 +28,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
   },
-  card: {
-    borderRadius: 16,
-    padding: 16,
-    width: '100%',
-    maxWidth: 460,
-    gap: 8,
-  },
   title: {
     fontSize: 20,
     fontWeight: '700',
+    marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
