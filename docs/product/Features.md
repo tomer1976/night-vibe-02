@@ -1,0 +1,75 @@
+- Mobile Authentication
+- Account Linking
+- Authentication Session Management
+- Account Deletion and Recovery
+- Suspended and Banned Account Enforcement
+- User Onboarding Flow
+- User Profile Management
+- Profile Completion Access Gate
+- Profile Photo Upload
+- Profile Photo Moderation
+- Profile Visibility Controls
+- Role-Based Access Control (RBAC)
+- Role Assignment and Revocation
+- Multi-Role Account Support
+- Role Context Switching
+- Internal Venue Database Management
+- Venue Submission
+- Duplicate Venue Detection
+- Venue Approval and Rejection
+- Venue Ownership Management
+- Venue Editing Permissions
+- Venue Lifecycle State Management
+- Nearby Venue Discovery
+- Haversine Distance Calculation
+- Venue Filtering and Sorting
+- Venue Activity Snapshot
+- Venue Discovery Rate Limiting
+- Venue Check-In
+- Check-In Proximity Validation
+- Single Active Venue Session Enforcement
+- Venue Checkout
+- Venue Session Timeout Handling
+- Venue Presence Visibility
+- User Discovery Feed Generation
+- Discovery Preference Filtering
+- Mutual Visibility Enforcement
+- Discovery Block and Skip Filtering
+- Discovery Pagination
+- Profile Preview Generation
+- Like Action Handling
+- Pass Action Handling
+- Interaction Record Storage
+- Duplicate Interaction Prevention
+- Match Creation Engine
+- Match Expiration Handling
+- Match Event Emission
+- Chat Session Creation
+- Chat Eligibility Enforcement
+- Real-Time Messaging
+- Message Delivery State Tracking
+- Typing Indicators
+- Read Receipts
+- Chat Expiration and Disablement
+- User Blocking
+- Block Enforcement in Discovery
+- Block Enforcement in Chat
+- User Reporting
+- Moderation Queue Management
+- Moderator Enforcement Actions
+- Cross-System Safety Enforcement
+- Real-Time In-App Notifications
+- Push Notification Delivery (FCM)
+- Notification Storage
+- Notification Preferences Management
+- Notification Rate Limiting
+- Notification Deduplication
+- Real-Time Venue Population Analytics
+- Venue Gender Distribution Analytics
+- Venue Age Distribution Analytics
+- Venue Popularity Scoring
+- Historical Venue Analytics
+- Analytics Caching Layer
+- Venue Analytics API
+- Audit Logging
+- Platform Observability and Telemetry

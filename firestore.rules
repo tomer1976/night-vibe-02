@@ -1,0 +1,191 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function userPath(uid) {
+      return /databases/$(database)/documents/users/$(uid);
+    }
+
+    function userDoc() {
+      return get(userPath(request.auth.uid));
+    }
+
+    function userRoles() {
+      return userDoc().data.roles;
+    }
+
+    function userStatus() {
+      return userDoc().data.status;
+    }
+
+    function isActiveAccount() {
+      return isSignedIn() && userStatus() == 'active';
+    }
+
+    function hasRole(role) {
+      return isSignedIn() && (role in userRoles());
+    }
+
+    function isModerator() {
+      return hasRole('Moderator');
+    }
+
+    function isAdmin() {
+      return hasRole('Administrator');
+    }
+
+    function isModeratorOrAdmin() {
+      return isModerator() || isAdmin();
+    }
+
+    function profileWriteValid() {
+      return request.resource.data.uid == request.auth.uid
+        && request.resource.data.profile_completed is bool
+        && request.resource.data.display_name is string
+        && request.resource.data.display_name.size() > 0
+        && request.resource.data.bio is string
+        && request.resource.data.bio.size() <= 300
+        && request.resource.data.preferred_age_min is int
+        && request.resource.data.preferred_age_min >= 18
+        && request.resource.data.preferred_age_max is int
+        && request.resource.data.preferred_age_max >= request.resource.data.preferred_age_min
+        && request.resource.data.preferred_genders is list
+        && request.resource.data.preferred_genders.size() > 0
+        && request.resource.data.photos is list
+        && request.resource.data.photos.size() >= 1
+        && request.resource.data.photos.size() <= 6;
+    }
+
+    function notificationReadWriteValid() {
+      return request.resource.data.read is bool
+        && (
+          request.resource.data.read == resource.data.read
+          || request.resource.data.read == true
+        );
+    }
+
+    match /users/{uid} {
+      allow read: if isSelf(uid) || isModeratorOrAdmin();
+
+      allow create, delete: if false;
+      allow update: if false;
+
+      match /profile/{profile_id} {
+        allow read: if isSelf(uid) || isModeratorOrAdmin();
+        allow create, update: if isSelf(uid) && isActiveAccount() && profileWriteValid();
+        allow delete: if false;
+      }
+    }
+
+    match /notification_preferences/{uid} {
+      allow read: if isSelf(uid) || isModeratorOrAdmin();
+      allow create, update: if isSelf(uid) && isActiveAccount();
+      allow delete: if false;
+    }
+
+    match /notifications/{notification_id} {
+      allow read: if isSignedIn() && resource.data.user_id == request.auth.uid;
+      allow create, delete: if false;
+      allow update: if isSignedIn()
+        && resource.data.user_id == request.auth.uid
+        && request.resource.data.user_id == resource.data.user_id
+        && request.resource.data.type == resource.data.type
+        && request.resource.data.title == resource.data.title
+        && request.resource.data.body == resource.data.body
+        && request.resource.data.created_at == resource.data.created_at
+        && notificationReadWriteValid();
+    }
+
+    match /venues/{venue_id} {
+      allow read: if isSignedIn() && isActiveAccount();
+      allow create, update, delete: if false;
+    }
+
+    match /venue_sessions/{session_id} {
+      allow read: if isSignedIn() && (
+        resource.data.user_id == request.auth.uid || isModeratorOrAdmin()
+      );
+      allow create, update, delete: if false;
+    }
+
+    match /interactions/{interaction_id} {
+      allow read: if isSignedIn() && (
+        resource.data.actor_user_id == request.auth.uid ||
+        resource.data.target_user_id == request.auth.uid ||
+        isModeratorOrAdmin()
+      );
+      allow create, update, delete: if false;
+    }
+
+    match /matches/{match_id} {
+      allow read: if isSignedIn() && (
+        request.auth.uid in resource.data.users ||
+        isModeratorOrAdmin()
+      );
+      allow create, update, delete: if false;
+    }
+
+    match /chats/{chat_id} {
+      allow read: if isSignedIn() && (
+        request.auth.uid in resource.data.participants ||
+        isModeratorOrAdmin()
+      );
+      allow create, update, delete: if false;
+
+      match /messages/{message_id} {
+        allow read: if isSignedIn() && (
+          request.auth.uid in get(/databases/$(database)/documents/chats/$(chat_id)).data.participants ||
+          isModeratorOrAdmin()
+        );
+        allow create, update, delete: if false;
+      }
+
+      match /typing/{uid} {
+        allow read: if isSignedIn() && (
+          request.auth.uid in get(/databases/$(database)/documents/chats/$(chat_id)).data.participants ||
+          isModeratorOrAdmin()
+        );
+        allow create, update: if false;
+        allow delete: if false;
+      }
+    }
+
+    match /blocks/{block_id} {
+      allow read: if isSignedIn() && (
+        resource.data.actor_user_id == request.auth.uid ||
+        resource.data.target_user_id == request.auth.uid ||
+        isModeratorOrAdmin()
+      );
+      allow create, update, delete: if false;
+    }
+
+    match /reports/{report_id} {
+      allow read: if isSignedIn() && (
+        resource.data.reporter_user_id == request.auth.uid ||
+        isModeratorOrAdmin()
+      );
+      allow create, update, delete: if false;
+    }
+
+    match /analytics/venues/{venue_id} {
+      allow read: if isSignedIn() && isActiveAccount();
+      allow create, update, delete: if false;
+    }
+
+    match /audit_logs/{audit_id} {
+      allow read: if isModeratorOrAdmin();
+      allow create, update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
