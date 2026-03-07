@@ -16,7 +16,7 @@
 - [x] Implement runtime guard to prevent accidental real Firebase calls in Phase 1.
 
 ## Mock-Data Tasks
-- [ ] Create deterministic fixture sets for users, roles, venues, sessions, interactions.
+- [x] Create deterministic fixture sets for users, roles, venues, sessions, interactions.
 - [ ] Build mock response factory with success/error scenario toggles.
 - [ ] Add mock clock utility for deterministic timestamps.
 
