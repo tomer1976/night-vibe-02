@@ -1,4 +1,10 @@
 export {
+  createMockClock,
+  type MockClock,
+  type MockClockOptions,
+} from './clock';
+
+export {
   createMockResponseFactory,
   type MockResponseFactory,
   type MockResponseFactoryOptions,

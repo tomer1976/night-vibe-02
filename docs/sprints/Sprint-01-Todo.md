@@ -18,7 +18,7 @@
 ## Mock-Data Tasks
 - [x] Create deterministic fixture sets for users, roles, venues, sessions, interactions.
 - [x] Build mock response factory with success/error scenario toggles.
-- [ ] Add mock clock utility for deterministic timestamps.
+- [x] Add mock clock utility for deterministic timestamps.
 
 ## Navigation Tasks
 - [ ] Define route names and module ownership map.
