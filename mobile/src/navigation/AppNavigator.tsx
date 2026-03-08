@@ -1,22 +1,42 @@
 import { NavigationContainer, Theme as NavigationTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { ComponentType } from 'react';
 
 import {
   AdminEntryScreen,
   AuthEntryScreen,
   ModeratorEntryScreen,
   OwnerEntryScreen,
+  ShellEntryScreen,
   SplashScreen,
   UnknownRouteFallbackScreen,
   UserEntryScreen,
 } from '../screens';
 import { useTheme } from '../theme';
 import { ROUTE_NAMES } from './routeGroups';
+import { canAccessRoute, readSimulatedRoleContextFromEnv } from './roleContextSimulation';
 
 const Stack = createNativeStackNavigator();
 
 export function AppNavigator() {
   const theme = useTheme();
+  const simulatedRoleContext = readSimulatedRoleContextFromEnv();
+
+  const renderProtectedRoute = (routeName: keyof typeof ROUTE_NAMES, ScreenComponent: ComponentType) => {
+    if (canAccessRoute(ROUTE_NAMES[routeName], simulatedRoleContext)) {
+      return <ScreenComponent />;
+    }
+
+    const activeRole = simulatedRoleContext.activeRoleContext ?? 'none';
+    const authState = simulatedRoleContext.isAuthenticated ? 'authenticated' : 'unauthenticated';
+
+    return (
+      <ShellEntryScreen
+        title="Protected Route Placeholder"
+        subtitle={`Route ${ROUTE_NAMES[routeName]} is blocked for simulated context (${authState}, role: ${activeRole}).`}
+      />
+    );
+  };
 
   const navigationTheme: NavigationTheme = {
     dark: true,
@@ -52,11 +72,11 @@ export function AppNavigator() {
     <NavigationContainer theme={navigationTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={ROUTE_NAMES.Splash}>
         <Stack.Screen name={ROUTE_NAMES.Splash} component={SplashScreen} />
-        <Stack.Screen name={ROUTE_NAMES.AuthGroup} component={AuthEntryScreen} />
-        <Stack.Screen name={ROUTE_NAMES.UserGroup} component={UserEntryScreen} />
-        <Stack.Screen name={ROUTE_NAMES.OwnerGroup} component={OwnerEntryScreen} />
-        <Stack.Screen name={ROUTE_NAMES.ModeratorGroup} component={ModeratorEntryScreen} />
-        <Stack.Screen name={ROUTE_NAMES.AdminGroup} component={AdminEntryScreen} />
+        <Stack.Screen name={ROUTE_NAMES.AuthGroup}>{() => renderProtectedRoute('AuthGroup', AuthEntryScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.UserGroup}>{() => renderProtectedRoute('UserGroup', UserEntryScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.OwnerGroup}>{() => renderProtectedRoute('OwnerGroup', OwnerEntryScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.ModeratorGroup}>{() => renderProtectedRoute('ModeratorGroup', ModeratorEntryScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.AdminGroup}>{() => renderProtectedRoute('AdminGroup', AdminEntryScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.UnknownRouteFallback} component={UnknownRouteFallbackScreen} />
       </Stack.Navigator>
     </NavigationContainer>
