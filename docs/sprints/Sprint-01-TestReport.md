@@ -43,6 +43,16 @@ From `mobile/`:
   - `ShellEntryScreen` rendered `BottomNavShell` without `onItemPress` wiring.
 - Fix applied in mobile code and validated with full quality gates.
 
+## Post-Manual QA UX Follow-up (2026-03-08)
+- Reported UX behavior:
+  - blocked routes did not preserve selected-tab highlight in fallback
+  - back navigation traversed long shell history
+- Fixes applied:
+  - Shell tab switching now uses stack replace semantics to prevent deep back-stack buildup.
+  - Splash bootstrap transition uses stack replace semantics.
+  - Unknown-route fallback now preserves requested route context for active-tab indication.
+- Validation: lint, typecheck, and full test suite pass.
+
 ## Go/No-Go Recommendation for Sprint-02 Kickoff
 - Recommendation: **GO** for engineering progression to Sprint-02.
 - Condition: complete stakeholder demo approval gate and record sign-off.

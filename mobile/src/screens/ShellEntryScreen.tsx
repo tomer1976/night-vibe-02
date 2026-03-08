@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -62,7 +62,18 @@ export function ShellEntryScreen({ title, subtitle, routeContext = 'none', state
     }
 
     const safeRoute = resolve(requestedRoute);
-    navigation.navigate(safeRoute as never);
+
+    if (safeRoute === ROUTE_NAMES.UnknownRouteFallback) {
+      navigation.dispatch(
+        StackActions.replace(ROUTE_NAMES.UnknownRouteFallback, {
+          requestedRouteName: requestedRoute,
+        })
+      );
+
+      return;
+    }
+
+    navigation.dispatch(StackActions.replace(safeRoute));
   };
 
   const renderContent = () => {

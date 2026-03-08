@@ -1,9 +1,12 @@
 import { render } from '@testing-library/react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { SplashScreen, UnknownRouteFallbackScreen } from '../src/screens';
 import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
+
+const Stack = createNativeStackNavigator();
 
 describe('state template screens', () => {
   it('renders splash screen with loading template', () => {
@@ -26,7 +29,9 @@ describe('state template screens', () => {
       <ThemeProvider>
         <AppStateProvider>
           <NavigationContainer>
-            <UnknownRouteFallbackScreen />
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+              <Stack.Screen component={UnknownRouteFallbackScreen} name="UnknownRouteFallback" />
+            </Stack.Navigator>
           </NavigationContainer>
         </AppStateProvider>
       </ThemeProvider>

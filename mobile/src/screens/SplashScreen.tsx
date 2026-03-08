@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import { useEffect } from 'react';
 
 import { ROUTE_NAMES } from '../navigation';
@@ -14,7 +14,7 @@ export function SplashScreen() {
     const targetRoute = resolve(requestedRoute);
 
     const timeoutId = setTimeout(() => {
-      navigation.navigate(targetRoute as never);
+      navigation.dispatch(StackActions.replace(targetRoute));
     }, 450);
 
     return () => {

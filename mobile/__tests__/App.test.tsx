@@ -49,6 +49,7 @@ describe('App', () => {
 
     fireEvent.press(getByTestId('bottom-nav-owner'));
     expect(getByText('Unknown Route')).toBeTruthy();
+    expect(getByTestId('bottom-nav-owner').props.accessibilityState.selected).toBe(true);
 
     fireEvent.press(getByTestId('bottom-nav-user'));
     expect(getByText('User Entry')).toBeTruthy();

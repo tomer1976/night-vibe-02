@@ -35,6 +35,7 @@ export function AppNavigator() {
 
     return (
       <UnknownRouteFallbackScreen
+        requestedRouteName={requestedRouteName}
         subtitle={`Fallback for blocked route ${requestedRouteName} under simulated context (${authState}, role: ${activeRole}).`}
       />
     );
