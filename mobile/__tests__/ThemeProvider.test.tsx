@@ -24,4 +24,20 @@ describe('ThemeProvider', () => {
 
     expect(getByText('#F5F7FF|#1A2034|16|20|24|12')).toBeTruthy();
   });
+
+  it('falls back missing token groups to the default dark theme', () => {
+    const { getByText } = render(
+      <ThemeProvider
+        value={{
+          colors: {
+            accentPrimary: '#123456',
+          },
+        }}
+      >
+        <ThemeProbe />
+      </ThemeProvider>
+    );
+
+    expect(getByText('#F5F7FF|#1A2034|16|20|24|12')).toBeTruthy();
+  });
 });

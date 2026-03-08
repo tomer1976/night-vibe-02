@@ -43,7 +43,7 @@
 - [x] Add navigation integrity test for all route groups.
 
 ## Bugfix/Stabilization Tasks
-- [ ] Resolve startup crashes, unresolved routes, and theme token fallback issues.
+- [x] Resolve startup crashes, unresolved routes, and theme token fallback issues.
 - [ ] Fix cross-platform style inconsistencies between iOS and Android.
 - [ ] Reduce noisy logs and eliminate unhandled promise rejections.
 
