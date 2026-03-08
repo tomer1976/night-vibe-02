@@ -36,6 +36,13 @@ From `mobile/`:
 - Severity-2 open defects: 0 known
 - Open blockers in foundation/navigation/design-system scope: none identified from automated validation
 
+## Post-Manual QA Fix Verification (2026-03-08)
+- Issue observed during manual UI run: Splash remained in loading state and shell bottom navigation was non-interactive.
+- Root cause:
+  - Splash route had no transition logic.
+  - `ShellEntryScreen` rendered `BottomNavShell` without `onItemPress` wiring.
+- Fix applied in mobile code and validated with full quality gates.
+
 ## Go/No-Go Recommendation for Sprint-02 Kickoff
 - Recommendation: **GO** for engineering progression to Sprint-02.
 - Condition: complete stakeholder demo approval gate and record sign-off.

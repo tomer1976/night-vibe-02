@@ -1,7 +1,10 @@
+import { useNavigation } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BottomNavShell, Card, EmptyStateTemplate, ErrorStateTemplate, LoadingStateTemplate, TopBar } from '../components';
+import { AppRouteName, ROUTE_NAMES } from '../navigation';
+import { useRouteAccessSelectors } from '../state';
 import { useTheme } from '../theme';
 
 type ShellRouteContext = 'auth' | 'user' | 'owner' | 'moderator' | 'admin' | 'none';
@@ -24,6 +27,43 @@ const navItems = [
 
 export function ShellEntryScreen({ title, subtitle, routeContext = 'none', stateTemplate = 'none' }: ShellEntryScreenProps) {
   const theme = useTheme();
+  const navigation = useNavigation();
+  const { resolve } = useRouteAccessSelectors();
+
+  const routeNameFromNavKey = (key: string): AppRouteName | null => {
+    if (key === 'auth') {
+      return ROUTE_NAMES.AuthGroup;
+    }
+
+    if (key === 'user') {
+      return ROUTE_NAMES.UserGroup;
+    }
+
+    if (key === 'owner') {
+      return ROUTE_NAMES.OwnerGroup;
+    }
+
+    if (key === 'moderator') {
+      return ROUTE_NAMES.ModeratorGroup;
+    }
+
+    if (key === 'admin') {
+      return ROUTE_NAMES.AdminGroup;
+    }
+
+    return null;
+  };
+
+  const handleItemPress = (item: { key: string }) => {
+    const requestedRoute = routeNameFromNavKey(item.key);
+
+    if (!requestedRoute) {
+      return;
+    }
+
+    const safeRoute = resolve(requestedRoute);
+    navigation.navigate(safeRoute as never);
+  };
 
   const renderContent = () => {
     if (stateTemplate === 'empty') {
@@ -59,7 +99,7 @@ export function ShellEntryScreen({ title, subtitle, routeContext = 'none', state
       </View>
 
       <View style={[styles.bottom, { paddingHorizontal: theme.spacing.lg, paddingBottom: theme.spacing.lg }]}> 
-        <BottomNavShell activeKey={routeContext} items={navItems} />
+        <BottomNavShell activeKey={routeContext} items={navItems} onItemPress={handleItemPress} />
       </View>
     </SafeAreaView>
   );

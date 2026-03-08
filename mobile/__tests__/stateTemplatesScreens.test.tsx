@@ -1,13 +1,19 @@
 import { render } from '@testing-library/react-native';
+import { NavigationContainer } from '@react-navigation/native';
 
 import { SplashScreen, UnknownRouteFallbackScreen } from '../src/screens';
+import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
 
 describe('state template screens', () => {
   it('renders splash screen with loading template', () => {
     const { getAllByText, getByText } = render(
       <ThemeProvider>
-        <SplashScreen />
+        <AppStateProvider>
+          <NavigationContainer>
+            <SplashScreen />
+          </NavigationContainer>
+        </AppStateProvider>
       </ThemeProvider>
     );
 
@@ -18,7 +24,11 @@ describe('state template screens', () => {
   it('renders unknown route fallback with error template defaults', () => {
     const { getAllByText, getByText } = render(
       <ThemeProvider>
-        <UnknownRouteFallbackScreen />
+        <AppStateProvider>
+          <NavigationContainer>
+            <UnknownRouteFallbackScreen />
+          </NavigationContainer>
+        </AppStateProvider>
       </ThemeProvider>
     );
 

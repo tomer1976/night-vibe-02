@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react-native';
+import { NavigationContainer } from '@react-navigation/native';
 
 import {
   AdminEntryScreen,
@@ -7,6 +8,7 @@ import {
   OwnerEntryScreen,
   UserEntryScreen,
 } from '../src/screens';
+import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
 
 describe('entry screens', () => {
@@ -19,7 +21,11 @@ describe('entry screens', () => {
   ])('renders %s title', (ScreenComponent, title) => {
     const { getByText } = render(
       <ThemeProvider>
-        <ScreenComponent />
+        <AppStateProvider>
+          <NavigationContainer>
+            <ScreenComponent />
+          </NavigationContainer>
+        </AppStateProvider>
       </ThemeProvider>
     );
 
@@ -37,7 +43,11 @@ describe('entry screens', () => {
   ])('marks active bottom nav tab for %s', (ScreenComponent, activeTab) => {
     const { getByTestId } = render(
       <ThemeProvider>
-        <ScreenComponent />
+        <AppStateProvider>
+          <NavigationContainer>
+            <ScreenComponent />
+          </NavigationContainer>
+        </AppStateProvider>
       </ThemeProvider>
     );
 
