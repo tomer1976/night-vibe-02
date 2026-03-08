@@ -45,7 +45,7 @@
 ## Bugfix/Stabilization Tasks
 - [x] Resolve startup crashes, unresolved routes, and theme token fallback issues.
 - [x] Fix cross-platform style inconsistencies between iOS and Android.
-- [ ] Reduce noisy logs and eliminate unhandled promise rejections.
+- [x] Reduce noisy logs and eliminate unhandled promise rejections.
 
 ## Documentation Tasks
 - [ ] Document folder/module architecture and naming conventions.
