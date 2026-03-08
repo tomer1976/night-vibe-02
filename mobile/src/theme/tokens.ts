@@ -19,6 +19,7 @@ export type ThemeSpacing = {
   lg: number;
   xl: number;
   xxl: number;
+  xxxl: number;
 };
 
 export type ThemeRadius = {
@@ -29,9 +30,14 @@ export type ThemeRadius = {
 };
 
 export type ThemeTypography = {
+  display: number;
+  pageTitle: number;
+  cardTitle: number;
   title: number;
   body: number;
+  bodySmall: number;
   meta: number;
+  label: number;
 };
 
 export type ThemeTokens = {
@@ -60,8 +66,9 @@ export const nightVibeDarkTheme: ThemeTokens = {
     sm: 8,
     md: 12,
     lg: 16,
-    xl: 24,
-    xxl: 32,
+    xl: 20,
+    xxl: 24,
+    xxxl: 32,
   },
   radius: {
     sm: 12,
@@ -70,8 +77,13 @@ export const nightVibeDarkTheme: ThemeTokens = {
     xl: 24,
   },
   typography: {
+    display: 32,
+    pageTitle: 24,
+    cardTitle: 20,
     title: 20,
     body: 16,
+    bodySmall: 14,
     meta: 12,
+    label: 12,
   },
 };

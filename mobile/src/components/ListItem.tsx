@@ -18,14 +18,16 @@ export function ListItem({ title, subtitle, trailingText, onPress }: ListItemPro
         {
           backgroundColor: theme.colors.backgroundSecondary,
           borderRadius: theme.radius.md,
+          paddingHorizontal: theme.spacing.md,
+          paddingVertical: 10,
         },
       ]}
     >
-      <View style={styles.leftSection}>
-        <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{title}</Text>
-        {subtitle ? <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>{subtitle}</Text> : null}
+      <View style={[styles.leftSection, { marginRight: theme.spacing.md }]}>
+        <Text style={[styles.title, { color: theme.colors.textPrimary, fontSize: theme.typography.body }]}>{title}</Text>
+        {subtitle ? <Text style={[styles.subtitle, { color: theme.colors.textSecondary, fontSize: theme.typography.meta }]}>{subtitle}</Text> : null}
       </View>
-      {trailingText ? <Text style={[styles.trailing, { color: theme.colors.textSecondary }]}>{trailingText}</Text> : null}
+      {trailingText ? <Text style={[styles.trailing, { color: theme.colors.textSecondary, fontSize: theme.typography.meta }]}>{trailingText}</Text> : null}
     </View>
   );
 
@@ -46,23 +48,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 56,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
   },
   leftSection: {
     flex: 1,
-    marginRight: 12,
   },
   title: {
-    fontSize: 16,
     fontWeight: '600',
   },
   subtitle: {
-    fontSize: 12,
     marginTop: 2,
   },
   trailing: {
-    fontSize: 12,
     fontWeight: '500',
   },
 });

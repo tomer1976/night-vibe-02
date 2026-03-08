@@ -23,11 +23,14 @@ export function Input({ label, errorText, ...props }: InputProps) {
             borderColor: hasError ? theme.colors.danger : theme.colors.backgroundSecondary,
             borderRadius: theme.radius.md,
             color: theme.colors.textPrimary,
+            fontSize: theme.typography.body,
+            paddingHorizontal: theme.spacing.md,
+            paddingVertical: 10,
           },
         ]}
         {...props}
       />
-      {hasError ? <Text style={[styles.error, { color: theme.colors.danger }]}>{errorText}</Text> : null}
+      {hasError ? <Text style={[styles.error, { color: theme.colors.danger, fontSize: theme.typography.meta }]}>{errorText}</Text> : null}
     </View>
   );
 }
@@ -37,19 +40,14 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   label: {
-    fontSize: 12,
     marginBottom: 6,
   },
   input: {
     borderWidth: 1,
-    fontSize: 16,
     minHeight: 44,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
     width: '100%',
   },
   error: {
-    fontSize: 12,
     marginTop: 6,
   },
 });

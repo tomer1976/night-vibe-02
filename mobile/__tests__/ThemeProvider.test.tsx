@@ -9,7 +9,7 @@ function ThemeProbe() {
 
   return (
     <Text>
-      {theme.colors.textPrimary}|{fallbackColor}|{theme.spacing.lg}
+      {theme.colors.textPrimary}|{fallbackColor}|{theme.spacing.lg}|{theme.spacing.xl}|{theme.typography.pageTitle}|{theme.typography.label}
     </Text>
   );
 }
@@ -22,6 +22,6 @@ describe('ThemeProvider', () => {
       </ThemeProvider>
     );
 
-    expect(getByText('#F5F7FF|#1A2034|16')).toBeTruthy();
+    expect(getByText('#F5F7FF|#1A2034|16|20|24|12')).toBeTruthy();
   });
 });

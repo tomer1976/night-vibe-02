@@ -26,7 +26,7 @@
 - [x] Add fallback navigation for unknown route or invalid role context.
 
 ## UI Tasks
-- [ ] Implement typography scale and spacing scale from UI guide.
+- [x] Implement typography scale and spacing scale from UI guide.
 - [ ] Build top bar and bottom navigation shell components.
 - [ ] Add empty/loading/error state templates.
 - [ ] Verify dark-theme contrast and accessibility baseline.
