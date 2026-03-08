@@ -28,6 +28,22 @@ describe('primitive components', () => {
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
+  it('renders all Button variants', () => {
+    const { getByText } = render(
+      <ThemeProvider>
+        <>
+          <Button label="Primary" variant="primary" />
+          <Button label="Secondary" variant="secondary" />
+          <Button label="Destructive" variant="destructive" />
+        </>
+      </ThemeProvider>
+    );
+
+    expect(getByText('Primary')).toBeTruthy();
+    expect(getByText('Secondary')).toBeTruthy();
+    expect(getByText('Destructive')).toBeTruthy();
+  });
+
   it('renders Input with label and error', () => {
     const { getByText, getByDisplayValue } = render(
       <ThemeProvider>
@@ -66,11 +82,12 @@ describe('primitive components', () => {
     expect(getByText('2.1km')).toBeTruthy();
   });
 
-  it('renders StateView loading and error variants', () => {
+  it('renders StateView empty/loading/error variants', () => {
     const onRetry = jest.fn();
     const { getByText } = render(
       <ThemeProvider>
         <>
+          <StateView kind="empty" title="Nothing here" message="No content yet" />
           <StateView kind="loading" title="Loading" message="Please wait" />
           <StateView kind="error" title="Error" message="Try again" actionLabel="Retry" onAction={onRetry} />
         </>
@@ -78,6 +95,7 @@ describe('primitive components', () => {
     );
 
     fireEvent.press(getByText('Retry'));
+    expect(getByText('Nothing here')).toBeTruthy();
     expect(getByText('Loading')).toBeTruthy();
     expect(getByText('Error')).toBeTruthy();
     expect(onRetry).toHaveBeenCalledTimes(1);
