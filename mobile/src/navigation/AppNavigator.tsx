@@ -73,7 +73,14 @@ export function AppNavigator() {
 
   return (
     <NavigationContainer theme={navigationTheme}>
-      <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={ROUTE_NAMES.Splash}>
+      <Stack.Navigator
+        initialRouteName={ROUTE_NAMES.Splash}
+        screenOptions={{
+          animation: 'none',
+          contentStyle: { backgroundColor: theme.colors.backgroundPrimary },
+          headerShown: false,
+        }}
+      >
         <Stack.Screen name={ROUTE_NAMES.Splash} component={SplashScreen} />
         <Stack.Screen name={ROUTE_NAMES.AuthGroup}>{() => renderProtectedRoute('AuthGroup', AuthEntryScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.UserGroup}>{() => renderProtectedRoute('UserGroup', UserEntryScreen)}</Stack.Screen>

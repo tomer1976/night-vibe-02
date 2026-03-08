@@ -53,6 +53,15 @@ From `mobile/`:
   - Unknown-route fallback now preserves requested route context for active-tab indication.
 - Validation: lint, typecheck, and full test suite pass.
 
+## Post-Manual QA Visual Transition Follow-up (2026-03-08)
+- Reported UX behavior:
+  - brief white frame visible during bottom navigation route transitions
+- Fixes applied:
+  - top-level stack screen transition animation disabled for shell routes
+  - stack content background enforced to dark theme color during transitions
+- Note on Android back behavior:
+  - with replace-based shell navigation, pressing back from current root route exits the app; this is expected with current Sprint-01 shell policy.
+
 ## Go/No-Go Recommendation for Sprint-02 Kickoff
 - Recommendation: **GO** for engineering progression to Sprint-02.
 - Condition: complete stakeholder demo approval gate and record sign-off.
