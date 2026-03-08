@@ -51,7 +51,7 @@
 - [x] Document folder/module architecture and naming conventions.
 - [x] Document service interface contracts and adapter pattern.
 - [x] Document mock scenario toggles and fixture update process.
-- [ ] Link Sprint-01 outputs to the Phase plan document.
+- [x] Link Sprint-01 outputs to the Phase plan document.
 
 ## Release/Readiness Tasks (if applicable)
 - [ ] Establish CI checks (typecheck, lint, test).

@@ -76,6 +76,13 @@
   - Walk through shell navigation, role entry points, reusable components.
 - Mocked vs real behavior:
   - All data sources mocked; static fixtures plus deterministic generators.
+- Sprint 01 outputs (implemented artifacts):
+  - Sprint backlog and completion tracker: `docs/sprints/Sprint-01-Todo.md`
+  - Sprint test scope: `docs/sprints/Sprint-01-TestPlan.md`
+  - Mobile API envelope mapping: `mobile/docs/api-envelope-error-mapping.md`
+  - Mobile architecture and naming conventions: `mobile/docs/architecture-and-naming-conventions.md`
+  - Mobile service contracts and adapter pattern: `mobile/docs/service-contracts-and-adapter-pattern.md`
+  - Mock scenario and fixture maintenance process: `mobile/docs/mock-scenario-toggles-and-fixture-update-process.md`
 
 #### Sprint 02 – Mock Auth, Onboarding, Profile, Settings
 - Sprint goal: Deliver end-to-end first-time user and returning user journeys in mock mode.
