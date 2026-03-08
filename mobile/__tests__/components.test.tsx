@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
 
-import { Badge, Button, Card, Input, ListItem, StateView } from '../src/components';
+import { Badge, BottomNavShell, Button, Card, Input, ListItem, StateView, TopBar } from '../src/components';
 import { ThemeProvider } from '../src/theme';
 
 describe('primitive components', () => {
@@ -69,5 +69,37 @@ describe('primitive components', () => {
     expect(getByText('Loading')).toBeTruthy();
     expect(getByText('Error')).toBeTruthy();
     expect(onRetry).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders TopBar with title and status tag', () => {
+    const { getByText } = render(
+      <ThemeProvider>
+        <TopBar subtitle="Authentication route group shell." title="Night Vibe" />
+      </ThemeProvider>
+    );
+
+    expect(getByText('Night Vibe')).toBeTruthy();
+    expect(getByText('Authentication route group shell.')).toBeTruthy();
+    expect(getByText('Mock Mode')).toBeTruthy();
+  });
+
+  it('renders BottomNavShell and handles tab press', () => {
+    const onItemPress = jest.fn();
+    const { getByTestId } = render(
+      <ThemeProvider>
+        <BottomNavShell
+          activeKey="user"
+          items={[
+            { key: 'auth', label: 'Auth' },
+            { key: 'user', label: 'User' },
+            { key: 'admin', label: 'Admin' },
+          ]}
+          onItemPress={onItemPress}
+        />
+      </ThemeProvider>
+    );
+
+    fireEvent.press(getByTestId('bottom-nav-auth'));
+    expect(onItemPress).toHaveBeenCalledWith({ key: 'auth', label: 'Auth' });
   });
 });

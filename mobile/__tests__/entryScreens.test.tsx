@@ -23,6 +23,24 @@ describe('entry screens', () => {
       </ThemeProvider>
     );
 
+    expect(getByText('Night Vibe')).toBeTruthy();
+    expect(getByText('Mock Mode')).toBeTruthy();
     expect(getByText(title)).toBeTruthy();
+  });
+
+  it.each([
+    [AuthEntryScreen, 'auth'],
+    [UserEntryScreen, 'user'],
+    [OwnerEntryScreen, 'owner'],
+    [ModeratorEntryScreen, 'moderator'],
+    [AdminEntryScreen, 'admin'],
+  ])('marks active bottom nav tab for %s', (ScreenComponent, activeTab) => {
+    const { getByTestId } = render(
+      <ThemeProvider>
+        <ScreenComponent />
+      </ThemeProvider>
+    );
+
+    expect(getByTestId(`bottom-nav-${activeTab}`).props.accessibilityState.selected).toBe(true);
   });
 });

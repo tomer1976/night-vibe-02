@@ -27,7 +27,7 @@
 
 ## UI Tasks
 - [x] Implement typography scale and spacing scale from UI guide.
-- [ ] Build top bar and bottom navigation shell components.
+- [x] Build top bar and bottom navigation shell components.
 - [ ] Add empty/loading/error state templates.
 - [ ] Verify dark-theme contrast and accessibility baseline.
 

@@ -1,33 +1,64 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Card } from '../components';
+import { BottomNavShell, Card, TopBar } from '../components';
 import { useTheme } from '../theme';
+
+type ShellRouteContext = 'auth' | 'user' | 'owner' | 'moderator' | 'admin' | 'none';
 
 type ShellEntryScreenProps = {
   title: string;
   subtitle: string;
+  routeContext?: ShellRouteContext;
 };
 
-export function ShellEntryScreen({ title, subtitle }: ShellEntryScreenProps) {
+const navItems = [
+  { key: 'auth', label: 'Auth' },
+  { key: 'user', label: 'User' },
+  { key: 'owner', label: 'Owner' },
+  { key: 'moderator', label: 'Mod' },
+  { key: 'admin', label: 'Admin' },
+];
+
+export function ShellEntryScreen({ title, subtitle, routeContext = 'none' }: ShellEntryScreenProps) {
   const theme = useTheme();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary, padding: theme.spacing.lg }]}> 
-      <Card>
-        <Text style={[styles.title, { color: theme.colors.textPrimary, fontSize: theme.typography.pageTitle, marginBottom: theme.spacing.sm }]}>
-          {title}
-        </Text>
-        <Text style={[styles.subtitle, { color: theme.colors.textSecondary, fontSize: theme.typography.body, lineHeight: 22 }]}>{subtitle}</Text>
-      </Card>
-    </View>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
+      <View style={[styles.top, { paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.lg }]}> 
+        <TopBar subtitle={subtitle} title="Night Vibe" />
+      </View>
+
+      <View style={[styles.content, { paddingHorizontal: theme.spacing.lg }]}> 
+        <Card>
+          <Text style={[styles.title, { color: theme.colors.textPrimary, fontSize: theme.typography.pageTitle, marginBottom: theme.spacing.sm }]}>
+            {title}
+          </Text>
+          <Text style={[styles.subtitle, { color: theme.colors.textSecondary, fontSize: theme.typography.body, lineHeight: 22 }]}>{subtitle}</Text>
+        </Card>
+      </View>
+
+      <View style={[styles.bottom, { paddingHorizontal: theme.spacing.lg, paddingBottom: theme.spacing.lg }]}> 
+        <BottomNavShell activeKey={routeContext} items={navItems} />
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  top: {
+    width: '100%',
+  },
+  content: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  bottom: {
+    width: '100%',
   },
   title: {
     fontWeight: '700',
