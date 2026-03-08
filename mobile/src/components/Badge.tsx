@@ -20,9 +20,17 @@ export function Badge({ label, tone = 'neutral' }: BadgeProps) {
     info: theme.colors.info,
   };
 
+  const textColorByTone: Record<BadgeTone, string> = {
+    neutral: theme.colors.textPrimary,
+    success: theme.colors.backgroundPrimary,
+    warning: theme.colors.backgroundPrimary,
+    danger: theme.colors.backgroundPrimary,
+    info: theme.colors.backgroundPrimary,
+  };
+
   return (
-    <View style={[styles.container, { backgroundColor: backgroundByTone[tone], borderRadius: theme.radius.sm }]}> 
-      <Text style={[styles.label, { color: theme.colors.textPrimary }]}>{label}</Text>
+    <View accessibilityRole="text" style={[styles.container, { backgroundColor: backgroundByTone[tone], borderRadius: theme.radius.sm }]}> 
+      <Text style={[styles.label, { color: textColorByTone[tone] }]}>{label}</Text>
     </View>
   );
 }

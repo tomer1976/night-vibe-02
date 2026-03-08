@@ -33,6 +33,7 @@ export function BottomNavShell({ activeKey, items, onItemPress }: BottomNavShell
         return (
           <Pressable
             key={item.key}
+            accessibilityLabel={`${item.label} tab`}
             accessibilityRole="tab"
             accessibilityState={{ selected: isActive }}
             onPress={() => onItemPress?.(item)}

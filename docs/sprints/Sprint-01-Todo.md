@@ -29,7 +29,7 @@
 - [x] Implement typography scale and spacing scale from UI guide.
 - [x] Build top bar and bottom navigation shell components.
 - [x] Add empty/loading/error state templates.
-- [ ] Verify dark-theme contrast and accessibility baseline.
+- [x] Verify dark-theme contrast and accessibility baseline.
 
 ## State-Management Tasks
 - [ ] Define app-level state containers for auth context, role context, and feature flags.

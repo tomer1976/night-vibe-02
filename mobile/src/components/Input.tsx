@@ -10,11 +10,13 @@ type InputProps = TextInputProps & {
 export function Input({ label, errorText, ...props }: InputProps) {
   const theme = useTheme();
   const hasError = Boolean(errorText);
+  const accessibilityLabel = label ?? props.placeholder ?? 'Input field';
 
   return (
     <View style={styles.container}>
       {label ? <Text style={[styles.label, { color: theme.colors.textSecondary }]}>{label}</Text> : null}
       <TextInput
+        accessibilityLabel={accessibilityLabel}
         placeholderTextColor={theme.colors.textSecondary}
         style={[
           styles.input,

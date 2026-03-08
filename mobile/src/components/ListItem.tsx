@@ -11,6 +11,7 @@ type ListItemProps = {
 
 export function ListItem({ title, subtitle, trailingText, onPress }: ListItemProps) {
   const theme = useTheme();
+  const accessibilityLabel = subtitle ? `${title}, ${subtitle}` : title;
   const content = (
     <View
       style={[
@@ -36,7 +37,7 @@ export function ListItem({ title, subtitle, trailingText, onPress }: ListItemPro
   }
 
   return (
-    <Pressable accessibilityRole="button" onPress={onPress}>
+    <Pressable accessibilityLabel={accessibilityLabel} accessibilityRole="button" onPress={onPress}>
       {content}
     </Pressable>
   );

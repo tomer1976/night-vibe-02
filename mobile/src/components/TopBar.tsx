@@ -24,7 +24,7 @@ export function TopBar({ title, subtitle, statusTag = 'Mock Mode' }: TopBarProps
       ]}
     >
       <View style={styles.row}>
-        <Text style={[styles.title, { color: theme.colors.textPrimary, fontSize: theme.typography.title }]}>{title}</Text>
+        <Text accessibilityRole="header" style={[styles.title, { color: theme.colors.textPrimary, fontSize: theme.typography.title }]}>{title}</Text>
         <View style={[styles.statusTag, { backgroundColor: theme.colors.surfaceCard, borderRadius: theme.radius.sm, paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.xs }]}>
           <Text style={[styles.statusText, { color: theme.colors.info, fontSize: theme.typography.label }]}>{statusTag}</Text>
         </View>
