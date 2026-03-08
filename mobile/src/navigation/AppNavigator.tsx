@@ -7,14 +7,13 @@ import {
   AuthEntryScreen,
   ModeratorEntryScreen,
   OwnerEntryScreen,
-  ShellEntryScreen,
   SplashScreen,
   UnknownRouteFallbackScreen,
   UserEntryScreen,
 } from '../screens';
 import { useTheme } from '../theme';
 import { ROUTE_NAMES } from './routeGroups';
-import { canAccessRoute, readSimulatedRoleContextFromEnv } from './roleContextSimulation';
+import { readSimulatedRoleContextFromEnv, resolveRouteWithFallback } from './roleContextSimulation';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,7 +22,10 @@ export function AppNavigator() {
   const simulatedRoleContext = readSimulatedRoleContextFromEnv();
 
   const renderProtectedRoute = (routeName: keyof typeof ROUTE_NAMES, ScreenComponent: ComponentType) => {
-    if (canAccessRoute(ROUTE_NAMES[routeName], simulatedRoleContext)) {
+    const requestedRouteName = ROUTE_NAMES[routeName];
+    const resolvedRouteName = resolveRouteWithFallback(requestedRouteName, simulatedRoleContext);
+
+    if (resolvedRouteName === requestedRouteName) {
       return <ScreenComponent />;
     }
 
@@ -31,9 +33,8 @@ export function AppNavigator() {
     const authState = simulatedRoleContext.isAuthenticated ? 'authenticated' : 'unauthenticated';
 
     return (
-      <ShellEntryScreen
-        title="Protected Route Placeholder"
-        subtitle={`Route ${ROUTE_NAMES[routeName]} is blocked for simulated context (${authState}, role: ${activeRole}).`}
+      <UnknownRouteFallbackScreen
+        subtitle={`Fallback for blocked route ${requestedRouteName} under simulated context (${authState}, role: ${activeRole}).`}
       />
     );
   };

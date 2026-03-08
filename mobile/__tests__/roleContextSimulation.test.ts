@@ -1,4 +1,9 @@
-import { canAccessRoute, readSimulatedRoleContextFromEnv, ROUTE_NAMES } from '../src/navigation';
+import {
+  canAccessRoute,
+  readSimulatedRoleContextFromEnv,
+  resolveRouteWithFallback,
+  ROUTE_NAMES,
+} from '../src/navigation';
 
 describe('role context simulation', () => {
   it('defaults to authenticated RegularUser context', () => {
@@ -59,5 +64,32 @@ describe('role context simulation', () => {
     expect(canAccessRoute(ROUTE_NAMES.AuthGroup, ownerContext)).toBe(false);
     expect(canAccessRoute(ROUTE_NAMES.AuthGroup, unauthenticatedContext)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.Splash, ownerContext)).toBe(true);
+  });
+
+  it('routes to fallback for unknown routes', () => {
+    const context = readSimulatedRoleContextFromEnv({
+      EXPO_PUBLIC_MOCK_ACTIVE_ROLE: 'RegularUser',
+    });
+
+    expect(resolveRouteWithFallback('UnknownMadeUpRoute', context)).toBe(ROUTE_NAMES.UnknownRouteFallback);
+  });
+
+  it('routes to fallback when role context is invalid for active role set', () => {
+    const invalidContext = {
+      isAuthenticated: true,
+      activeRoleContext: 'Moderator',
+      availableRoles: ['RegularUser'],
+    } as const;
+
+    expect(canAccessRoute(ROUTE_NAMES.ModeratorGroup, invalidContext)).toBe(false);
+    expect(resolveRouteWithFallback(ROUTE_NAMES.ModeratorGroup, invalidContext)).toBe(ROUTE_NAMES.UnknownRouteFallback);
+  });
+
+  it('keeps route when access is valid', () => {
+    const context = readSimulatedRoleContextFromEnv({
+      EXPO_PUBLIC_MOCK_ACTIVE_ROLE: 'Administrator',
+    });
+
+    expect(resolveRouteWithFallback(ROUTE_NAMES.AdminGroup, context)).toBe(ROUTE_NAMES.AdminGroup);
   });
 });

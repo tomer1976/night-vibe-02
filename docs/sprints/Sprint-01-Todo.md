@@ -23,7 +23,7 @@
 ## Navigation Tasks
 - [x] Define route names and module ownership map.
 - [x] Implement protected-route placeholder logic for role context simulation.
-- [ ] Add fallback navigation for unknown route or invalid role context.
+- [x] Add fallback navigation for unknown route or invalid role context.
 
 ## UI Tasks
 - [ ] Implement typography scale and spacing scale from UI guide.

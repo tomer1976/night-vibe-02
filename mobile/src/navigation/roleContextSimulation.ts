@@ -61,6 +61,10 @@ const parseAvailableRoles = (value: string | undefined): Role[] => {
   return [...unique];
 };
 
+export function isKnownAppRouteName(routeName: string): routeName is AppRouteName {
+  return Object.values(ROUTE_NAMES).includes(routeName as AppRouteName);
+}
+
 export function readSimulatedRoleContextFromEnv(
   env: Record<string, string | undefined> = process.env,
 ): SimulatedRoleContext {
@@ -102,6 +106,10 @@ export function canAccessRoute(routeName: AppRouteName, context: SimulatedRoleCo
     return false;
   }
 
+  if (!context.availableRoles.includes(context.activeRoleContext)) {
+    return false;
+  }
+
   switch (routeName) {
     case ROUTE_NAMES.UserGroup:
       return context.activeRoleContext === 'RegularUser';
@@ -114,4 +122,16 @@ export function canAccessRoute(routeName: AppRouteName, context: SimulatedRoleCo
     default:
       return false;
   }
+}
+
+export function resolveRouteWithFallback(routeName: string, context: SimulatedRoleContext): AppRouteName {
+  if (!isKnownAppRouteName(routeName)) {
+    return ROUTE_NAMES.UnknownRouteFallback;
+  }
+
+  if (canAccessRoute(routeName, context)) {
+    return routeName;
+  }
+
+  return ROUTE_NAMES.UnknownRouteFallback;
 }
