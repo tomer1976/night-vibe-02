@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react-native';
 import { Text } from 'react-native';
 
+import { createMockResponseFactory } from '../src/mocks';
 import { ServiceLocatorProvider, useServiceLocator, createMockBackendServiceLocator } from '../src/services';
 
 describe('mock service locator wiring', () => {
@@ -16,6 +17,33 @@ describe('mock service locator wiring', () => {
     expect(sessionResponse.status).toBe('SUCCESS');
     expect(venuesResponse.status).toBe('SUCCESS');
     expect(discoveryResponse.status).toBe('SUCCESS');
+  });
+
+  it('returns deterministic success and failure envelopes through mock services', async () => {
+    const responseFactory = createMockResponseFactory({ seed: 'req-deterministic' });
+    const locator = createMockBackendServiceLocator({ responseFactory });
+
+    const successResponse = await locator.services.auth.getSession();
+    expect(successResponse).toEqual({
+      status: 'SUCCESS',
+      request_id: 'req-deterministic-0001',
+      data: {
+        uid: 'u-regular-1',
+        status: 'active',
+        roles: ['RegularUser'],
+        activeRoleContext: 'RegularUser',
+      },
+    });
+
+    responseFactory.setScenario('discovery.getCandidates', 'PERMISSION_DENIED');
+    const failureResponse = await locator.services.discovery.getCandidates();
+
+    expect(failureResponse.status).toBe('FAIL');
+    if (failureResponse.status === 'FAIL') {
+      expect(failureResponse.request_id).toBe('req-deterministic-0002');
+      expect(failureResponse.error.code).toBe('PERMISSION_DENIED');
+      expect(failureResponse.error.message).toBe('Mock permission denied for this operation.');
+    }
   });
 
   it('provides services through ServiceLocatorProvider', async () => {
