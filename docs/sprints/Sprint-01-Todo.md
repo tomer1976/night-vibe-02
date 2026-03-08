@@ -32,7 +32,7 @@
 - [x] Verify dark-theme contrast and accessibility baseline.
 
 ## State-Management Tasks
-- [ ] Define app-level state containers for auth context, role context, and feature flags.
+- [x] Define app-level state containers for auth context, role context, and feature flags.
 - [ ] Implement provider wiring for service locator (mock adapters only).
 - [ ] Add typed selectors/hooks for route-safe state access.
 
