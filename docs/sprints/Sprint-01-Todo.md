@@ -40,7 +40,7 @@
 - [x] Add smoke tests for app startup and initial routing.
 - [x] Add component render tests for core design system primitives.
 - [x] Add mock provider tests for deterministic success/failure output.
-- [ ] Add navigation integrity test for all route groups.
+- [x] Add navigation integrity test for all route groups.
 
 ## Bugfix/Stabilization Tasks
 - [ ] Resolve startup crashes, unresolved routes, and theme token fallback issues.
