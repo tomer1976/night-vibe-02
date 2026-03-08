@@ -76,3 +76,8 @@ From `mobile/`:
 ## Go/No-Go Recommendation for Sprint-02 Kickoff
 - Recommendation: **GO** for engineering progression to Sprint-02.
 - Condition: complete stakeholder demo approval gate and record sign-off.
+
+## Stakeholder Demo Sign-off
+- Date: 2026-03-08
+- Status: **APPROVED**
+- Outcome: Sprint-01 stakeholder walkthrough completed and accepted.
