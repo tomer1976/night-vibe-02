@@ -47,18 +47,18 @@
 - No accidental external network/Firebase requests are made.
 
 ## Regression Checklist
-- [ ] App still boots after dependency updates.
-- [ ] Route names/paths unchanged or migration documented.
-- [ ] Design tokens still applied uniformly in primitives.
-- [ ] Provider wiring still resolves interfaces correctly.
-- [ ] Error state components still handle envelope shape consistently.
+- [x] App still boots after dependency updates.
+- [x] Route names/paths unchanged or migration documented.
+- [x] Design tokens still applied uniformly in primitives.
+- [x] Provider wiring still resolves interfaces correctly.
+- [x] Error state components still handle envelope shape consistently.
 
 ## Acceptance Checklist
 - [ ] Build passes on iOS and Android targets.
-- [ ] Lint and typecheck pass.
-- [ ] Core smoke tests pass.
+- [x] Lint and typecheck pass.
+- [x] Core smoke tests pass.
 - [ ] All route groups demonstrated in sprint demo.
-- [ ] No Severity-1 or Severity-2 open defects in foundation scope.
+- [x] No Severity-1 or Severity-2 open defects in foundation scope.
 - [ ] Sprint 01 DoD confirmed by PM + Engineering + QA.
 
 ## Test Data and Environment Notes
