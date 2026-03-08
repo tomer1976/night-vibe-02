@@ -3,8 +3,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BottomNavShell, Card, EmptyStateTemplate, ErrorStateTemplate, LoadingStateTemplate, TopBar } from '../components';
-import { AppRouteName, ROUTE_NAMES } from '../navigation';
-import { useRouteAccessSelectors } from '../state';
+import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
+import { useRouteAccessSelectors } from '../state/routeSelectors';
 import { useTheme } from '../theme';
 
 type ShellRouteContext = 'auth' | 'user' | 'owner' | 'moderator' | 'admin' | 'none';

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
-import { AppRouteName, canAccessRoute, resolveRouteWithFallback, SimulatedRoleContext } from '../navigation';
+import { AppRouteName } from '../navigation/routeGroups';
+import { canAccessRoute, resolveRouteWithFallback, SimulatedRoleContext } from '../navigation/roleContextSimulation';
 import { useAuthState, useFeatureFlagsState, useRoleState } from './AppStateProvider';
 
 export type RouteResolution = {

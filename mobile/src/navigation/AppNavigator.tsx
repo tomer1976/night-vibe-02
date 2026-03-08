@@ -2,16 +2,14 @@ import { NavigationContainer, Theme as NavigationTheme } from '@react-navigation
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ComponentType } from 'react';
 
-import {
-  AdminEntryScreen,
-  AuthEntryScreen,
-  ModeratorEntryScreen,
-  OwnerEntryScreen,
-  SplashScreen,
-  UnknownRouteFallbackScreen,
-  UserEntryScreen,
-} from '../screens';
-import { useRouteAccessSelectors } from '../state';
+import { AdminEntryScreen } from '../screens/AdminEntryScreen';
+import { AuthEntryScreen } from '../screens/AuthEntryScreen';
+import { ModeratorEntryScreen } from '../screens/ModeratorEntryScreen';
+import { OwnerEntryScreen } from '../screens/OwnerEntryScreen';
+import { SplashScreen } from '../screens/SplashScreen';
+import { UnknownRouteFallbackScreen } from '../screens/UnknownRouteFallbackScreen';
+import { UserEntryScreen } from '../screens/UserEntryScreen';
+import { useRouteAccessSelectors } from '../state/routeSelectors';
 import { useTheme } from '../theme';
 import { ROUTE_NAMES } from './routeGroups';
 

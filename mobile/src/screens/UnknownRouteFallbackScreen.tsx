@@ -1,4 +1,4 @@
-import { AppRouteName, ROUTE_NAMES } from '../navigation';
+import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
 import { ShellEntryScreen } from './ShellEntryScreen';
 import { useRoute } from '@react-navigation/native';
 

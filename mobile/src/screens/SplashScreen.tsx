@@ -1,8 +1,8 @@
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { useEffect } from 'react';
 
-import { ROUTE_NAMES } from '../navigation';
-import { useRouteAccessSelectors } from '../state';
+import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { useRouteAccessSelectors } from '../state/routeSelectors';
 import { ShellEntryScreen } from './ShellEntryScreen';
 
 export function SplashScreen() {

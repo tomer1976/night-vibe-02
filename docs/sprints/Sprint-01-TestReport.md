@@ -73,6 +73,19 @@ From `mobile/`:
   - set splash background to dark theme baseline
   - set Android app background color to dark theme baseline
 
+## Post-Manual QA Runtime Warning Follow-up (2026-03-08)
+- Reported runtime behavior:
+  - Metro emitted `Require cycle` warnings in navigation/screen/state paths.
+- Root cause:
+  - barrel imports (`index.ts`) created circular import chains across `navigation`, `screens`, and `state` modules.
+- Fixes applied:
+  - replaced barrel imports with direct module imports in cycle hot paths:
+    - `navigation/AppNavigator.tsx`
+    - `screens/ShellEntryScreen.tsx`
+    - `screens/SplashScreen.tsx`
+    - `screens/UnknownRouteFallbackScreen.tsx`
+    - `state/routeSelectors.ts`
+
 ## Go/No-Go Recommendation for Sprint-02 Kickoff
 - Recommendation: **GO** for engineering progression to Sprint-02.
 - Condition: complete stakeholder demo approval gate and record sign-off.
