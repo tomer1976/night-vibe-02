@@ -50,7 +50,7 @@
 ## Documentation Tasks
 - [x] Document folder/module architecture and naming conventions.
 - [x] Document service interface contracts and adapter pattern.
-- [ ] Document mock scenario toggles and fixture update process.
+- [x] Document mock scenario toggles and fixture update process.
 - [ ] Link Sprint-01 outputs to the Phase plan document.
 
 ## Release/Readiness Tasks (if applicable)
