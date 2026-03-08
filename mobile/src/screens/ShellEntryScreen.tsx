@@ -1,15 +1,17 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { BottomNavShell, Card, TopBar } from '../components';
+import { BottomNavShell, Card, EmptyStateTemplate, ErrorStateTemplate, LoadingStateTemplate, TopBar } from '../components';
 import { useTheme } from '../theme';
 
 type ShellRouteContext = 'auth' | 'user' | 'owner' | 'moderator' | 'admin' | 'none';
+type ShellStateTemplate = 'none' | 'empty' | 'loading' | 'error';
 
 type ShellEntryScreenProps = {
   title: string;
   subtitle: string;
   routeContext?: ShellRouteContext;
+  stateTemplate?: ShellStateTemplate;
 };
 
 const navItems = [
@@ -20,8 +22,31 @@ const navItems = [
   { key: 'admin', label: 'Admin' },
 ];
 
-export function ShellEntryScreen({ title, subtitle, routeContext = 'none' }: ShellEntryScreenProps) {
+export function ShellEntryScreen({ title, subtitle, routeContext = 'none', stateTemplate = 'none' }: ShellEntryScreenProps) {
   const theme = useTheme();
+
+  const renderContent = () => {
+    if (stateTemplate === 'empty') {
+      return <EmptyStateTemplate message={subtitle} title={title} />;
+    }
+
+    if (stateTemplate === 'loading') {
+      return <LoadingStateTemplate message={subtitle} title={title} />;
+    }
+
+    if (stateTemplate === 'error') {
+      return <ErrorStateTemplate message={subtitle} title={title} />;
+    }
+
+    return (
+      <Card>
+        <Text style={[styles.title, { color: theme.colors.textPrimary, fontSize: theme.typography.pageTitle, marginBottom: theme.spacing.sm }]}>
+          {title}
+        </Text>
+        <Text style={[styles.subtitle, { color: theme.colors.textSecondary, fontSize: theme.typography.body, lineHeight: 22 }]}>{subtitle}</Text>
+      </Card>
+    );
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
@@ -30,12 +55,7 @@ export function ShellEntryScreen({ title, subtitle, routeContext = 'none' }: She
       </View>
 
       <View style={[styles.content, { paddingHorizontal: theme.spacing.lg }]}> 
-        <Card>
-          <Text style={[styles.title, { color: theme.colors.textPrimary, fontSize: theme.typography.pageTitle, marginBottom: theme.spacing.sm }]}>
-            {title}
-          </Text>
-          <Text style={[styles.subtitle, { color: theme.colors.textSecondary, fontSize: theme.typography.body, lineHeight: 22 }]}>{subtitle}</Text>
-        </Card>
+        {renderContent()}
       </View>
 
       <View style={[styles.bottom, { paddingHorizontal: theme.spacing.lg, paddingBottom: theme.spacing.lg }]}> 

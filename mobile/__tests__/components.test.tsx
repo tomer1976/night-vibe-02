@@ -1,6 +1,18 @@
 import { fireEvent, render } from '@testing-library/react-native';
 
-import { Badge, BottomNavShell, Button, Card, Input, ListItem, StateView, TopBar } from '../src/components';
+import {
+  Badge,
+  BottomNavShell,
+  Button,
+  Card,
+  EmptyStateTemplate,
+  ErrorStateTemplate,
+  Input,
+  ListItem,
+  LoadingStateTemplate,
+  StateView,
+  TopBar,
+} from '../src/components';
 import { ThemeProvider } from '../src/theme';
 
 describe('primitive components', () => {
@@ -101,5 +113,25 @@ describe('primitive components', () => {
 
     fireEvent.press(getByTestId('bottom-nav-auth'));
     expect(onItemPress).toHaveBeenCalledWith({ key: 'auth', label: 'Auth' });
+  });
+
+  it('renders standardized empty/loading/error state templates', () => {
+    const onAction = jest.fn();
+    const { getByText } = render(
+      <ThemeProvider>
+        <>
+          <EmptyStateTemplate title="No matches" message="Come back later" actionLabel="Refresh" onAction={onAction} />
+          <LoadingStateTemplate />
+          <ErrorStateTemplate />
+        </>
+      </ThemeProvider>
+    );
+
+    fireEvent.press(getByText('Refresh'));
+    expect(getByText('No matches')).toBeTruthy();
+    expect(getByText('Loading')).toBeTruthy();
+    expect(getByText('Something went wrong')).toBeTruthy();
+    expect(getByText('Retry')).toBeTruthy();
+    expect(onAction).toHaveBeenCalledTimes(1);
   });
 });

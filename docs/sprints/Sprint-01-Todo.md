@@ -28,7 +28,7 @@
 ## UI Tasks
 - [x] Implement typography scale and spacing scale from UI guide.
 - [x] Build top bar and bottom navigation shell components.
-- [ ] Add empty/loading/error state templates.
+- [x] Add empty/loading/error state templates.
 - [ ] Verify dark-theme contrast and accessibility baseline.
 
 ## State-Management Tasks

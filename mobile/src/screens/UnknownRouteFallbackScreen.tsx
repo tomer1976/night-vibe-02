@@ -5,5 +5,5 @@ type UnknownRouteFallbackScreenProps = {
 };
 
 export function UnknownRouteFallbackScreen({ subtitle }: UnknownRouteFallbackScreenProps) {
-  return <ShellEntryScreen title="Unknown Route" subtitle={subtitle ?? 'Fallback route for invalid navigation context.'} />;
+  return <ShellEntryScreen title="Unknown Route" subtitle={subtitle ?? 'Fallback route for invalid navigation context.'} stateTemplate="error" />;
 }
