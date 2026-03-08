@@ -62,6 +62,17 @@ From `mobile/`:
 - Note on Android back behavior:
   - with replace-based shell navigation, pressing back from current root route exits the app; this is expected with current Sprint-01 shell policy.
 
+## Post-Manual QA App-Level Flash Follow-up (2026-03-08)
+- Reported UX behavior:
+  - residual white flash persisted after route-transition fixes
+- Root cause:
+  - Expo app configuration still used light/white app-level surfaces (`userInterfaceStyle: light`, white splash background)
+- Fixes applied:
+  - set app-level background color to dark theme baseline
+  - set `userInterfaceStyle` to `dark`
+  - set splash background to dark theme baseline
+  - set Android app background color to dark theme baseline
+
 ## Go/No-Go Recommendation for Sprint-02 Kickoff
 - Recommendation: **GO** for engineering progression to Sprint-02.
 - Condition: complete stakeholder demo approval gate and record sign-off.

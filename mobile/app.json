@@ -3,18 +3,20 @@
     "name": "mobile",
     "slug": "mobile",
     "version": "1.0.0",
+    "backgroundColor": "#090B14",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#090B14"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "backgroundColor": "#090B14",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
