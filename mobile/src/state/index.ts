@@ -7,3 +7,4 @@ export {
   type FeatureFlagsState,
   type RoleState,
 } from './AppStateProvider';
+export { useRouteAccessSelectors, useSimulatedRoleContextSelector, type RouteResolution } from './routeSelectors';

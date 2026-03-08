@@ -34,7 +34,7 @@
 ## State-Management Tasks
 - [x] Define app-level state containers for auth context, role context, and feature flags.
 - [x] Implement provider wiring for service locator (mock adapters only).
-- [ ] Add typed selectors/hooks for route-safe state access.
+- [x] Add typed selectors/hooks for route-safe state access.
 
 ## Testing Tasks
 - [ ] Add smoke tests for app startup and initial routing.

@@ -11,30 +11,22 @@ import {
   UnknownRouteFallbackScreen,
   UserEntryScreen,
 } from '../screens';
-import { useAuthState, useFeatureFlagsState, useRoleState } from '../state';
+import { useRouteAccessSelectors } from '../state';
 import { useTheme } from '../theme';
 import { ROUTE_NAMES } from './routeGroups';
-import { resolveRouteWithFallback, SimulatedRoleContext } from './roleContextSimulation';
 
 const Stack = createNativeStackNavigator();
 
 export function AppNavigator() {
   const theme = useTheme();
-  const { isAuthenticated } = useAuthState();
-  const { activeRoleContext, availableRoles } = useRoleState();
-  const { isRoleSimulationEnabled } = useFeatureFlagsState();
-
-  const simulatedRoleContext: SimulatedRoleContext = {
-    isAuthenticated: isRoleSimulationEnabled ? isAuthenticated : false,
-    activeRoleContext: isRoleSimulationEnabled ? activeRoleContext : null,
-    availableRoles: isRoleSimulationEnabled ? availableRoles : [],
-  };
+  const routeAccessSelectors = useRouteAccessSelectors();
+  const { simulatedRoleContext } = routeAccessSelectors;
 
   const renderProtectedRoute = (routeName: keyof typeof ROUTE_NAMES, ScreenComponent: ComponentType) => {
     const requestedRouteName = ROUTE_NAMES[routeName];
-    const resolvedRouteName = resolveRouteWithFallback(requestedRouteName, simulatedRoleContext);
+    const { isAllowed } = routeAccessSelectors.resolveWithAccess(requestedRouteName);
 
-    if (resolvedRouteName === requestedRouteName) {
+    if (isAllowed) {
       return <ScreenComponent />;
     }
 
