@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { useTheme } from '../theme';
+import { getSurfaceElevationStyle, useTheme } from '../theme';
 
 type TopBarProps = {
   title: string;
@@ -21,6 +21,7 @@ export function TopBar({ title, subtitle, statusTag = 'Mock Mode' }: TopBarProps
           paddingHorizontal: theme.spacing.lg,
           paddingVertical: theme.spacing.md,
         },
+        getSurfaceElevationStyle('low'),
       ]}
     >
       <View style={styles.row}>

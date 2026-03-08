@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { useTheme } from '../theme';
+import { getSurfaceElevationStyle, useTheme } from '../theme';
 
 export type BottomNavItem = {
   key: string;
@@ -25,6 +25,7 @@ export function BottomNavShell({ activeKey, items, onItemPress }: BottomNavShell
           borderRadius: theme.radius.lg,
           padding: theme.spacing.sm,
         },
+        getSurfaceElevationStyle('medium'),
       ]}
     >
       {items.map((item) => {

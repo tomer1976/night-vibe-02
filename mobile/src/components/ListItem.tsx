@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { useTheme } from '../theme';
+import { getSurfaceElevationStyle, useTheme } from '../theme';
 
 type ListItemProps = {
   title: string;
@@ -22,6 +22,7 @@ export function ListItem({ title, subtitle, trailingText, onPress }: ListItemPro
           paddingHorizontal: theme.spacing.md,
           paddingVertical: 10,
         },
+        getSurfaceElevationStyle('low'),
       ]}
     >
       <View style={[styles.leftSection, { marginRight: theme.spacing.md }]}>

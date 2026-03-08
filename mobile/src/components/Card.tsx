@@ -1,7 +1,7 @@
 import { PropsWithChildren } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { useTheme } from '../theme';
+import { getSurfaceElevationStyle, useTheme } from '../theme';
 
 type CardProps = PropsWithChildren<{
   title?: string;
@@ -20,6 +20,7 @@ export function Card({ children, title, subtitle }: CardProps) {
           borderRadius: theme.radius.md,
           padding: theme.spacing.lg,
         },
+        getSurfaceElevationStyle('low'),
       ]}
     >
       {title ? (
