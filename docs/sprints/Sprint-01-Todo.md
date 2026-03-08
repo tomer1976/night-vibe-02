@@ -56,7 +56,7 @@
 ## Release/Readiness Tasks (if applicable)
 - [x] Establish CI checks (typecheck, lint, test).
 - [x] Add sprint demo script with route walkthrough checklist.
-- [ ] Prepare Sprint 01 sign-off notes and carry-over candidates for Sprint 02.
+- [x] Prepare Sprint 01 sign-off notes and carry-over candidates for Sprint 02.
 
 ## Sprint Exit Checklist
 - [ ] All Sprint 01 PRD requirements implemented or formally deferred.
