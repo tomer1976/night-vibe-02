@@ -148,6 +148,61 @@ describe('mock service locator wiring', () => {
     }
   });
 
+  it('simulates deletion timeline from pending_deletion to deleted after recovery window', async () => {
+    const clock = createMockClock({
+      startAt: '2026-03-08T20:00:00.000Z',
+      stepMs: 1_000,
+    });
+
+    const locator = createMockBackendServiceLocator({ clock });
+
+    const deletionResponse = await locator.services.accountLifecycle.requestAccountDeletion('DELETE');
+    expect(deletionResponse.status).toBe('SUCCESS');
+    if (deletionResponse.status === 'SUCCESS') {
+      expect(deletionResponse.data.accountStatus).toBe('pending_deletion');
+      expect(deletionResponse.data.recoveryWindowDays).toBe(30);
+    }
+
+    clock.advanceBy(30 * 24 * 60 * 60 * 1000 + 1_000);
+    const statusAfterWindow = await locator.services.accountLifecycle.getAccountStatus();
+
+    expect(statusAfterWindow.status).toBe('SUCCESS');
+    if (statusAfterWindow.status === 'SUCCESS') {
+      expect(statusAfterWindow.data.status).toBe('deleted');
+    }
+  });
+
+  it('allows recovery only during pending_deletion recovery window', async () => {
+    const clock = createMockClock({
+      startAt: '2026-03-08T20:00:00.000Z',
+      stepMs: 1_000,
+    });
+
+    const locator = createMockBackendServiceLocator({ clock });
+
+    await locator.services.accountLifecycle.requestAccountDeletion('DELETE');
+    clock.advanceBy(2 * 24 * 60 * 60 * 1000);
+
+    const recoverWithinWindow = await locator.services.accountLifecycle.recoverAccount();
+    expect(recoverWithinWindow.status).toBe('SUCCESS');
+    if (recoverWithinWindow.status === 'SUCCESS') {
+      expect(recoverWithinWindow.data.accountStatus).toBe('active');
+    }
+
+    await locator.services.accountLifecycle.requestAccountDeletion('DELETE');
+    clock.advanceBy(30 * 24 * 60 * 60 * 1000 + 1_000);
+
+    const recoverAfterWindow = await locator.services.accountLifecycle.recoverAccount();
+    expect(recoverAfterWindow.status).toBe('FAIL');
+    if (recoverAfterWindow.status === 'FAIL') {
+      expect(recoverAfterWindow.error.code).toBe('CONFLICT');
+      expect(recoverAfterWindow.error.details).toMatchObject({
+        reason: 'not_recoverable_status',
+        status: 'deleted',
+      });
+    }
+  });
+
   it('provides services through ServiceLocatorProvider', async () => {
     function Probe() {
       const services = useServiceLocator();

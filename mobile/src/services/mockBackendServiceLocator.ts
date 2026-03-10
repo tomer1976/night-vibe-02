@@ -40,6 +40,8 @@ type MockServiceLocator = {
 const DEFAULT_USER_ID = 'u-regular-1';
 const DEFAULT_ACCESS_TOKEN_TTL_MS = 15 * 60 * 1000;
 const DEFAULT_REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const DELETION_RECOVERY_WINDOW_DAYS = 30;
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
 function computeMatchRecords(activeUserId: string): MatchRecord[] {
   const likes = sprint01Fixtures.interactions.filter((interaction) => interaction.action === 'like');
@@ -136,6 +138,8 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
 
   let linkedProviders = authSession.roles.length > 0 ? (['google'] as ('google' | 'apple')[]) : [];
   let accountStatus: AccountStatus = authSession.status;
+  let deletionRequestedAtMs: number | null = null;
+  let deletionFinalizesAtMs: number | null = null;
   let sessionVersion = 0;
   let activeAccessToken = '';
   let activeRefreshToken = '';
@@ -197,6 +201,28 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
 
     return null;
   };
+
+  const scheduleDeletionTimeline = (requestedAtIso: string) => {
+    deletionRequestedAtMs = asMillis(requestedAtIso);
+    deletionFinalizesAtMs = deletionRequestedAtMs + DELETION_RECOVERY_WINDOW_DAYS * DAY_IN_MS;
+  };
+
+  const applyDeletionTimeline = () => {
+    if (accountStatus !== 'pending_deletion' || deletionFinalizesAtMs === null) {
+      return;
+    }
+
+    const nowMs = asMillis(clock.peek());
+    if (nowMs > deletionFinalizesAtMs) {
+      accountStatus = 'deleted';
+      deletionRequestedAtMs = null;
+      deletionFinalizesAtMs = null;
+    }
+  };
+
+  if (accountStatus === 'pending_deletion') {
+    scheduleDeletionTimeline(clock.peek());
+  }
 
   issueSessionTokens();
   const seededProfile = sprint02ProfileFixtures.find((profile) => profile.uid === activeUser.uid);
@@ -279,20 +305,65 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       deleteMyPhoto: async (photoId) => responseFactory.build({ key: 'profile.deleteMyPhoto', data: { photoId, removed: true } }),
     },
     accountLifecycle: {
-      getAccountStatus: async () => responseFactory.build({ key: 'accountLifecycle.getAccountStatus', data: { status: accountStatus } }),
+      getAccountStatus: async () => {
+        applyDeletionTimeline();
+        return responseFactory.build({ key: 'accountLifecycle.getAccountStatus', data: { status: accountStatus } });
+      },
       requestAccountDeletion: async () => {
+        applyDeletionTimeline();
+
+        if (accountStatus === 'deleted') {
+          return responseFactory.build({
+            key: 'accountLifecycle.requestAccountDeletion',
+            data: {
+              accountStatus,
+              recoveryWindowDays: DELETION_RECOVERY_WINDOW_DAYS,
+            },
+            scenario: 'CONFLICT',
+            errorMessage: 'Mock account has already been permanently deleted.',
+            details: {
+              reason: 'already_deleted',
+            },
+          });
+        }
+
+        if (accountStatus !== 'pending_deletion') {
+          const requestedAtIso = clock.now();
+          scheduleDeletionTimeline(requestedAtIso);
+          accountStatus = 'pending_deletion';
+        }
+
         accountStatus = 'pending_deletion';
 
         return responseFactory.build({
           key: 'accountLifecycle.requestAccountDeletion',
           data: {
             accountStatus,
-            recoveryWindowDays: 30,
+            recoveryWindowDays: DELETION_RECOVERY_WINDOW_DAYS,
           },
         });
       },
       recoverAccount: async () => {
+        applyDeletionTimeline();
+
+        if (accountStatus !== 'pending_deletion') {
+          return responseFactory.build({
+            key: 'accountLifecycle.recoverAccount',
+            data: {
+              accountStatus,
+            },
+            scenario: 'CONFLICT',
+            errorMessage: 'Mock account is not in a recoverable pending-deletion state.',
+            details: {
+              reason: 'not_recoverable_status',
+              status: accountStatus,
+            },
+          });
+        }
+
         accountStatus = 'active';
+        deletionRequestedAtMs = null;
+        deletionFinalizesAtMs = null;
 
         return responseFactory.build({
           key: 'accountLifecycle.recoverAccount',
