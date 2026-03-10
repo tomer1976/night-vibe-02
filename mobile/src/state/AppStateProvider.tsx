@@ -1,14 +1,19 @@
-import { createContext, PropsWithChildren, useContext, useMemo, useReducer, useState } from 'react';
+import { createContext, PropsWithChildren, useCallback, useContext, useMemo, useReducer, useState } from 'react';
 
 import { AccountStatus, Role } from '../contracts';
 import { readRuntimeMode } from '../config/firebaseRuntimeGuard';
 import { readSimulatedRoleContextFromEnv } from '../navigation/roleContextSimulation';
+import { ProfileDraft } from '../screens/profileDraft';
 import { AuthLifecycle, authStoreReducer, createInitialAuthStoreState } from './authStateStore';
 import {
   ONBOARDING_TOTAL_STEPS,
   createInitialOnboardingProgressState,
   onboardingProgressReducer,
 } from './onboardingProgressStore';
+import {
+  createInitialProfileDraftStoreState,
+  profileDraftStoreReducer,
+} from './profileDraftStore';
 
 export type AuthState = {
   accountStatus: AccountStatus;
@@ -48,6 +53,18 @@ export type OnboardingState = {
   goToPreviousStep: () => void;
   resetProgress: () => void;
   setProfileCompleted: (value: boolean) => void;
+};
+
+export type ProfileDraftState = {
+  savedDraft: ProfileDraft;
+  editingDraft: ProfileDraft;
+  isEditing: boolean;
+  replaceProfileDraft: (draft: ProfileDraft) => void;
+  startProfileEdit: (draft?: ProfileDraft) => void;
+  updateProfileEditDraft: (patch: Partial<ProfileDraft>) => void;
+  saveProfileEdit: () => void;
+  cancelProfileEdit: () => void;
+  resetProfileDraft: () => void;
 };
 
 const defaultAuthState: AuthState = {
@@ -90,10 +107,23 @@ const defaultOnboardingState: OnboardingState = {
   setProfileCompleted: () => undefined,
 };
 
+const defaultProfileDraftState: ProfileDraftState = {
+  savedDraft: createInitialProfileDraftStoreState().savedDraft,
+  editingDraft: createInitialProfileDraftStoreState().editingDraft,
+  isEditing: false,
+  replaceProfileDraft: () => undefined,
+  startProfileEdit: () => undefined,
+  updateProfileEditDraft: () => undefined,
+  saveProfileEdit: () => undefined,
+  cancelProfileEdit: () => undefined,
+  resetProfileDraft: () => undefined,
+};
+
 const AuthStateContext = createContext<AuthState>(defaultAuthState);
 const RoleStateContext = createContext<RoleState>(defaultRoleState);
 const FeatureFlagsStateContext = createContext<FeatureFlagsState>(defaultFeatureFlagsState);
 const OnboardingStateContext = createContext<OnboardingState>(defaultOnboardingState);
+const ProfileDraftStateContext = createContext<ProfileDraftState>(defaultProfileDraftState);
 
 export function AppStateProvider({ children }: PropsWithChildren) {
   const simulatedRoleContext = readSimulatedRoleContextFromEnv();
@@ -113,7 +143,44 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     onboardingProgressReducer,
     createInitialOnboardingProgressState()
   );
+  const [profileDraftStoreState, dispatchProfileDraftStore] = useReducer(
+    profileDraftStoreReducer,
+    createInitialProfileDraftStoreState()
+  );
   const [profileCompleted, setProfileCompleted] = useState(true);
+
+  const replaceProfileDraft = useCallback((draft: ProfileDraft) => {
+    dispatchProfileDraftStore({
+      type: 'REPLACE_DRAFT',
+      draft,
+    });
+  }, []);
+
+  const startProfileEdit = useCallback((draft?: ProfileDraft) => {
+    dispatchProfileDraftStore({
+      type: 'START_EDIT',
+      draft,
+    });
+  }, []);
+
+  const updateProfileEditDraft = useCallback((patch: Partial<ProfileDraft>) => {
+    dispatchProfileDraftStore({
+      type: 'UPDATE_EDIT_DRAFT',
+      patch,
+    });
+  }, []);
+
+  const saveProfileEdit = useCallback(() => {
+    dispatchProfileDraftStore({ type: 'SAVE_EDIT' });
+  }, []);
+
+  const cancelProfileEdit = useCallback(() => {
+    dispatchProfileDraftStore({ type: 'CANCEL_EDIT' });
+  }, []);
+
+  const resetProfileDraft = useCallback(() => {
+    dispatchProfileDraftStore({ type: 'RESET_DRAFT' });
+  }, []);
 
   const authState = useMemo<AuthState>(
     () => ({
@@ -218,11 +285,36 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     [onboardingStateStore, profileCompleted]
   );
 
+  const profileDraftState = useMemo<ProfileDraftState>(
+    () => ({
+      savedDraft: profileDraftStoreState.savedDraft,
+      editingDraft: profileDraftStoreState.editingDraft,
+      isEditing: profileDraftStoreState.isEditing,
+      replaceProfileDraft,
+      startProfileEdit,
+      updateProfileEditDraft,
+      saveProfileEdit,
+      cancelProfileEdit,
+      resetProfileDraft,
+    }),
+    [
+      cancelProfileEdit,
+      profileDraftStoreState,
+      replaceProfileDraft,
+      resetProfileDraft,
+      saveProfileEdit,
+      startProfileEdit,
+      updateProfileEditDraft,
+    ]
+  );
+
   return (
     <FeatureFlagsStateContext.Provider value={featureFlagsState}>
       <AuthStateContext.Provider value={authState}>
         <RoleStateContext.Provider value={roleState}>
-          <OnboardingStateContext.Provider value={onboardingState}>{children}</OnboardingStateContext.Provider>
+          <OnboardingStateContext.Provider value={onboardingState}>
+            <ProfileDraftStateContext.Provider value={profileDraftState}>{children}</ProfileDraftStateContext.Provider>
+          </OnboardingStateContext.Provider>
         </RoleStateContext.Provider>
       </AuthStateContext.Provider>
     </FeatureFlagsStateContext.Provider>
@@ -243,4 +335,8 @@ export function useFeatureFlagsState(): FeatureFlagsState {
 
 export function useOnboardingState(): OnboardingState {
   return useContext(OnboardingStateContext);
+}
+
+export function useProfileDraftState(): ProfileDraftState {
+  return useContext(ProfileDraftStateContext);
 }

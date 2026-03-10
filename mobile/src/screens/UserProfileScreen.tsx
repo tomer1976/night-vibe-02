@@ -1,13 +1,15 @@
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
+import { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge, BottomNavShell, Button, Card, EmptyStateTemplate, ListItem, TopBar } from '../components';
 import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
+import { useProfileDraftState } from '../state';
 import { useRouteAccessSelectors } from '../state/routeSelectors';
 import { useTheme } from '../theme';
 import { DEFAULT_ACCOUNT_SETTINGS_DRAFT } from './accountSettingsDraft';
-import { readProfileDraftFromParams } from './profileDraft';
+import { areProfileDraftsEqual, DEFAULT_PROFILE_DRAFT, readProfileDraftFromParams } from './profileDraft';
 
 const navItems = [
   { key: 'auth', label: 'Auth' },
@@ -21,8 +23,29 @@ export function UserProfileScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
   const route = useRoute();
-  const draft = readProfileDraftFromParams(route.params);
+  const { replaceProfileDraft, savedDraft: draft } = useProfileDraftState();
   const { resolve } = useRouteAccessSelectors();
+  const hasSeededFromParamsRef = useRef(false);
+
+  useEffect(() => {
+    if (hasSeededFromParamsRef.current) {
+      return;
+    }
+
+    const typedParams = route.params as { draft?: unknown } | undefined;
+
+    if (!typedParams?.draft) {
+      return;
+    }
+
+    if (!areProfileDraftsEqual(draft, DEFAULT_PROFILE_DRAFT)) {
+      hasSeededFromParamsRef.current = true;
+      return;
+    }
+
+    replaceProfileDraft(readProfileDraftFromParams(route.params));
+    hasSeededFromParamsRef.current = true;
+  }, [draft, replaceProfileDraft, route.params]);
 
   const approvedPhotos = draft.photos.filter((photo) => photo.moderationStatus === 'approved').length;
   const hasProfileContent =
@@ -113,7 +136,7 @@ export function UserProfileScreen() {
         )}
 
         <ListItem
-          onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.EditProfile, { draft }))}
+          onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.EditProfile))}
           subtitle="Update name, bio, and preferences"
           title="Edit Profile Screen"
           trailingText="Open"

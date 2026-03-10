@@ -41,7 +41,7 @@
 ## State-Management Tasks
 - [x] Implement auth state store with status enum support.
 - [x] Implement onboarding progress store and completion gate selector.
-- [ ] Implement profile draft/edit store with save/cancel semantics.
+- [x] Implement profile draft/edit store with save/cancel semantics.
 - [ ] Implement account lifecycle state store for deletion/recovery simulation.
 
 ## Testing Tasks

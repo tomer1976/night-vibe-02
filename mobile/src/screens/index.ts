@@ -27,7 +27,14 @@ export { UserEntryScreen } from './UserEntryScreen';
 export { UserProfileScreen } from './UserProfileScreen';
 export { WelcomeScreen } from './WelcomeScreen';
 export { calculateAge, DEFAULT_ONBOARDING_DRAFT, type OnboardingDraft } from './onboardingDraft';
-export { DEFAULT_PROFILE_DRAFT, readProfileDraftFromParams, type ProfileDraft, type ProfilePhotoDraft, type ProfilePhotoModerationStatus } from './profileDraft';
+export {
+	areProfileDraftsEqual,
+	DEFAULT_PROFILE_DRAFT,
+	readProfileDraftFromParams,
+	type ProfileDraft,
+	type ProfilePhotoDraft,
+	type ProfilePhotoModerationStatus,
+} from './profileDraft';
 export {
 	DEFAULT_ACCOUNT_SETTINGS_DRAFT,
 	readAccountSettingsDraftFromParams,

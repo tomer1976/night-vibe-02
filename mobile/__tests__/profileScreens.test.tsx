@@ -54,6 +54,21 @@ describe('profile screens', () => {
     expect(getByText('Noa')).toBeTruthy();
   });
 
+  it('cancels profile edits and preserves previously saved profile data', () => {
+    const { getByText, getByTestId } = render(<ProfileTestNavigator />);
+
+    fireEvent.press(getByText('Edit Profile Screen'));
+    fireEvent.changeText(getByTestId('edit-profile-display-name'), 'Noa');
+    fireEvent.press(getByText('Save'));
+    expect(getByText('Noa')).toBeTruthy();
+
+    fireEvent.press(getByText('Edit Profile Screen'));
+    fireEvent.changeText(getByTestId('edit-profile-display-name'), 'Nora');
+    fireEvent.press(getByText('Cancel'));
+
+    expect(getByText('Noa')).toBeTruthy();
+  });
+
   it('enforces minimum one photo in photos management', () => {
     const { getByText, getAllByText } = render(<ProfileTestNavigator />);
 

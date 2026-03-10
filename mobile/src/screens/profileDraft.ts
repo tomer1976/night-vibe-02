@@ -46,3 +46,27 @@ export function readProfileDraftFromParams(params: unknown): ProfileDraft {
     photos: typedParams?.draft?.photos ?? DEFAULT_PROFILE_DRAFT.photos,
   };
 }
+
+export function areProfileDraftsEqual(left: ProfileDraft, right: ProfileDraft): boolean {
+  if (
+    left.displayName !== right.displayName ||
+    left.bio !== right.bio ||
+    left.preferredAgeMin !== right.preferredAgeMin ||
+    left.preferredAgeMax !== right.preferredAgeMax ||
+    left.preferredGenders !== right.preferredGenders ||
+    left.profileCompleted !== right.profileCompleted ||
+    left.photos.length !== right.photos.length
+  ) {
+    return false;
+  }
+
+  return left.photos.every((leftPhoto, index) => {
+    const rightPhoto = right.photos[index];
+
+    return (
+      leftPhoto.photoId === rightPhoto.photoId &&
+      leftPhoto.url === rightPhoto.url &&
+      leftPhoto.moderationStatus === rightPhoto.moderationStatus
+    );
+  });
+}

@@ -1,10 +1,11 @@
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, Card, Input, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { useProfileDraftState } from '../state';
 import { useTheme } from '../theme';
 import { normalizePreferredGenders, validateAgeRange, validateBioLength, validateMinLength, validatePreferredGenders } from '../validation/formValidation';
 import { readProfileDraftFromParams } from './profileDraft';
@@ -13,13 +14,32 @@ export function EditProfileScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
   const route = useRoute();
-  const draft = readProfileDraftFromParams(route.params);
+  const { cancelProfileEdit, editingDraft, saveProfileEdit, startProfileEdit, updateProfileEditDraft } = useProfileDraftState();
 
-  const [displayName, setDisplayName] = useState(draft.displayName);
-  const [bio, setBio] = useState(draft.bio);
-  const [preferredAgeMin, setPreferredAgeMin] = useState(draft.preferredAgeMin);
-  const [preferredAgeMax, setPreferredAgeMax] = useState(draft.preferredAgeMax);
-  const [preferredGenders, setPreferredGenders] = useState(draft.preferredGenders);
+  useEffect(() => {
+    const typedParams = route.params as { draft?: unknown } | undefined;
+
+    if (typedParams?.draft) {
+      startProfileEdit(readProfileDraftFromParams(route.params));
+      return;
+    }
+
+    startProfileEdit();
+  }, [route.params, startProfileEdit]);
+
+  const [displayName, setDisplayName] = useState(editingDraft.displayName);
+  const [bio, setBio] = useState(editingDraft.bio);
+  const [preferredAgeMin, setPreferredAgeMin] = useState(editingDraft.preferredAgeMin);
+  const [preferredAgeMax, setPreferredAgeMax] = useState(editingDraft.preferredAgeMax);
+  const [preferredGenders, setPreferredGenders] = useState(editingDraft.preferredGenders);
+
+  useEffect(() => {
+    setDisplayName(editingDraft.displayName);
+    setBio(editingDraft.bio);
+    setPreferredAgeMin(editingDraft.preferredAgeMin);
+    setPreferredAgeMax(editingDraft.preferredAgeMax);
+    setPreferredGenders(editingDraft.preferredGenders);
+  }, [editingDraft]);
 
   const [nameError, setNameError] = useState<string | undefined>();
   const [bioError, setBioError] = useState<string | undefined>();
@@ -65,18 +85,15 @@ export function EditProfileScreen() {
       return;
     }
 
-    navigation.dispatch(
-      StackActions.replace(ROUTE_NAMES.UserProfile, {
-        draft: {
-          ...draft,
-          displayName: normalizedDisplayName,
-          bio: normalizedBio,
-          preferredAgeMin: String(Number(preferredAgeMin)),
-          preferredAgeMax: String(Number(preferredAgeMax)),
-          preferredGenders: normalizedGenders,
-        },
-      })
-    );
+    updateProfileEditDraft({
+      displayName: normalizedDisplayName,
+      bio: normalizedBio,
+      preferredAgeMin: String(Number(preferredAgeMin)),
+      preferredAgeMax: String(Number(preferredAgeMax)),
+      preferredGenders: normalizedGenders,
+    });
+    saveProfileEdit();
+    navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserProfile));
   };
 
   return (
@@ -88,13 +105,35 @@ export function EditProfileScreen() {
       <View style={[styles.content, { paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.lg }]}> 
         <Card title="Edit Profile Screen">
           <View style={[styles.form, { gap: theme.spacing.md }]}> 
-            <Input errorText={nameError} label="Display Name" onChangeText={setDisplayName} testID="edit-profile-display-name" value={displayName} />
-            <Input errorText={bioError} label="Bio" multiline onChangeText={setBio} testID="edit-profile-bio" value={bio} />
+            <Input
+              errorText={nameError}
+              label="Display Name"
+              onChangeText={(value) => {
+                setDisplayName(value);
+                updateProfileEditDraft({ displayName: value });
+              }}
+              testID="edit-profile-display-name"
+              value={displayName}
+            />
+            <Input
+              errorText={bioError}
+              label="Bio"
+              multiline
+              onChangeText={(value) => {
+                setBio(value);
+                updateProfileEditDraft({ bio: value });
+              }}
+              testID="edit-profile-bio"
+              value={bio}
+            />
             <Input
               errorText={ageError}
               keyboardType="number-pad"
               label="Preferred Age Min"
-              onChangeText={setPreferredAgeMin}
+              onChangeText={(value) => {
+                setPreferredAgeMin(value);
+                updateProfileEditDraft({ preferredAgeMin: value });
+              }}
               testID="edit-profile-age-min"
               value={preferredAgeMin}
             />
@@ -102,14 +141,20 @@ export function EditProfileScreen() {
               errorText={ageError}
               keyboardType="number-pad"
               label="Preferred Age Max"
-              onChangeText={setPreferredAgeMax}
+              onChangeText={(value) => {
+                setPreferredAgeMax(value);
+                updateProfileEditDraft({ preferredAgeMax: value });
+              }}
               testID="edit-profile-age-max"
               value={preferredAgeMax}
             />
             <Input
               errorText={genderError}
               label="Preferred Genders"
-              onChangeText={setPreferredGenders}
+              onChangeText={(value) => {
+                setPreferredGenders(value);
+                updateProfileEditDraft({ preferredGenders: value });
+              }}
               placeholder="female,male"
               testID="edit-profile-genders"
               value={preferredGenders}
@@ -119,7 +164,14 @@ export function EditProfileScreen() {
 
         <View style={[styles.actions, { gap: theme.spacing.md, marginTop: theme.spacing.lg }]}> 
           <Button label="Save" onPress={saveProfile} />
-          <Button label="Cancel" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserProfile, { draft }))} variant="secondary" />
+          <Button
+            label="Cancel"
+            onPress={() => {
+              cancelProfileEdit();
+              navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserProfile));
+            }}
+            variant="secondary"
+          />
         </View>
       </View>
     </SafeAreaView>
