@@ -13,10 +13,12 @@ describe('mock service locator wiring', () => {
     const sessionResponse = await locator.services.auth.getSession();
     const venuesResponse = await locator.services.venues.getNearbyVenues();
     const discoveryResponse = await locator.services.discovery.getCandidates();
+    const accountStatusResponse = await locator.services.accountLifecycle.getAccountStatus();
 
     expect(sessionResponse.status).toBe('SUCCESS');
     expect(venuesResponse.status).toBe('SUCCESS');
     expect(discoveryResponse.status).toBe('SUCCESS');
+    expect(accountStatusResponse.status).toBe('SUCCESS');
   });
 
   it('returns deterministic success and failure envelopes through mock services', async () => {

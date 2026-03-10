@@ -1,4 +1,5 @@
 import {
+  AccountStatus,
   BackendServiceContracts,
   ChatThread,
   DiscoveryCandidate,
@@ -109,9 +110,37 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
     activeRoleContext: activeUser.activeRoleContext,
   };
 
+  let linkedProviders = authSession.roles.length > 0 ? (['google'] as ('google' | 'apple')[]) : [];
+  let accountStatus: AccountStatus = authSession.status;
+
   const services: BackendServiceContracts = {
     auth: {
       getSession: async () => responseFactory.build({ key: 'auth.getSession', data: authSession }),
+      login: async (request) =>
+        responseFactory.build({
+          key: 'auth.login',
+          data: {
+            ...authSession,
+            accessToken: `mock-access-${request.provider}-${activeUser.uid}`,
+            refreshToken: `mock-refresh-${activeUser.uid}`,
+            isNewUser: false,
+          },
+        }),
+      refreshSession: async () =>
+        responseFactory.build({
+          key: 'auth.refreshSession',
+          data: {
+            accessToken: `mock-access-refresh-${activeUser.uid}`,
+            tokenExpiration: clock.now(),
+          },
+        }),
+      linkProvider: async (provider) => {
+        if (!linkedProviders.includes(provider)) {
+          linkedProviders = [...linkedProviders, provider];
+        }
+
+        return responseFactory.build({ key: 'auth.linkProvider', data: { providers: linkedProviders } });
+      },
       signInWithProvider: async () => responseFactory.build({ key: 'auth.signInWithProvider', data: authSession }),
       signOut: async () => responseFactory.build({ key: 'auth.signOut', data: { signedOut: true } }),
     },
@@ -134,6 +163,57 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
 
         return responseFactory.build({ key: 'profile.updateMyProfile', data: updatedProfile });
       },
+      upsertMyProfile: async (profile) => {
+        const updatedProfile: UserProfile = {
+          uid: activeUser.uid,
+          displayName: profile.displayName ?? activeUser.displayName,
+          profileCompleted: profile.profileCompleted ?? true,
+        };
+
+        return responseFactory.build({ key: 'profile.upsertMyProfile', data: updatedProfile });
+      },
+      uploadMyPhoto: async (fileName) =>
+        responseFactory.build({
+          key: 'profile.uploadMyPhoto',
+          data: {
+            photoId: `photo-${fileName}-${clock.now()}`,
+            photoUrl: `mock://profile-photo/${fileName}`,
+            moderationStatus: 'pending' as const,
+          },
+        }),
+      deleteMyPhoto: async (photoId) => responseFactory.build({ key: 'profile.deleteMyPhoto', data: { photoId, removed: true } }),
+    },
+    accountLifecycle: {
+      getAccountStatus: async () => responseFactory.build({ key: 'accountLifecycle.getAccountStatus', data: { status: accountStatus } }),
+      requestAccountDeletion: async () => {
+        accountStatus = 'pending_deletion';
+
+        return responseFactory.build({
+          key: 'accountLifecycle.requestAccountDeletion',
+          data: {
+            accountStatus,
+            recoveryWindowDays: 30,
+          },
+        });
+      },
+      recoverAccount: async () => {
+        accountStatus = 'active';
+
+        return responseFactory.build({
+          key: 'accountLifecycle.recoverAccount',
+          data: {
+            accountStatus,
+          },
+        });
+      },
+      getLinkedProviders: async () =>
+        responseFactory.build({
+          key: 'accountLifecycle.getLinkedProviders',
+          data: linkedProviders.map((provider) => ({
+            provider,
+            linkedAt: clock.now(),
+          })),
+        }),
     },
     roles: {
       getAvailableRoles: async () => {

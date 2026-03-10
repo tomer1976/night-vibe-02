@@ -8,7 +8,7 @@
 - [x] Add reusable form validation and inline error messaging components.
 
 ## Backend Tasks (if applicable)
-- [ ] Define auth/profile/account-lifecycle service interfaces for future Phase 2 real implementation.
+- [x] Define auth/profile/account-lifecycle service interfaces for future Phase 2 real implementation.
 - [ ] Define mock error mapping for expected API error codes.
 
 ## Firebase Tasks (if applicable)

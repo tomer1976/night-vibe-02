@@ -1,5 +1,6 @@
 import { ApiResponse } from './api';
 import {
+  AccountStatus,
   AuthSession,
   ChatThread,
   DiscoveryCandidate,
@@ -13,15 +14,73 @@ import {
   VenueSummary,
 } from './models';
 
+export type AuthProvider = 'google' | 'apple';
+
+export type AuthLoginRequest = {
+  provider: AuthProvider;
+  providerToken?: string;
+  deviceId?: string;
+  clientVersion?: string;
+};
+
+export type AuthLoginResult = AuthSession & {
+  accessToken: string;
+  refreshToken: string;
+  isNewUser: boolean;
+};
+
+export type AuthRefreshResult = {
+  accessToken: string;
+  tokenExpiration: string;
+};
+
+export type LinkedProviderRecord = {
+  provider: AuthProvider;
+  linkedAt: string;
+};
+
+export type AccountDeletionResult = {
+  accountStatus: AccountStatus;
+  recoveryWindowDays: number;
+};
+
+export type AccountRecoveryResult = {
+  accountStatus: AccountStatus;
+};
+
+export type ProfilePhotoRecord = {
+  photoId: string;
+  photoUrl: string;
+  moderationStatus: 'pending' | 'approved' | 'rejected';
+};
+
 export interface AuthService {
   getSession(): Promise<ApiResponse<AuthSession>>;
+  login(request: AuthLoginRequest): Promise<ApiResponse<AuthLoginResult>>;
+  refreshSession(refreshToken: string): Promise<ApiResponse<AuthRefreshResult>>;
+  linkProvider(provider: AuthProvider, providerToken?: string): Promise<ApiResponse<{ providers: AuthProvider[] }>>;
+
+  // Legacy Sprint-01 compatibility shim
   signInWithProvider(provider: 'google' | 'apple'): Promise<ApiResponse<AuthSession>>;
   signOut(): Promise<ApiResponse<{ signedOut: true }>>;
 }
 
 export interface ProfileService {
   getMyProfile(): Promise<ApiResponse<UserProfile>>;
+
+  upsertMyProfile(profile: Partial<UserProfile>): Promise<ApiResponse<UserProfile>>;
+  uploadMyPhoto(fileName: string): Promise<ApiResponse<ProfilePhotoRecord>>;
+  deleteMyPhoto(photoId: string): Promise<ApiResponse<{ photoId: string; removed: true }>>;
+
+  // Legacy Sprint-01 compatibility shim
   updateMyProfile(profile: Partial<UserProfile>): Promise<ApiResponse<UserProfile>>;
+}
+
+export interface AccountLifecycleService {
+  getAccountStatus(): Promise<ApiResponse<{ status: AccountStatus }>>;
+  requestAccountDeletion(confirmationToken: string): Promise<ApiResponse<AccountDeletionResult>>;
+  recoverAccount(): Promise<ApiResponse<AccountRecoveryResult>>;
+  getLinkedProviders(): Promise<ApiResponse<LinkedProviderRecord[]>>;
 }
 
 export interface RolesService {
@@ -74,6 +133,7 @@ export interface AnalyticsService {
 export type BackendServiceContracts = {
   auth: AuthService;
   profile: ProfileService;
+  accountLifecycle: AccountLifecycleService;
   roles: RolesService;
   venues: VenuesService;
   presence: PresenceService;

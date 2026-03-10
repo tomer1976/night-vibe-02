@@ -5,12 +5,36 @@ describe('backend service contracts', () => {
     const services: BackendServiceContracts = {
       auth: {
         getSession: async () => ({ status: 'SUCCESS', request_id: 'req-1', data: { uid: 'u1', status: 'active', roles: ['RegularUser'], activeRoleContext: 'RegularUser' } }),
+        login: async () => ({
+          status: 'SUCCESS',
+          request_id: 'req-1a',
+          data: {
+            uid: 'u1',
+            status: 'active',
+            roles: ['RegularUser'],
+            activeRoleContext: 'RegularUser',
+            accessToken: 'access',
+            refreshToken: 'refresh',
+            isNewUser: false,
+          },
+        }),
+        refreshSession: async () => ({ status: 'SUCCESS', request_id: 'req-1b', data: { accessToken: 'access-2', tokenExpiration: '2026-03-10T00:00:00Z' } }),
+        linkProvider: async () => ({ status: 'SUCCESS', request_id: 'req-1c', data: { providers: ['google'] } }),
         signInWithProvider: async () => ({ status: 'FAIL', request_id: 'req-2', error: { code: 'UNAUTHORIZED', message: 'Mock' } }),
         signOut: async () => ({ status: 'SUCCESS', request_id: 'req-3', data: { signedOut: true } }),
       },
       profile: {
         getMyProfile: async () => ({ status: 'SUCCESS', request_id: 'req-4', data: { uid: 'u1', displayName: 'Alex', profileCompleted: true } }),
         updateMyProfile: async () => ({ status: 'SUCCESS', request_id: 'req-5', data: { uid: 'u1', displayName: 'Alex', profileCompleted: true } }),
+        upsertMyProfile: async () => ({ status: 'SUCCESS', request_id: 'req-5a', data: { uid: 'u1', displayName: 'Alex', profileCompleted: true } }),
+        uploadMyPhoto: async () => ({ status: 'SUCCESS', request_id: 'req-5b', data: { photoId: 'p1', photoUrl: 'mock://p1', moderationStatus: 'pending' } }),
+        deleteMyPhoto: async () => ({ status: 'SUCCESS', request_id: 'req-5c', data: { photoId: 'p1', removed: true } }),
+      },
+      accountLifecycle: {
+        getAccountStatus: async () => ({ status: 'SUCCESS', request_id: 'req-5d', data: { status: 'active' } }),
+        requestAccountDeletion: async () => ({ status: 'SUCCESS', request_id: 'req-5e', data: { accountStatus: 'pending_deletion', recoveryWindowDays: 30 } }),
+        recoverAccount: async () => ({ status: 'SUCCESS', request_id: 'req-5f', data: { accountStatus: 'active' } }),
+        getLinkedProviders: async () => ({ status: 'SUCCESS', request_id: 'req-5g', data: [{ provider: 'google', linkedAt: '2026-03-10T00:00:00Z' }] }),
       },
       roles: {
         getAvailableRoles: async () => ({ status: 'SUCCESS', request_id: 'req-6', data: ['RegularUser'] }),

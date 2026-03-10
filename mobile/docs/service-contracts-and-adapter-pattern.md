@@ -20,6 +20,7 @@ All service interfaces are defined in:
 The `BackendServiceContracts` aggregate defines mobile-facing domain modules:
 - `auth`
 - `profile`
+- `accountLifecycle`
 - `roles`
 - `venues`
 - `presence`
@@ -61,6 +62,13 @@ The mock adapter lives in:
 
 It composes deterministic fixtures from:
 - `mobile/src/mocks/fixtures.ts`
+
+Sprint-02 extends contract-first auth/profile readiness with explicit lifecycle-facing methods:
+- `auth.login`, `auth.refreshSession`, `auth.linkProvider`
+- `profile.upsertMyProfile`, `profile.uploadMyPhoto`, `profile.deleteMyPhoto`
+- `accountLifecycle.getAccountStatus`, `accountLifecycle.requestAccountDeletion`, `accountLifecycle.recoverAccount`, `accountLifecycle.getLinkedProviders`
+
+Legacy Sprint-01 method names remain available as compatibility shims (`auth.signInWithProvider`, `profile.updateMyProfile`) to avoid route/screen churn while migration proceeds.
 
 This ensures scenario replayability and test stability.
 
