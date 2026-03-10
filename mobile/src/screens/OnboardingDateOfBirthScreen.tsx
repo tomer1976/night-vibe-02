@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { Input } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { useOnboardingState } from '../state';
 import { validateAdultDateOfBirth } from '../validation/formValidation';
 import { OnboardingStepLayout } from './OnboardingStepLayout';
 import { readDraftFromParams } from './onboardingDraft';
@@ -10,6 +11,7 @@ import { readDraftFromParams } from './onboardingDraft';
 export function OnboardingDateOfBirthScreen() {
   const navigation = useNavigation();
   const route = useRoute();
+  const { markStepCompleted } = useOnboardingState();
   const draft = readDraftFromParams(route.params);
 
   const [dateOfBirth, setDateOfBirth] = useState(draft.dateOfBirth);
@@ -28,6 +30,7 @@ export function OnboardingDateOfBirthScreen() {
     }
 
     setErrorText(undefined);
+    markStepCompleted(2);
 
     navigation.dispatch(
       StackActions.replace(ROUTE_NAMES.OnboardingGender, {

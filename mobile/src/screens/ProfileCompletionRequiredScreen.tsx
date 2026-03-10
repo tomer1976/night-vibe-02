@@ -10,10 +10,11 @@ import { useTheme } from '../theme';
 export function ProfileCompletionRequiredScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
-  const { setProfileCompleted } = useOnboardingState();
+  const { resetProgress, setProfileCompleted } = useOnboardingState();
 
   const continueToUserShell = () => {
     setProfileCompleted(true);
+    resetProgress();
     navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserGroup));
   };
 

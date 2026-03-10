@@ -1,7 +1,7 @@
 import { act, fireEvent, render } from '@testing-library/react-native';
 import { Pressable, Text, View } from 'react-native';
 
-import { AppStateProvider, useAuthState, useFeatureFlagsState, useRoleState } from '../src/state';
+import { AppStateProvider, useAuthState, useFeatureFlagsState, useOnboardingState, useRoleState } from '../src/state';
 
 function StateProbe() {
   const {
@@ -15,6 +15,7 @@ function StateProbe() {
     setAuthenticated,
   } = useAuthState();
   const { activeRoleContext, availableRoles, setActiveRoleContext } = useRoleState();
+  const { completedSteps, currentStep, goToNextStep, markStepCompleted, resetProgress } = useOnboardingState();
   const { isMockModeEnabled, isRoleSimulationEnabled, setRoleSimulationEnabled } = useFeatureFlagsState();
 
   return (
@@ -26,6 +27,8 @@ function StateProbe() {
       <Text>{`roles:${availableRoles.join('|')}`}</Text>
       <Text>{`mockMode:${isMockModeEnabled}`}</Text>
       <Text>{`roleSimulation:${isRoleSimulationEnabled}`}</Text>
+      <Text>{`onboardingStep:${currentStep}`}</Text>
+      <Text>{`onboardingCompleted:${completedSteps.join('|')}`}</Text>
 
       <Pressable onPress={() => setAuthenticated(false)} testID="set-auth-false">
         <Text>set-auth-false</Text>
@@ -47,6 +50,15 @@ function StateProbe() {
       </Pressable>
       <Pressable onPress={() => resetAuthState('active', false)} testID="reset-auth-signed-out">
         <Text>reset-auth-signed-out</Text>
+      </Pressable>
+      <Pressable onPress={goToNextStep} testID="onboarding-next-step">
+        <Text>onboarding-next-step</Text>
+      </Pressable>
+      <Pressable onPress={() => markStepCompleted(2)} testID="onboarding-mark-step-2">
+        <Text>onboarding-mark-step-2</Text>
+      </Pressable>
+      <Pressable onPress={resetProgress} testID="onboarding-reset-progress">
+        <Text>onboarding-reset-progress</Text>
       </Pressable>
     </View>
   );
@@ -134,5 +146,31 @@ describe('AppStateProvider', () => {
     expect(getByText('auth:false')).toBeTruthy();
     expect(getByText('status:active')).toBeTruthy();
     expect(getByText('lifecycle:signed_out')).toBeTruthy();
+  });
+
+  it('tracks onboarding progress store transitions', () => {
+    const { getByTestId, getByText } = render(
+      <AppStateProvider>
+        <StateProbe />
+      </AppStateProvider>
+    );
+
+    expect(getByText('onboardingStep:1')).toBeTruthy();
+    expect(getByText('onboardingCompleted:')).toBeTruthy();
+
+    act(() => {
+      fireEvent.press(getByTestId('onboarding-next-step'));
+      fireEvent.press(getByTestId('onboarding-mark-step-2'));
+    });
+
+    expect(getByText('onboardingStep:2')).toBeTruthy();
+    expect(getByText('onboardingCompleted:2')).toBeTruthy();
+
+    act(() => {
+      fireEvent.press(getByTestId('onboarding-reset-progress'));
+    });
+
+    expect(getByText('onboardingStep:1')).toBeTruthy();
+    expect(getByText('onboardingCompleted:')).toBeTruthy();
   });
 });

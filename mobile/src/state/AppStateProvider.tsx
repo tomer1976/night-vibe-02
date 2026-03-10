@@ -4,6 +4,11 @@ import { AccountStatus, Role } from '../contracts';
 import { readRuntimeMode } from '../config/firebaseRuntimeGuard';
 import { readSimulatedRoleContextFromEnv } from '../navigation/roleContextSimulation';
 import { AuthLifecycle, authStoreReducer, createInitialAuthStoreState } from './authStateStore';
+import {
+  ONBOARDING_TOTAL_STEPS,
+  createInitialOnboardingProgressState,
+  onboardingProgressReducer,
+} from './onboardingProgressStore';
 
 export type AuthState = {
   accountStatus: AccountStatus;
@@ -33,7 +38,15 @@ export type FeatureFlagsState = {
 };
 
 export type OnboardingState = {
+  currentStep: number;
+  completedSteps: number[];
+  totalSteps: number;
   profileCompleted: boolean;
+  setCurrentStep: (step: number) => void;
+  markStepCompleted: (step: number) => void;
+  goToNextStep: () => void;
+  goToPreviousStep: () => void;
+  resetProgress: () => void;
   setProfileCompleted: (value: boolean) => void;
 };
 
@@ -65,7 +78,15 @@ const defaultFeatureFlagsState: FeatureFlagsState = {
 };
 
 const defaultOnboardingState: OnboardingState = {
+  currentStep: 1,
+  completedSteps: [],
+  totalSteps: ONBOARDING_TOTAL_STEPS,
   profileCompleted: true,
+  setCurrentStep: () => undefined,
+  markStepCompleted: () => undefined,
+  goToNextStep: () => undefined,
+  goToPreviousStep: () => undefined,
+  resetProgress: () => undefined,
   setProfileCompleted: () => undefined,
 };
 
@@ -88,6 +109,10 @@ export function AppStateProvider({ children }: PropsWithChildren) {
   const [activeRoleContext, setActiveRoleContext] = useState<Role | null>(simulatedRoleContext.activeRoleContext);
   const [availableRoles, setAvailableRoles] = useState<Role[]>([...simulatedRoleContext.availableRoles]);
   const [isRoleSimulationEnabled, setRoleSimulationEnabled] = useState(true);
+  const [onboardingStateStore, dispatchOnboardingState] = useReducer(
+    onboardingProgressReducer,
+    createInitialOnboardingProgressState()
+  );
   const [profileCompleted, setProfileCompleted] = useState(true);
 
   const authState = useMemo<AuthState>(
@@ -163,10 +188,34 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 
   const onboardingState = useMemo<OnboardingState>(
     () => ({
+      currentStep: onboardingStateStore.currentStep,
+      completedSteps: onboardingStateStore.completedSteps,
+      totalSteps: ONBOARDING_TOTAL_STEPS,
       profileCompleted,
+      setCurrentStep: (step) => {
+        dispatchOnboardingState({
+          type: 'SET_CURRENT_STEP',
+          step,
+        });
+      },
+      markStepCompleted: (step) => {
+        dispatchOnboardingState({
+          type: 'MARK_STEP_COMPLETED',
+          step,
+        });
+      },
+      goToNextStep: () => {
+        dispatchOnboardingState({ type: 'GO_TO_NEXT_STEP' });
+      },
+      goToPreviousStep: () => {
+        dispatchOnboardingState({ type: 'GO_TO_PREVIOUS_STEP' });
+      },
+      resetProgress: () => {
+        dispatchOnboardingState({ type: 'RESET_PROGRESS' });
+      },
       setProfileCompleted,
     }),
-    [profileCompleted]
+    [onboardingStateStore, profileCompleted]
   );
 
   return (

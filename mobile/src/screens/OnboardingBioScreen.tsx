@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { Input } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { useOnboardingState } from '../state';
 import { validateBioLength } from '../validation/formValidation';
 import { OnboardingStepLayout } from './OnboardingStepLayout';
 import { readDraftFromParams } from './onboardingDraft';
@@ -10,6 +11,7 @@ import { readDraftFromParams } from './onboardingDraft';
 export function OnboardingBioScreen() {
   const navigation = useNavigation();
   const route = useRoute();
+  const { markStepCompleted } = useOnboardingState();
   const draft = readDraftFromParams(route.params);
 
   const [bio, setBio] = useState(draft.bio);
@@ -29,6 +31,7 @@ export function OnboardingBioScreen() {
     }
 
     setErrorText(undefined);
+    markStepCompleted(5);
 
     navigation.dispatch(
       StackActions.replace(ROUTE_NAMES.OnboardingPreferences, {

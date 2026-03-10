@@ -1,8 +1,9 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, Card, TopBar } from '../components';
+import { useOnboardingState } from '../state';
 import { useTheme } from '../theme';
 
 type OnboardingStepLayoutProps = {
@@ -29,6 +30,11 @@ export function OnboardingStepLayout({
   children,
 }: OnboardingStepLayoutProps) {
   const theme = useTheme();
+  const { setCurrentStep } = useOnboardingState();
+
+  useEffect(() => {
+    setCurrentStep(step);
+  }, [setCurrentStep, step]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 

@@ -12,7 +12,7 @@ export function OnboardingTermsScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const theme = useTheme();
-  const { setProfileCompleted } = useOnboardingState();
+  const { markStepCompleted, setProfileCompleted } = useOnboardingState();
   const draft = readDraftFromParams(route.params);
 
   const goBack = () => {
@@ -35,6 +35,7 @@ export function OnboardingTermsScreen() {
       return;
     }
 
+    markStepCompleted(7);
     setProfileCompleted(false);
 
     navigation.dispatch(StackActions.replace(ROUTE_NAMES.ProfileCompletionRequired, { draft }));

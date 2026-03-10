@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { Input } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { useOnboardingState } from '../state';
 import { normalizePreferredGenders, validateAgeRange, validatePreferredGenders } from '../validation/formValidation';
 import { OnboardingStepLayout } from './OnboardingStepLayout';
 import { readDraftFromParams } from './onboardingDraft';
@@ -10,6 +11,7 @@ import { readDraftFromParams } from './onboardingDraft';
 export function OnboardingPreferencesScreen() {
   const navigation = useNavigation();
   const route = useRoute();
+  const { markStepCompleted } = useOnboardingState();
   const draft = readDraftFromParams(route.params);
 
   const [preferredAgeMin, setPreferredAgeMin] = useState(draft.preferredAgeMin);
@@ -42,6 +44,7 @@ export function OnboardingPreferencesScreen() {
     const normalizedGenders = normalizePreferredGenders(preferredGenders);
 
     setErrorText(undefined);
+    markStepCompleted(6);
 
     navigation.dispatch(
       StackActions.replace(ROUTE_NAMES.OnboardingTerms, {

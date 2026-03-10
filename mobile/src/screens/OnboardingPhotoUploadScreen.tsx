@@ -3,6 +3,7 @@ import { Text } from 'react-native';
 
 import { Button } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { useOnboardingState } from '../state';
 import { useTheme } from '../theme';
 import { OnboardingStepLayout } from './OnboardingStepLayout';
 import { readDraftFromParams } from './onboardingDraft';
@@ -11,6 +12,7 @@ export function OnboardingPhotoUploadScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const theme = useTheme();
+  const { markStepCompleted } = useOnboardingState();
   const draft = readDraftFromParams(route.params);
   const photoCount = draft.photoCount;
 
@@ -22,6 +24,8 @@ export function OnboardingPhotoUploadScreen() {
     if (photoCount < 1) {
       return;
     }
+
+    markStepCompleted(4);
 
     navigation.dispatch(StackActions.replace(ROUTE_NAMES.OnboardingBio, { draft }));
   };

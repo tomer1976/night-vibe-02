@@ -4,6 +4,7 @@ import { Text } from 'react-native';
 
 import { Button } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { useOnboardingState } from '../state';
 import { useTheme } from '../theme';
 import { OnboardingStepLayout } from './OnboardingStepLayout';
 import { readDraftFromParams } from './onboardingDraft';
@@ -14,6 +15,7 @@ export function OnboardingGenderScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const theme = useTheme();
+  const { markStepCompleted } = useOnboardingState();
   const draft = readDraftFromParams(route.params);
 
   const [gender, setGender] = useState(draft.gender);
@@ -26,6 +28,8 @@ export function OnboardingGenderScreen() {
     if (!gender) {
       return;
     }
+
+    markStepCompleted(3);
 
     navigation.dispatch(
       StackActions.replace(ROUTE_NAMES.OnboardingPhotoUpload, {
