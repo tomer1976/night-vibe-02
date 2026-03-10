@@ -4,11 +4,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, Card, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { useOnboardingState } from '../state';
 import { useTheme } from '../theme';
 
 export function ProfileCompletionRequiredScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
+  const { setProfileCompleted } = useOnboardingState();
+
+  const continueToUserShell = () => {
+    setProfileCompleted(true);
+    navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserGroup));
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
@@ -25,7 +32,7 @@ export function ProfileCompletionRequiredScreen() {
             <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.body }}>
               Continue to the user shell in mock mode.
             </Text>
-            <Button label="Continue" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserGroup))} />
+            <Button label="Continue" onPress={continueToUserShell} />
           </View>
         </Card>
       </View>

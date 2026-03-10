@@ -24,6 +24,11 @@ export type FeatureFlagsState = {
   setRoleSimulationEnabled: (value: boolean) => void;
 };
 
+export type OnboardingState = {
+  profileCompleted: boolean;
+  setProfileCompleted: (value: boolean) => void;
+};
+
 const defaultAuthState: AuthState = {
   accountStatus: 'active',
   isAuthenticated: true,
@@ -44,9 +49,15 @@ const defaultFeatureFlagsState: FeatureFlagsState = {
   setRoleSimulationEnabled: () => undefined,
 };
 
+const defaultOnboardingState: OnboardingState = {
+  profileCompleted: true,
+  setProfileCompleted: () => undefined,
+};
+
 const AuthStateContext = createContext<AuthState>(defaultAuthState);
 const RoleStateContext = createContext<RoleState>(defaultRoleState);
 const FeatureFlagsStateContext = createContext<FeatureFlagsState>(defaultFeatureFlagsState);
+const OnboardingStateContext = createContext<OnboardingState>(defaultOnboardingState);
 
 export function AppStateProvider({ children }: PropsWithChildren) {
   const simulatedRoleContext = readSimulatedRoleContextFromEnv();
@@ -56,6 +67,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
   const [activeRoleContext, setActiveRoleContext] = useState<Role | null>(simulatedRoleContext.activeRoleContext);
   const [availableRoles, setAvailableRoles] = useState<Role[]>([...simulatedRoleContext.availableRoles]);
   const [isRoleSimulationEnabled, setRoleSimulationEnabled] = useState(true);
+  const [profileCompleted, setProfileCompleted] = useState(true);
 
   const authState = useMemo<AuthState>(
     () => ({
@@ -86,10 +98,20 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     [isRoleSimulationEnabled]
   );
 
+  const onboardingState = useMemo<OnboardingState>(
+    () => ({
+      profileCompleted,
+      setProfileCompleted,
+    }),
+    [profileCompleted]
+  );
+
   return (
     <FeatureFlagsStateContext.Provider value={featureFlagsState}>
       <AuthStateContext.Provider value={authState}>
-        <RoleStateContext.Provider value={roleState}>{children}</RoleStateContext.Provider>
+        <RoleStateContext.Provider value={roleState}>
+          <OnboardingStateContext.Provider value={onboardingState}>{children}</OnboardingStateContext.Provider>
+        </RoleStateContext.Provider>
       </AuthStateContext.Provider>
     </FeatureFlagsStateContext.Provider>
   );
@@ -105,4 +127,8 @@ export function useRoleState(): RoleState {
 
 export function useFeatureFlagsState(): FeatureFlagsState {
   return useContext(FeatureFlagsStateContext);
+}
+
+export function useOnboardingState(): OnboardingState {
+  return useContext(OnboardingStateContext);
 }

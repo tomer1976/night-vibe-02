@@ -2,11 +2,12 @@ import { fireEvent, render } from '@testing-library/react-native';
 import { Pressable, Text, View } from 'react-native';
 
 import { ROUTE_NAMES } from '../src/navigation';
-import { AppStateProvider, useFeatureFlagsState, useRouteAccessSelectors, useRoleState } from '../src/state';
+import { AppStateProvider, useFeatureFlagsState, useOnboardingState, useRouteAccessSelectors, useRoleState } from '../src/state';
 
 function RouteSelectorProbe() {
   const routeAccess = useRouteAccessSelectors();
   const { setRoleSimulationEnabled } = useFeatureFlagsState();
+  const { setProfileCompleted } = useOnboardingState();
   const { setActiveRoleContext, setAvailableRoles } = useRoleState();
 
   const ownerResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.OwnerGroup);
@@ -17,6 +18,7 @@ function RouteSelectorProbe() {
       <Text>{`ownerAllowed:${ownerResolution.isAllowed}`}</Text>
       <Text>{`ownerResolved:${ownerResolution.resolvedRoute}`}</Text>
       <Text>{`userAllowed:${userResolution.isAllowed}`}</Text>
+      <Text>{`userResolved:${userResolution.resolvedRoute}`}</Text>
       <Text>{`activeRole:${routeAccess.simulatedRoleContext.activeRoleContext ?? 'none'}`}</Text>
 
       <Pressable
@@ -31,6 +33,14 @@ function RouteSelectorProbe() {
 
       <Pressable onPress={() => setRoleSimulationEnabled(false)} testID="disable-role-sim">
         <Text>disable-role-sim</Text>
+      </Pressable>
+
+      <Pressable onPress={() => setProfileCompleted(false)} testID="set-profile-incomplete">
+        <Text>set-profile-incomplete</Text>
+      </Pressable>
+
+      <Pressable onPress={() => setProfileCompleted(true)} testID="set-profile-complete">
+        <Text>set-profile-complete</Text>
       </Pressable>
     </View>
   );
@@ -83,5 +93,26 @@ describe('route state selectors', () => {
 
     expect(getByText('ownerAllowed:false')).toBeTruthy();
     expect(getByText(`ownerResolved:${ROUTE_NAMES.UnknownRouteFallback}`)).toBeTruthy();
+  });
+
+  it('gates post-onboarding user routes when profile is incomplete', () => {
+    const { getByTestId, getByText } = render(
+      <AppStateProvider>
+        <RouteSelectorProbe />
+      </AppStateProvider>
+    );
+
+    expect(getByText('userAllowed:true')).toBeTruthy();
+    expect(getByText(`userResolved:${ROUTE_NAMES.UserGroup}`)).toBeTruthy();
+
+    fireEvent.press(getByTestId('set-profile-incomplete'));
+
+    expect(getByText('userAllowed:false')).toBeTruthy();
+    expect(getByText(`userResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
+
+    fireEvent.press(getByTestId('set-profile-complete'));
+
+    expect(getByText('userAllowed:true')).toBeTruthy();
+    expect(getByText(`userResolved:${ROUTE_NAMES.UserGroup}`)).toBeTruthy();
   });
 });

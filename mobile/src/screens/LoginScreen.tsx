@@ -7,13 +7,14 @@ import { Button, Card, Input, TopBar } from '../components';
 import { resolveAuthEntryRoute } from '../navigation/authEntryRouting';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
-import { useAuthState } from '../state';
+import { useAuthState, useOnboardingState } from '../state';
 import { useTheme } from '../theme';
 
 export function LoginScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
   const { setAccountStatus, setAuthenticated } = useAuthState();
+  const { setProfileCompleted } = useOnboardingState();
   const services = useServiceLocator();
 
   const [identityInput, setIdentityInput] = useState('');
@@ -36,6 +37,7 @@ export function LoginScreen() {
 
     if (loginResponse.status === 'FAIL') {
       setAuthenticated(false);
+      setProfileCompleted(false);
       setErrorText(loginResponse.error.message);
       return;
     }
@@ -46,8 +48,13 @@ export function LoginScreen() {
       resolvedAccountStatus = accountStatusResponse.data.status;
     }
 
+    const profileResponse = await services.profile.getMyProfile();
+    const isProfileCompleted =
+      profileResponse.status === 'SUCCESS' ? profileResponse.data.profileCompleted : !loginResponse.data.isNewUser;
+
     setAuthenticated(true);
     setAccountStatus(resolvedAccountStatus);
+    setProfileCompleted(isProfileCompleted);
 
     const targetRoute = resolveAuthEntryRoute({
       isAuthenticated: true,

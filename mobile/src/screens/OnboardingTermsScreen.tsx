@@ -3,6 +3,7 @@ import { Text } from 'react-native';
 
 import { Button } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { useOnboardingState } from '../state';
 import { useTheme } from '../theme';
 import { OnboardingStepLayout } from './OnboardingStepLayout';
 import { readDraftFromParams } from './onboardingDraft';
@@ -11,6 +12,7 @@ export function OnboardingTermsScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const theme = useTheme();
+  const { setProfileCompleted } = useOnboardingState();
   const draft = readDraftFromParams(route.params);
 
   const goBack = () => {
@@ -32,6 +34,8 @@ export function OnboardingTermsScreen() {
     if (!draft.acceptedTerms) {
       return;
     }
+
+    setProfileCompleted(false);
 
     navigation.dispatch(StackActions.replace(ROUTE_NAMES.ProfileCompletionRequired, { draft }));
   };
