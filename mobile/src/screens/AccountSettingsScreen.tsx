@@ -32,14 +32,14 @@ export function AccountSettingsScreen() {
       <View style={[styles.content, { gap: theme.spacing.md, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.lg }]}> 
         <Card title="Account Settings Screen">
           <View style={[styles.row, { marginBottom: theme.spacing.md }]}> 
-            <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Account Status</Text>
+            <Text style={[styles.label, { color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }]}>Account Status</Text>
             <Badge label={draft.status.replace('_', ' ')} tone={statusToneByValue[draft.status]} />
           </View>
 
-          <Text style={[styles.value, { color: theme.colors.textPrimary, marginBottom: theme.spacing.xs }]}>
+          <Text style={[styles.value, { color: theme.colors.textPrimary, fontSize: theme.typography.body, marginBottom: theme.spacing.xs }]}>
             Linked Providers: {linkedProviders}/{draft.linkedAccounts.length}
           </Text>
-          <Text style={[styles.value, { color: theme.colors.textSecondary }]}>Recovery Window: {draft.recoveryWindowDays} days</Text>
+          <Text style={[styles.value, { color: theme.colors.textSecondary, fontSize: theme.typography.body }]}>Recovery Window: {draft.recoveryWindowDays} days</Text>
         </Card>
 
         <ListItem
@@ -83,9 +83,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   label: {
-    fontSize: 14,
   },
   value: {
-    fontSize: 15,
   },
 });

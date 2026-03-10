@@ -49,7 +49,7 @@ export function DeleteAccountScreen() {
 
       <View style={[styles.content, { gap: theme.spacing.md, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.lg }]}> 
         <Card title="Delete Account Screen">
-          <Text style={[styles.body, { color: theme.colors.textPrimary, marginBottom: theme.spacing.md }]}>This moves account status to pending deletion and starts a {draft.recoveryWindowDays}-day recovery window.</Text>
+          <Text style={[styles.body, { color: theme.colors.textPrimary, fontSize: theme.typography.bodySmall, lineHeight: theme.spacing.xl, marginBottom: theme.spacing.md }]}>This moves account status to pending deletion and starts a {draft.recoveryWindowDays}-day recovery window.</Text>
           <Input
             errorText={tokenError}
             label="Confirmation token"
@@ -80,8 +80,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   body: {
-    fontSize: 14,
-    lineHeight: 20,
   },
   actions: {
     width: '100%',

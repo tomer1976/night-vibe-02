@@ -63,7 +63,7 @@ export function LinkedAccountsScreen() {
 
       <View style={[styles.content, { gap: theme.spacing.md, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.lg }]}> 
         <Card title="Linked Accounts Screen">
-          <Text style={[styles.meta, { color: theme.colors.textSecondary, marginBottom: theme.spacing.md }]}>Linked providers: {linkedCount}</Text>
+          <Text style={[styles.meta, { color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall, marginBottom: theme.spacing.md }]}>Linked providers: {linkedCount}</Text>
 
           <View style={[styles.items, { gap: theme.spacing.sm }]}> 
             {linkedAccounts.map((account) => (
@@ -103,7 +103,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   meta: {
-    fontSize: 14,
   },
   actions: {
     width: '100%',

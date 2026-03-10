@@ -87,21 +87,21 @@ export function UserProfileScreen() {
         {hasProfileContent ? (
           <Card title="User Profile Screen">
             <View style={[styles.row, { marginBottom: theme.spacing.sm }]}>
-              <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Display Name</Text>
-              <Text style={[styles.value, { color: theme.colors.textPrimary }]}>{draft.displayName}</Text>
+              <Text style={[styles.label, { color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }]}>Display Name</Text>
+              <Text style={[styles.value, { color: theme.colors.textPrimary, fontSize: theme.typography.body }]}>{draft.displayName}</Text>
             </View>
 
-            <Text style={[styles.label, { color: theme.colors.textSecondary, marginBottom: theme.spacing.xs }]}>Bio</Text>
-            <Text style={[styles.value, { color: theme.colors.textPrimary, marginBottom: theme.spacing.md }]}>{draft.bio}</Text>
+            <Text style={[styles.label, { color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall, marginBottom: theme.spacing.xs }]}>Bio</Text>
+            <Text style={[styles.value, { color: theme.colors.textPrimary, fontSize: theme.typography.body, marginBottom: theme.spacing.md }]}>{draft.bio}</Text>
 
-            <View style={[styles.badges, { marginBottom: theme.spacing.md }]}> 
+            <View style={[styles.badges, { gap: theme.spacing.sm, marginBottom: theme.spacing.md }]}> 
               <Badge label={draft.profileCompleted ? 'Profile Complete' : 'Profile Incomplete'} tone={draft.profileCompleted ? 'success' : 'warning'} />
               <Badge label={`Photos ${approvedPhotos}/${draft.photos.length} approved`} tone="info" />
             </View>
 
-            <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Preferences</Text>
-            <Text style={[styles.value, { color: theme.colors.textPrimary }]}>Ages {draft.preferredAgeMin}-{draft.preferredAgeMax}</Text>
-            <Text style={[styles.value, { color: theme.colors.textPrimary }]}>Genders: {draft.preferredGenders}</Text>
+            <Text style={[styles.label, { color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }]}>Preferences</Text>
+            <Text style={[styles.value, { color: theme.colors.textPrimary, fontSize: theme.typography.body }]}>Ages {draft.preferredAgeMin}-{draft.preferredAgeMax}</Text>
+            <Text style={[styles.value, { color: theme.colors.textPrimary, fontSize: theme.typography.body }]}>Genders: {draft.preferredGenders}</Text>
           </Card>
         ) : (
           <EmptyStateTemplate
@@ -160,13 +160,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   label: {
-    fontSize: 14,
   },
   value: {
-    fontSize: 16,
   },
   badges: {
     flexDirection: 'row',
-    gap: 8,
   },
 });
