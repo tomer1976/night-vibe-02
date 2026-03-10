@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, Card, Input, TopBar } from '../components';
+import { Button, Card, ErrorStateTemplate, Input, LoadingStateTemplate, TopBar } from '../components';
 import { resolveAuthEntryRoute } from '../navigation/authEntryRouting';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
@@ -19,6 +19,8 @@ export function LoginScreen() {
 
   const [identityInput, setIdentityInput] = useState('');
   const [errorText, setErrorText] = useState<string | undefined>();
+  const [submitErrorText, setSubmitErrorText] = useState<string | undefined>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const normalizedIdentity = useMemo(() => identityInput.trim().toLowerCase(), [identityInput]);
 
@@ -29,40 +31,46 @@ export function LoginScreen() {
     }
 
     setErrorText(undefined);
+    setSubmitErrorText(undefined);
+    setIsSubmitting(true);
 
-    const loginResponse = await services.auth.login({
-      provider: 'google',
-      providerToken: normalizedIdentity,
-    });
+    try {
+      const loginResponse = await services.auth.login({
+        provider: 'google',
+        providerToken: normalizedIdentity,
+      });
 
-    if (loginResponse.status === 'FAIL') {
-      setAuthenticated(false);
-      setProfileCompleted(false);
-      setErrorText(loginResponse.error.message);
-      return;
+      if (loginResponse.status === 'FAIL') {
+        setAuthenticated(false);
+        setProfileCompleted(false);
+        setSubmitErrorText(loginResponse.error.message);
+        return;
+      }
+
+      let resolvedAccountStatus = loginResponse.data.status;
+      const accountStatusResponse = await services.accountLifecycle.getAccountStatus();
+      if (accountStatusResponse.status === 'SUCCESS') {
+        resolvedAccountStatus = accountStatusResponse.data.status;
+      }
+
+      const profileResponse = await services.profile.getMyProfile();
+      const isProfileCompleted =
+        profileResponse.status === 'SUCCESS' ? profileResponse.data.profileCompleted : !loginResponse.data.isNewUser;
+
+      setAuthenticated(true);
+      setAccountStatus(resolvedAccountStatus);
+      setProfileCompleted(isProfileCompleted);
+
+      const targetRoute = resolveAuthEntryRoute({
+        isAuthenticated: true,
+        accountStatus: resolvedAccountStatus,
+        isNewUser: loginResponse.data.isNewUser,
+      });
+
+      navigation.dispatch(StackActions.replace(targetRoute));
+    } finally {
+      setIsSubmitting(false);
     }
-
-    let resolvedAccountStatus = loginResponse.data.status;
-    const accountStatusResponse = await services.accountLifecycle.getAccountStatus();
-    if (accountStatusResponse.status === 'SUCCESS') {
-      resolvedAccountStatus = accountStatusResponse.data.status;
-    }
-
-    const profileResponse = await services.profile.getMyProfile();
-    const isProfileCompleted =
-      profileResponse.status === 'SUCCESS' ? profileResponse.data.profileCompleted : !loginResponse.data.isNewUser;
-
-    setAuthenticated(true);
-    setAccountStatus(resolvedAccountStatus);
-    setProfileCompleted(isProfileCompleted);
-
-    const targetRoute = resolveAuthEntryRoute({
-      isAuthenticated: true,
-      accountStatus: resolvedAccountStatus,
-      isNewUser: loginResponse.data.isNewUser,
-    });
-
-    navigation.dispatch(StackActions.replace(targetRoute));
   };
 
   return (
@@ -72,24 +80,38 @@ export function LoginScreen() {
       </View>
 
       <View style={[styles.content, { paddingHorizontal: theme.spacing.lg }]}> 
-        <Card subtitle="Mock login accepts persona keys in the input value." title="Login Screen">
-          <View style={{ gap: theme.spacing.md }}>
-            <Input
-              autoCapitalize="none"
-              errorText={errorText}
-              label="Email or Persona"
-              onChangeText={setIdentityInput}
-              placeholder="active-user@example.com"
-              testID="login-identity-input"
-              value={identityInput}
-            />
-            <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.meta }}>
-              Persona hints: use new, suspended, banned, pending, or deleted in the value.
-            </Text>
-            <Button label="Sign In" onPress={handleLogin} />
-            <Button label="Back to Welcome" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.Welcome))} variant="secondary" />
-          </View>
-        </Card>
+        {isSubmitting ? (
+          <LoadingStateTemplate
+            message="We are validating your mock session and loading account/profile state."
+            title="Signing In"
+          />
+        ) : submitErrorText ? (
+          <ErrorStateTemplate
+            actionLabel="Try Again"
+            message={submitErrorText}
+            onAction={() => setSubmitErrorText(undefined)}
+            title="Login Failed"
+          />
+        ) : (
+          <Card subtitle="Mock login accepts persona keys in the input value." title="Login Screen">
+            <View style={{ gap: theme.spacing.md }}>
+              <Input
+                autoCapitalize="none"
+                errorText={errorText}
+                label="Email or Persona"
+                onChangeText={setIdentityInput}
+                placeholder="active-user@example.com"
+                testID="login-identity-input"
+                value={identityInput}
+              />
+              <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.meta }}>
+                Persona hints: use new, suspended, banned, pending, or deleted in the value.
+              </Text>
+              <Button label="Sign In" onPress={handleLogin} />
+              <Button label="Back to Welcome" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.Welcome))} variant="secondary" />
+            </View>
+          </Card>
+        )}
       </View>
     </SafeAreaView>
   );

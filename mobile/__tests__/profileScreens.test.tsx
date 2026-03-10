@@ -9,13 +9,17 @@ import { ThemeProvider } from '../src/theme';
 
 const Stack = createNativeStackNavigator();
 
-function ProfileTestNavigator() {
+type ProfileTestNavigatorProps = {
+  initialDraft?: typeof DEFAULT_PROFILE_DRAFT;
+};
+
+function ProfileTestNavigator({ initialDraft = DEFAULT_PROFILE_DRAFT }: ProfileTestNavigatorProps) {
   return (
     <ThemeProvider>
       <AppStateProvider>
         <NavigationContainer>
           <Stack.Navigator initialRouteName="UserProfile" screenOptions={{ headerShown: false }}>
-            <Stack.Screen component={UserProfileScreen} initialParams={{ draft: DEFAULT_PROFILE_DRAFT }} name="UserProfile" />
+            <Stack.Screen component={UserProfileScreen} initialParams={{ draft: initialDraft }} name="UserProfile" />
             <Stack.Screen component={EditProfileScreen} name="EditProfile" />
             <Stack.Screen component={ProfilePhotosManagementScreen} name="ProfilePhotosManagement" />
             <Stack.Screen component={UserProfileScreen} name="UserGroup" />
@@ -57,6 +61,40 @@ describe('profile screens', () => {
     fireEvent.press(getAllByText('Remove')[0]);
     fireEvent.press(getAllByText('Remove')[0]);
 
+    expect(getByText('Photo Update Failed')).toBeTruthy();
     expect(getByText('At least one photo is required.')).toBeTruthy();
+  });
+
+  it('shows empty state when profile has no content', () => {
+    const { getByText } = render(
+      <ProfileTestNavigator
+        initialDraft={{
+          ...DEFAULT_PROFILE_DRAFT,
+          displayName: '',
+          bio: '',
+          preferredGenders: '',
+          photos: [],
+        }}
+      />
+    );
+
+    expect(getByText('Profile is empty')).toBeTruthy();
+    expect(getByText('Complete Profile')).toBeTruthy();
+  });
+
+  it('shows empty photos state when profile starts without photos', () => {
+    const { getAllByText, getByText } = render(
+      <ProfileTestNavigator
+        initialDraft={{
+          ...DEFAULT_PROFILE_DRAFT,
+          photos: [],
+        }}
+      />
+    );
+
+    fireEvent.press(getByText('Profile Photos Management Screen'));
+
+    expect(getByText('No photos yet')).toBeTruthy();
+    expect(getAllByText('Add Mock Photo').length).toBeGreaterThan(0);
   });
 });

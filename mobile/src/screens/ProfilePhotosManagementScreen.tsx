@@ -1,9 +1,9 @@
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, Button, Card, ListItem, TopBar } from '../components';
+import { Badge, Button, Card, EmptyStateTemplate, ErrorStateTemplate, ListItem, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useTheme } from '../theme';
 import { ProfilePhotoDraft, ProfilePhotoModerationStatus, readProfileDraftFromParams } from './profileDraft';
@@ -79,24 +79,37 @@ export function ProfilePhotosManagementScreen() {
 
       <View style={[styles.content, { paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.lg }]}> 
         <Card title="Profile Photos Management Screen" subtitle={`Approved ${approvedCount} of ${photos.length}`}>
-          <View style={[styles.photoList, { gap: theme.spacing.sm }]}> 
-            {photos.map((photo) => (
-              <View key={photo.photoId} style={{ gap: theme.spacing.xs }}>
-                <ListItem
-                  subtitle={photo.url}
-                  title={photo.photoId}
-                  trailingText={photo.moderationStatus}
-                  onPress={() => cyclePhotoStatus(photo.photoId)}
-                />
-                <View style={[styles.row, { justifyContent: 'space-between' }]}> 
-                  <Badge label={photo.moderationStatus} tone={toneByStatus[photo.moderationStatus]} />
-                  <Button label="Remove" onPress={() => removePhoto(photo.photoId)} variant="destructive" />
-                </View>
-              </View>
-            ))}
-          </View>
+          {errorText ? (
+            <View style={{ marginBottom: theme.spacing.md }}>
+              <ErrorStateTemplate actionLabel="Dismiss" message={errorText} onAction={() => setErrorText(undefined)} title="Photo Update Failed" />
+            </View>
+          ) : null}
 
-          {errorText ? <Text style={[styles.error, { color: theme.colors.danger, marginTop: theme.spacing.md }]}>{errorText}</Text> : null}
+          {photos.length === 0 ? (
+            <EmptyStateTemplate
+              actionLabel="Add Mock Photo"
+              message="Add at least one photo to keep your profile eligible for discovery."
+              onAction={addMockPhoto}
+              title="No photos yet"
+            />
+          ) : (
+            <View style={[styles.photoList, { gap: theme.spacing.sm }]}> 
+              {photos.map((photo) => (
+                <View key={photo.photoId} style={{ gap: theme.spacing.xs }}>
+                  <ListItem
+                    subtitle={photo.url}
+                    title={photo.photoId}
+                    trailingText={photo.moderationStatus}
+                    onPress={() => cyclePhotoStatus(photo.photoId)}
+                  />
+                  <View style={[styles.row, { justifyContent: 'space-between' }]}> 
+                    <Badge label={photo.moderationStatus} tone={toneByStatus[photo.moderationStatus]} />
+                    <Button label="Remove" onPress={() => removePhoto(photo.photoId)} variant="destructive" />
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
         </Card>
 
         <View style={[styles.actions, { gap: theme.spacing.md, marginTop: theme.spacing.lg }]}> 
@@ -140,8 +153,5 @@ const styles = StyleSheet.create({
   },
   actions: {
     width: '100%',
-  },
-  error: {
-    fontSize: 12,
   },
 });

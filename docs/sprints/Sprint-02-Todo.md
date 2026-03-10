@@ -35,7 +35,7 @@
 ## UI Tasks
 - [x] Implement onboarding input components with UX-consistent spacing/typography.
 - [x] Build account-state banners/cards for denied/recovery contexts.
-- [ ] Add loading, error, and empty-state handling across auth/profile flows.
+- [x] Add loading, error, and empty-state handling across auth/profile flows.
 - [ ] Validate visual consistency with Night Vibe UI-UX guide.
 
 ## State-Management Tasks

@@ -2,7 +2,7 @@ import { StackActions, useNavigation, useRoute } from '@react-navigation/native'
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, BottomNavShell, Button, Card, ListItem, TopBar } from '../components';
+import { Badge, BottomNavShell, Button, Card, EmptyStateTemplate, ListItem, TopBar } from '../components';
 import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
 import { useRouteAccessSelectors } from '../state/routeSelectors';
 import { useTheme } from '../theme';
@@ -25,6 +25,11 @@ export function UserProfileScreen() {
   const { resolve } = useRouteAccessSelectors();
 
   const approvedPhotos = draft.photos.filter((photo) => photo.moderationStatus === 'approved').length;
+  const hasProfileContent =
+    draft.displayName.trim().length > 0 ||
+    draft.bio.trim().length > 0 ||
+    draft.preferredGenders.trim().length > 0 ||
+    draft.photos.length > 0;
 
   const routeNameFromNavKey = (key: string): AppRouteName | null => {
     if (key === 'auth') {
@@ -79,24 +84,33 @@ export function UserProfileScreen() {
       </View>
 
       <View style={[styles.content, { gap: theme.spacing.md, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.lg }]}> 
-        <Card title="User Profile Screen">
-          <View style={[styles.row, { marginBottom: theme.spacing.sm }]}>
-            <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Display Name</Text>
-            <Text style={[styles.value, { color: theme.colors.textPrimary }]}>{draft.displayName}</Text>
-          </View>
+        {hasProfileContent ? (
+          <Card title="User Profile Screen">
+            <View style={[styles.row, { marginBottom: theme.spacing.sm }]}>
+              <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Display Name</Text>
+              <Text style={[styles.value, { color: theme.colors.textPrimary }]}>{draft.displayName}</Text>
+            </View>
 
-          <Text style={[styles.label, { color: theme.colors.textSecondary, marginBottom: theme.spacing.xs }]}>Bio</Text>
-          <Text style={[styles.value, { color: theme.colors.textPrimary, marginBottom: theme.spacing.md }]}>{draft.bio}</Text>
+            <Text style={[styles.label, { color: theme.colors.textSecondary, marginBottom: theme.spacing.xs }]}>Bio</Text>
+            <Text style={[styles.value, { color: theme.colors.textPrimary, marginBottom: theme.spacing.md }]}>{draft.bio}</Text>
 
-          <View style={[styles.badges, { marginBottom: theme.spacing.md }]}> 
-            <Badge label={draft.profileCompleted ? 'Profile Complete' : 'Profile Incomplete'} tone={draft.profileCompleted ? 'success' : 'warning'} />
-            <Badge label={`Photos ${approvedPhotos}/${draft.photos.length} approved`} tone="info" />
-          </View>
+            <View style={[styles.badges, { marginBottom: theme.spacing.md }]}> 
+              <Badge label={draft.profileCompleted ? 'Profile Complete' : 'Profile Incomplete'} tone={draft.profileCompleted ? 'success' : 'warning'} />
+              <Badge label={`Photos ${approvedPhotos}/${draft.photos.length} approved`} tone="info" />
+            </View>
 
-          <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Preferences</Text>
-          <Text style={[styles.value, { color: theme.colors.textPrimary }]}>Ages {draft.preferredAgeMin}-{draft.preferredAgeMax}</Text>
-          <Text style={[styles.value, { color: theme.colors.textPrimary }]}>Genders: {draft.preferredGenders}</Text>
-        </Card>
+            <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Preferences</Text>
+            <Text style={[styles.value, { color: theme.colors.textPrimary }]}>Ages {draft.preferredAgeMin}-{draft.preferredAgeMax}</Text>
+            <Text style={[styles.value, { color: theme.colors.textPrimary }]}>Genders: {draft.preferredGenders}</Text>
+          </Card>
+        ) : (
+          <EmptyStateTemplate
+            actionLabel="Complete Profile"
+            message="Add your profile details to unlock discovery and matching readiness."
+            onAction={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.EditProfile, { draft }))}
+            title="Profile is empty"
+          />
+        )}
 
         <ListItem
           onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.EditProfile, { draft }))}
