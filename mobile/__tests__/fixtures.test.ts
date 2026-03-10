@@ -1,4 +1,4 @@
-import { sprint01Fixtures, sprint02AuthPersonaFixtures } from '../src/mocks';
+import { sprint01Fixtures, sprint02AuthPersonaFixtures, sprint02ProfileFixtures } from '../src/mocks';
 
 describe('sprint01 fixtures', () => {
   it('provides deterministic fixture counts', () => {
@@ -21,6 +21,20 @@ describe('sprint01 fixtures', () => {
 
     for (const persona of sprint02AuthPersonaFixtures) {
       expect(fixtureUserIds.has(persona.uid)).toBe(true);
+    }
+  });
+
+  it('includes Sprint-02 profile fixtures for complete and incomplete onboarding states', () => {
+    expect(sprint02ProfileFixtures.length).toBeGreaterThan(0);
+
+    const completionStates = new Set(sprint02ProfileFixtures.map((profile) => profile.profileCompleted));
+    expect(completionStates.has(true)).toBe(true);
+    expect(completionStates.has(false)).toBe(true);
+
+    const fixtureUserIds = new Set(sprint01Fixtures.users.map((user) => user.uid));
+    for (const profile of sprint02ProfileFixtures) {
+      expect(fixtureUserIds.has(profile.uid)).toBe(true);
+      expect(profile.displayName.length).toBeGreaterThan(0);
     }
   });
 

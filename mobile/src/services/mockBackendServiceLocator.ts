@@ -12,7 +12,14 @@ import {
   VenueSession,
   VenueSummary,
 } from '../contracts';
-import { createMockClock, createMockResponseFactory, MockClock, MockResponseFactory, sprint01Fixtures } from '../mocks';
+import {
+  createMockClock,
+  createMockResponseFactory,
+  MockClock,
+  MockResponseFactory,
+  sprint01Fixtures,
+  sprint02ProfileFixtures,
+} from '../mocks';
 
 type MockServiceLocatorOptions = {
   activeUserId?: string;
@@ -112,6 +119,12 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
 
   let linkedProviders = authSession.roles.length > 0 ? (['google'] as ('google' | 'apple')[]) : [];
   let accountStatus: AccountStatus = authSession.status;
+  const seededProfile = sprint02ProfileFixtures.find((profile) => profile.uid === activeUser.uid);
+  let activeUserProfile: UserProfile = {
+    uid: activeUser.uid,
+    displayName: seededProfile?.displayName ?? activeUser.displayName,
+    profileCompleted: seededProfile?.profileCompleted ?? true,
+  };
 
   const services: BackendServiceContracts = {
     auth: {
@@ -145,32 +158,24 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       signOut: async () => responseFactory.build({ key: 'auth.signOut', data: { signedOut: true } }),
     },
     profile: {
-      getMyProfile: async () => {
-        const profile: UserProfile = {
-          uid: activeUser.uid,
-          displayName: activeUser.displayName,
-          profileCompleted: true,
-        };
-
-        return responseFactory.build({ key: 'profile.getMyProfile', data: profile });
-      },
+      getMyProfile: async () => responseFactory.build({ key: 'profile.getMyProfile', data: activeUserProfile }),
       updateMyProfile: async (profile) => {
-        const updatedProfile: UserProfile = {
+        activeUserProfile = {
           uid: activeUser.uid,
-          displayName: profile.displayName ?? activeUser.displayName,
-          profileCompleted: profile.profileCompleted ?? true,
+          displayName: profile.displayName ?? activeUserProfile.displayName,
+          profileCompleted: profile.profileCompleted ?? activeUserProfile.profileCompleted,
         };
 
-        return responseFactory.build({ key: 'profile.updateMyProfile', data: updatedProfile });
+        return responseFactory.build({ key: 'profile.updateMyProfile', data: activeUserProfile });
       },
       upsertMyProfile: async (profile) => {
-        const updatedProfile: UserProfile = {
+        activeUserProfile = {
           uid: activeUser.uid,
-          displayName: profile.displayName ?? activeUser.displayName,
-          profileCompleted: profile.profileCompleted ?? true,
+          displayName: profile.displayName ?? activeUserProfile.displayName,
+          profileCompleted: profile.profileCompleted ?? activeUserProfile.profileCompleted,
         };
 
-        return responseFactory.build({ key: 'profile.upsertMyProfile', data: updatedProfile });
+        return responseFactory.build({ key: 'profile.upsertMyProfile', data: activeUserProfile });
       },
       uploadMyPhoto: async (fileName) =>
         responseFactory.build({

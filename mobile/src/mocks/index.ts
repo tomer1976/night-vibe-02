@@ -16,6 +16,7 @@ export {
 export {
   sprint01Fixtures,
   sprint02AuthPersonaFixtures,
+  sprint02ProfileFixtures,
   type MockFixtureInteraction,
   type MockFixtureRoleContext,
   type MockFixtureSession,
@@ -24,4 +25,5 @@ export {
   type MockFixtureVenue,
   type Sprint02AuthPersonaFixture,
   type Sprint02PersonaKey,
+  type Sprint02ProfileFixture,
 } from './fixtures';

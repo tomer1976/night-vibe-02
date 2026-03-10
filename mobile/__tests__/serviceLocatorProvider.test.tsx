@@ -62,6 +62,20 @@ describe('mock service locator wiring', () => {
     }
   });
 
+  it('returns incomplete onboarding profile fixture for the Sprint-02 new-user persona', async () => {
+    const locator = createMockBackendServiceLocator({
+      activeUserId: 'u-persona-new-1',
+    });
+
+    const profileResponse = await locator.services.profile.getMyProfile();
+    expect(profileResponse.status).toBe('SUCCESS');
+
+    if (profileResponse.status === 'SUCCESS') {
+      expect(profileResponse.data.uid).toBe('u-persona-new-1');
+      expect(profileResponse.data.profileCompleted).toBe(false);
+    }
+  });
+
   it('provides services through ServiceLocatorProvider', async () => {
     function Probe() {
       const services = useServiceLocator();

@@ -19,6 +19,12 @@ export type Sprint02AuthPersonaFixture = {
   isNewUser: boolean;
 };
 
+export type Sprint02ProfileFixture = {
+  uid: string;
+  displayName: string;
+  profileCompleted: boolean;
+};
+
 export type MockFixtureRoleContext = {
   uid: string;
   availableRoles: readonly Role[];
@@ -328,5 +334,38 @@ export const sprint02AuthPersonaFixtures: readonly Sprint02AuthPersonaFixture[] 
     displayName: 'Jordan Pending',
     status: 'pending_deletion',
     isNewUser: false,
+  }),
+]);
+
+export const sprint02ProfileFixtures: readonly Sprint02ProfileFixture[] = Object.freeze([
+  Object.freeze({
+    uid: 'u-persona-new-1',
+    displayName: 'Ari New',
+    profileCompleted: false,
+  }),
+  Object.freeze({
+    uid: 'u-persona-active-1',
+    displayName: 'Riley Active',
+    profileCompleted: true,
+  }),
+  Object.freeze({
+    uid: 'u-persona-suspended-1',
+    displayName: 'Casey Suspended',
+    profileCompleted: true,
+  }),
+  Object.freeze({
+    uid: 'u-persona-banned-1',
+    displayName: 'Parker Banned',
+    profileCompleted: true,
+  }),
+  Object.freeze({
+    uid: 'u-persona-pending-del-1',
+    displayName: 'Jordan Pending',
+    profileCompleted: true,
+  }),
+  Object.freeze({
+    uid: 'u-regular-1',
+    displayName: 'Alex',
+    profileCompleted: true,
   }),
 ]);
