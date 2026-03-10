@@ -14,12 +14,15 @@ import { OnboardingNameScreen } from '../screens/OnboardingNameScreen';
 import { OnboardingPhotoUploadScreen } from '../screens/OnboardingPhotoUploadScreen';
 import { OnboardingPreferencesScreen } from '../screens/OnboardingPreferencesScreen';
 import { OnboardingTermsScreen } from '../screens/OnboardingTermsScreen';
+import { EditProfileScreen } from '../screens/EditProfileScreen';
+import { ProfilePhotosManagementScreen } from '../screens/ProfilePhotosManagementScreen';
 import { OwnerEntryScreen } from '../screens/OwnerEntryScreen';
 import { ProfileCompletionRequiredScreen } from '../screens/ProfileCompletionRequiredScreen';
 import { SessionRecoveryScreen } from '../screens/SessionRecoveryScreen';
 import { SplashScreen } from '../screens/SplashScreen';
 import { UnknownRouteFallbackScreen } from '../screens/UnknownRouteFallbackScreen';
 import { UserEntryScreen } from '../screens/UserEntryScreen';
+import { UserProfileScreen } from '../screens/UserProfileScreen';
 import { WelcomeScreen } from '../screens/WelcomeScreen';
 import { useRouteAccessSelectors } from '../state/routeSelectors';
 import { useTheme } from '../theme';
@@ -104,6 +107,11 @@ export function AppNavigator() {
         <Stack.Screen name={ROUTE_NAMES.OnboardingPreferences} component={OnboardingPreferencesScreen} />
         <Stack.Screen name={ROUTE_NAMES.OnboardingTerms} component={OnboardingTermsScreen} />
         <Stack.Screen name={ROUTE_NAMES.ProfileCompletionRequired} component={ProfileCompletionRequiredScreen} />
+        <Stack.Screen name={ROUTE_NAMES.UserProfile}>{() => renderProtectedRoute('UserProfile', UserProfileScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.EditProfile}>{() => renderProtectedRoute('EditProfile', EditProfileScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.ProfilePhotosManagement}>
+          {() => renderProtectedRoute('ProfilePhotosManagement', ProfilePhotosManagementScreen)}
+        </Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.AuthGroup}>{() => renderProtectedRoute('AuthGroup', AuthEntryScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.UserGroup}>{() => renderProtectedRoute('UserGroup', UserEntryScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.OwnerGroup}>{() => renderProtectedRoute('OwnerGroup', OwnerEntryScreen)}</Stack.Screen>

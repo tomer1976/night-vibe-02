@@ -129,6 +129,9 @@ export function canAccessRoute(routeName: AppRouteName, context: SimulatedRoleCo
 
   switch (routeName) {
     case ROUTE_NAMES.UserGroup:
+    case ROUTE_NAMES.UserProfile:
+    case ROUTE_NAMES.EditProfile:
+    case ROUTE_NAMES.ProfilePhotosManagement:
       return context.activeRoleContext === 'RegularUser';
     case ROUTE_NAMES.OwnerGroup:
       return context.activeRoleContext === 'VenueOwner';
