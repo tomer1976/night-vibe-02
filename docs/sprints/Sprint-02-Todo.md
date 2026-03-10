@@ -47,7 +47,7 @@
 ## Testing Tasks
 - [x] Add auth routing tests per account status.
 - [x] Add onboarding step validation tests.
-- [ ] Add profile completion gate tests.
+- [x] Add profile completion gate tests.
 - [ ] Add photo workflow tests for upload/retry/remove constraints.
 - [ ] Add delete/recovery flow tests.
 - [ ] Add regression tests for login -> onboarding -> profile -> settings path.

@@ -68,6 +68,31 @@ describe('deep link routing', () => {
     ).toBe(ROUTE_NAMES.ProfileCompletionRequired);
   });
 
+  it('applies onboarding gate for all protected post-onboarding deep links', () => {
+    const postOnboardingPaths = [
+      '/user',
+      '/profile',
+      '/profile/edit',
+      '/profile/photos',
+      '/settings/account',
+      '/settings/linked-accounts',
+      '/settings/delete-account',
+      '/settings/account-deletion-recovery',
+    ];
+
+    postOnboardingPaths.forEach((path) => {
+      expect(
+        resolveDeepLinkTargetRoute({
+          path,
+          accountStatus: 'active',
+          isMockModeEnabled: true,
+          profileCompleted: false,
+          simulatedRoleContext: regularUserContext,
+        }),
+      ).toBe(ROUTE_NAMES.ProfileCompletionRequired);
+    });
+  });
+
   it('routes unknown deep links to unknown fallback when mock mode is off', () => {
     expect(
       resolveDeepLinkTargetRoute({

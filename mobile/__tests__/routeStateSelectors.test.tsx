@@ -12,6 +12,8 @@ function RouteSelectorProbe() {
 
   const ownerResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.OwnerGroup);
   const userResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.UserGroup);
+  const userProfileResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.UserProfile);
+  const accountSettingsResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.AccountSettings);
 
   return (
     <View>
@@ -19,6 +21,10 @@ function RouteSelectorProbe() {
       <Text>{`ownerResolved:${ownerResolution.resolvedRoute}`}</Text>
       <Text>{`userAllowed:${userResolution.isAllowed}`}</Text>
       <Text>{`userResolved:${userResolution.resolvedRoute}`}</Text>
+      <Text>{`userProfileAllowed:${userProfileResolution.isAllowed}`}</Text>
+      <Text>{`userProfileResolved:${userProfileResolution.resolvedRoute}`}</Text>
+      <Text>{`accountSettingsAllowed:${accountSettingsResolution.isAllowed}`}</Text>
+      <Text>{`accountSettingsResolved:${accountSettingsResolution.resolvedRoute}`}</Text>
       <Text>{`activeRole:${routeAccess.simulatedRoleContext.activeRoleContext ?? 'none'}`}</Text>
 
       <Pressable
@@ -104,15 +110,27 @@ describe('route state selectors', () => {
 
     expect(getByText('userAllowed:true')).toBeTruthy();
     expect(getByText(`userResolved:${ROUTE_NAMES.UserGroup}`)).toBeTruthy();
+    expect(getByText('userProfileAllowed:true')).toBeTruthy();
+    expect(getByText(`userProfileResolved:${ROUTE_NAMES.UserProfile}`)).toBeTruthy();
+    expect(getByText('accountSettingsAllowed:true')).toBeTruthy();
+    expect(getByText(`accountSettingsResolved:${ROUTE_NAMES.AccountSettings}`)).toBeTruthy();
 
     fireEvent.press(getByTestId('set-profile-incomplete'));
 
     expect(getByText('userAllowed:false')).toBeTruthy();
     expect(getByText(`userResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
+    expect(getByText('userProfileAllowed:false')).toBeTruthy();
+    expect(getByText(`userProfileResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
+    expect(getByText('accountSettingsAllowed:false')).toBeTruthy();
+    expect(getByText(`accountSettingsResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
 
     fireEvent.press(getByTestId('set-profile-complete'));
 
     expect(getByText('userAllowed:true')).toBeTruthy();
     expect(getByText(`userResolved:${ROUTE_NAMES.UserGroup}`)).toBeTruthy();
+    expect(getByText('userProfileAllowed:true')).toBeTruthy();
+    expect(getByText(`userProfileResolved:${ROUTE_NAMES.UserProfile}`)).toBeTruthy();
+    expect(getByText('accountSettingsAllowed:true')).toBeTruthy();
+    expect(getByText(`accountSettingsResolved:${ROUTE_NAMES.AccountSettings}`)).toBeTruthy();
   });
 });
