@@ -1,8 +1,8 @@
 import { StackActions, useNavigation } from '@react-navigation/native';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, Card, TopBar } from '../components';
+import { AccountStateBannerCard, Button, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useAuthState } from '../state';
 import { useTheme } from '../theme';
@@ -31,15 +31,18 @@ export function SessionRecoveryScreen() {
       </View>
 
       <View style={[styles.content, { paddingHorizontal: theme.spacing.lg }]}> 
-        <Card subtitle="Your account is in a pending deletion recovery window." title="Session Recovery Screen">
+        <AccountStateBannerCard
+          detail="Recover now to return your account to active status."
+          statusLabel="PENDING DELETION"
+          subtitle="Your account is in a pending deletion recovery window."
+          title="Session Recovery Screen"
+          tone="warning"
+        >
           <View style={{ gap: theme.spacing.md }}>
-            <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.body }}>
-              Recover now to return your account to active status.
-            </Text>
             <Button label="Recover Account" onPress={recoverSession} />
             <Button label="Cancel and Exit" onPress={cancelRecovery} variant="secondary" />
           </View>
-        </Card>
+        </AccountStateBannerCard>
       </View>
     </SafeAreaView>
   );

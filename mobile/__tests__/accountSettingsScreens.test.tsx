@@ -59,6 +59,7 @@ describe('account/settings screens', () => {
     fireEvent.press(getByText('Request Deletion'));
 
     expect(getByText('Recover Account')).toBeTruthy();
+    expect(getByText('PENDING DELETION')).toBeTruthy();
 
     fireEvent.press(getByText('Recover Account'));
 

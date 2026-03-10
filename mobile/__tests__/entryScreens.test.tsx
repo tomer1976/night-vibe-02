@@ -62,4 +62,30 @@ describe('entry screens', () => {
 
     expect(getByTestId(`bottom-nav-${activeTab}`).props.accessibilityState.selected).toBe(true);
   });
+
+  it('renders denied/recovery account-state banners', () => {
+    const { getByText, rerender } = render(
+      <ThemeProvider>
+        <AppStateProvider>
+          <NavigationContainer>
+            <SessionRecoveryScreen />
+          </NavigationContainer>
+        </AppStateProvider>
+      </ThemeProvider>
+    );
+
+    expect(getByText('PENDING DELETION')).toBeTruthy();
+
+    rerender(
+      <ThemeProvider>
+        <AppStateProvider>
+          <NavigationContainer>
+            <AccessDeniedScreen />
+          </NavigationContainer>
+        </AppStateProvider>
+      </ThemeProvider>
+    );
+
+    expect(getByText('ACTIVE')).toBeTruthy();
+  });
 });

@@ -1,6 +1,7 @@
 import { fireEvent, render } from '@testing-library/react-native';
 
 import {
+  AccountStateBannerCard,
   Badge,
   BottomNavShell,
   Button,
@@ -101,6 +102,19 @@ describe('primitive components', () => {
     expect(getByText('Profile')).toBeTruthy();
     expect(getByText('About you')).toBeTruthy();
     expect(getByText('Live')).toBeTruthy();
+  });
+
+  it('renders AccountStateBannerCard with status and detail text', () => {
+    const { getByText } = render(
+      <ThemeProvider>
+        <AccountStateBannerCard detail="Recovery window active" statusLabel="PENDING DELETION" subtitle="Take action now" title="Account State" tone="warning" />
+      </ThemeProvider>
+    );
+
+    expect(getByText('Account State')).toBeTruthy();
+    expect(getByText('Take action now')).toBeTruthy();
+    expect(getByText('PENDING DELETION')).toBeTruthy();
+    expect(getByText('Recovery window active')).toBeTruthy();
   });
 
   it('renders ListItem content', () => {

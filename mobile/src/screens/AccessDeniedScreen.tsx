@@ -1,8 +1,8 @@
 import { StackActions, useNavigation } from '@react-navigation/native';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, Card, TopBar } from '../components';
+import { AccountStateBannerCard, Button, TopBar } from '../components';
 import { useAuthState } from '../state';
 import { useTheme } from '../theme';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
@@ -30,11 +30,14 @@ export function AccessDeniedScreen() {
       </View>
 
       <View style={[styles.content, { paddingHorizontal: theme.spacing.lg }]}> 
-        <Card subtitle={deniedReason} title="Account Access Denied Screen">
+        <AccountStateBannerCard
+          detail="Contact support if you believe this is a mistake."
+          statusLabel={accountStatus.toUpperCase()}
+          subtitle={deniedReason}
+          title="Account Access Denied Screen"
+          tone="danger"
+        >
           <View style={{ gap: theme.spacing.md }}>
-            <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.body }}>
-              Contact support if you believe this is a mistake.
-            </Text>
             <Button
               label="Back to Welcome"
               onPress={() => {
@@ -43,7 +46,7 @@ export function AccessDeniedScreen() {
               }}
             />
           </View>
-        </Card>
+        </AccountStateBannerCard>
       </View>
     </SafeAreaView>
   );

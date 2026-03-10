@@ -1,8 +1,8 @@
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, Button, Card, TopBar } from '../components';
+import { AccountStateBannerCard, Button, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useTheme } from '../theme';
 import { readAccountSettingsDraftFromParams } from './accountSettingsDraft';
@@ -34,20 +34,21 @@ export function AccountDeletionRecoveryScreen() {
       </View>
 
       <View style={[styles.content, { gap: theme.spacing.md, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.lg }]}> 
-        <Card title="Account Deletion Recovery Screen">
-          <View style={[styles.badgeRow, { marginBottom: theme.spacing.md }]}> 
-            <Badge label={draft.status.replace('_', ' ')} tone={isPendingDeletion ? 'warning' : 'success'} />
-          </View>
-
-          {isPendingDeletion ? (
-            <>
-              <Text style={[styles.body, { color: theme.colors.textPrimary, marginBottom: theme.spacing.xs }]}>Deletion requested at: {draft.deletionRequestedAt ?? 'Not available'}</Text>
-              <Text style={[styles.body, { color: theme.colors.textSecondary }]}>Recover before {draft.recoveryWindowDays} days pass to keep your account active.</Text>
-            </>
-          ) : (
-            <Text style={[styles.body, { color: theme.colors.textSecondary }]}>Account is currently active. No recovery action is required.</Text>
-          )}
-        </Card>
+        <AccountStateBannerCard
+          detail={
+            isPendingDeletion
+              ? `Deletion requested at: ${draft.deletionRequestedAt ?? 'Not available'}`
+              : 'Account is currently active. No recovery action is required.'
+          }
+          statusLabel={draft.status.replace('_', ' ').toUpperCase()}
+          subtitle={
+            isPendingDeletion
+              ? `Recover before ${draft.recoveryWindowDays} days pass to keep your account active.`
+              : 'Recovery is available only while account status is pending deletion.'
+          }
+          title="Account Deletion Recovery Screen"
+          tone={isPendingDeletion ? 'warning' : 'success'}
+        />
 
         <View style={[styles.actions, { gap: theme.spacing.md }]}> 
           {isPendingDeletion ? <Button label="Recover Account" onPress={recoverAccount} /> : null}
@@ -67,13 +68,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  badgeRow: {
-    alignItems: 'flex-start',
-  },
-  body: {
-    fontSize: 14,
-    lineHeight: 20,
   },
   actions: {
     width: '100%',
