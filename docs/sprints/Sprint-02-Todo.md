@@ -12,7 +12,7 @@
 - [x] Define mock error mapping for expected API error codes.
 
 ## Firebase Tasks (if applicable)
-- [ ] Confirm Firebase adapters remain disabled/guarded in Phase 1 mode.
+- [x] Confirm Firebase adapters remain disabled/guarded in Phase 1 mode.
 - [ ] Add placeholder configuration points for future auth/profile adapters.
 
 ## Mock-Data Tasks

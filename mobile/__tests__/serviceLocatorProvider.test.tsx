@@ -72,6 +72,6 @@ describe('mock service locator wiring', () => {
         </ServiceLocatorProvider>
       );
 
-    expect(renderDisabled).toThrow('Real service locator wiring is not available in Sprint-01. Enable phase1 mock mode.');
+    expect(renderDisabled).toThrow('Real service locator wiring is not available in Phase 1. Enable phase1 mock mode.');
   });
 });

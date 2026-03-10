@@ -14,7 +14,7 @@ type ServiceLocatorProviderProps = PropsWithChildren<{
 export function ServiceLocatorProvider({ children, isMockModeEnabled }: ServiceLocatorProviderProps) {
   const services = useMemo<BackendServiceContracts>(() => {
     if (!isMockModeEnabled) {
-      throw new Error('Real service locator wiring is not available in Sprint-01. Enable phase1 mock mode.');
+      throw new Error('Real service locator wiring is not available in Phase 1. Enable phase1 mock mode.');
     }
 
     return mockLocator.services;
