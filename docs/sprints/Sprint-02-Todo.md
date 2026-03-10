@@ -45,7 +45,7 @@
 - [x] Implement account lifecycle state store for deletion/recovery simulation.
 
 ## Testing Tasks
-- [ ] Add auth routing tests per account status.
+- [x] Add auth routing tests per account status.
 - [ ] Add onboarding step validation tests.
 - [ ] Add profile completion gate tests.
 - [ ] Add photo workflow tests for upload/retry/remove constraints.

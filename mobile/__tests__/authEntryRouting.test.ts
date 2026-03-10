@@ -22,6 +22,16 @@ describe('auth entry routing', () => {
     ).toBe(ROUTE_NAMES.SessionRecovery);
   });
 
+  it('keeps pending deletion users on session recovery even when marked as new users', () => {
+    expect(
+      resolveAuthEntryRoute({
+        isAuthenticated: true,
+        accountStatus: 'pending_deletion',
+        isNewUser: true,
+      }),
+    ).toBe(ROUTE_NAMES.SessionRecovery);
+  });
+
   it.each(['suspended', 'banned', 'deleted'] as const)(
     'routes %s account status to access denied',
     (accountStatus) => {
@@ -32,6 +42,32 @@ describe('auth entry routing', () => {
           isNewUser: false,
         }),
       ).toBe(ROUTE_NAMES.AccessDenied);
+    },
+  );
+
+  it.each(['suspended', 'banned', 'deleted'] as const)(
+    'keeps %s users on access denied even when marked as new users',
+    (accountStatus) => {
+      expect(
+        resolveAuthEntryRoute({
+          isAuthenticated: true,
+          accountStatus,
+          isNewUser: true,
+        }),
+      ).toBe(ROUTE_NAMES.AccessDenied);
+    },
+  );
+
+  it.each(['pending_deletion', 'suspended', 'banned', 'deleted'] as const)(
+    'routes unauthenticated %s users to welcome',
+    (accountStatus) => {
+      expect(
+        resolveAuthEntryRoute({
+          isAuthenticated: false,
+          accountStatus,
+          isNewUser: true,
+        }),
+      ).toBe(ROUTE_NAMES.Welcome);
     },
   );
 
