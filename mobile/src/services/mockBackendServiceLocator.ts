@@ -25,6 +25,10 @@ type MockServiceLocatorOptions = {
   activeUserId?: string;
   clock?: MockClock;
   responseFactory?: MockResponseFactory;
+  sessionSimulation?: {
+    accessTokenTtlMs?: number;
+    refreshTokenTtlMs?: number;
+  };
 };
 
 type MockServiceLocator = {
@@ -34,6 +38,8 @@ type MockServiceLocator = {
 };
 
 const DEFAULT_USER_ID = 'u-regular-1';
+const DEFAULT_ACCESS_TOKEN_TTL_MS = 15 * 60 * 1000;
+const DEFAULT_REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 function computeMatchRecords(activeUserId: string): MatchRecord[] {
   const likes = sprint01Fixtures.interactions.filter((interaction) => interaction.action === 'like');
@@ -110,6 +116,17 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       seed: 'req-sprint01',
     });
 
+  const accessTokenTtlMs = options?.sessionSimulation?.accessTokenTtlMs ?? DEFAULT_ACCESS_TOKEN_TTL_MS;
+  const refreshTokenTtlMs = options?.sessionSimulation?.refreshTokenTtlMs ?? DEFAULT_REFRESH_TOKEN_TTL_MS;
+
+  if (!Number.isInteger(accessTokenTtlMs) || accessTokenTtlMs <= 0) {
+    throw new Error('Invalid accessTokenTtlMs. Use a positive integer milliseconds value.');
+  }
+
+  if (!Number.isInteger(refreshTokenTtlMs) || refreshTokenTtlMs <= 0) {
+    throw new Error('Invalid refreshTokenTtlMs. Use a positive integer milliseconds value.');
+  }
+
   const authSession = {
     uid: activeUser.uid,
     status: activeUser.status,
@@ -119,6 +136,69 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
 
   let linkedProviders = authSession.roles.length > 0 ? (['google'] as ('google' | 'apple')[]) : [];
   let accountStatus: AccountStatus = authSession.status;
+  let sessionVersion = 0;
+  let activeAccessToken = '';
+  let activeRefreshToken = '';
+  let accessTokenExpiresAtMs = 0;
+  let refreshTokenExpiresAtMs = 0;
+
+  const asMillis = (instant: string) => new Date(instant).getTime();
+  const issueSessionTokens = () => {
+    const issuedAt = clock.now();
+    const issuedAtMs = asMillis(issuedAt);
+
+    sessionVersion += 1;
+    activeAccessToken = `mock-access-${activeUser.uid}-v${sessionVersion}`;
+    activeRefreshToken = `mock-refresh-${activeUser.uid}-v${sessionVersion}`;
+    accessTokenExpiresAtMs = issuedAtMs + accessTokenTtlMs;
+    refreshTokenExpiresAtMs = issuedAtMs + refreshTokenTtlMs;
+
+    return {
+      accessToken: activeAccessToken,
+      refreshToken: activeRefreshToken,
+      tokenExpiration: new Date(accessTokenExpiresAtMs).toISOString(),
+    };
+  };
+
+  const validateRefreshToken = (refreshToken: string) => {
+    if (refreshToken !== activeRefreshToken) {
+      return responseFactory.build({
+        key: 'auth.refreshSession',
+        data: {
+          accessToken: '',
+          tokenExpiration: '',
+        },
+        scenario: 'UNAUTHORIZED',
+        errorMessage: 'Mock refresh token is invalid for the current session.',
+        details: {
+          reason: 'refresh_token_mismatch',
+        },
+      });
+    }
+
+    const nowMs = asMillis(clock.peek());
+
+    if (nowMs > refreshTokenExpiresAtMs) {
+      return responseFactory.build({
+        key: 'auth.refreshSession',
+        data: {
+          accessToken: '',
+          tokenExpiration: '',
+        },
+        scenario: 'UNAUTHORIZED',
+        errorMessage: 'Mock refresh token has expired.',
+        details: {
+          reason: 'refresh_token_expired',
+          refresh_token_expires_at: new Date(refreshTokenExpiresAtMs).toISOString(),
+          now: new Date(nowMs).toISOString(),
+        },
+      });
+    }
+
+    return null;
+  };
+
+  issueSessionTokens();
   const seededProfile = sprint02ProfileFixtures.find((profile) => profile.uid === activeUser.uid);
   let activeUserProfile: UserProfile = {
     uid: activeUser.uid,
@@ -129,24 +209,34 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
   const services: BackendServiceContracts = {
     auth: {
       getSession: async () => responseFactory.build({ key: 'auth.getSession', data: authSession }),
-      login: async (request) =>
+      login: async () =>
         responseFactory.build({
           key: 'auth.login',
           data: {
             ...authSession,
-            accessToken: `mock-access-${request.provider}-${activeUser.uid}`,
-            refreshToken: `mock-refresh-${activeUser.uid}`,
+            ...issueSessionTokens(),
             isNewUser: activeUser.isNewUser,
           },
         }),
-      refreshSession: async () =>
-        responseFactory.build({
+      refreshSession: async (refreshToken) => {
+        const failedValidation = validateRefreshToken(refreshToken);
+        if (failedValidation) {
+          return failedValidation;
+        }
+
+        const issuedAt = clock.now();
+        const issuedAtMs = asMillis(issuedAt);
+        activeAccessToken = `mock-access-${activeUser.uid}-v${sessionVersion}`;
+        accessTokenExpiresAtMs = issuedAtMs + accessTokenTtlMs;
+
+        return responseFactory.build({
           key: 'auth.refreshSession',
           data: {
-            accessToken: `mock-access-refresh-${activeUser.uid}`,
-            tokenExpiration: clock.now(),
+            accessToken: activeAccessToken,
+            tokenExpiration: new Date(accessTokenExpiresAtMs).toISOString(),
           },
-        }),
+        });
+      },
       linkProvider: async (provider) => {
         if (!linkedProviders.includes(provider)) {
           linkedProviders = [...linkedProviders, provider];

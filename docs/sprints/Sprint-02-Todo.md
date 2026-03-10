@@ -24,7 +24,7 @@
   - pending deletion user
 - [x] Add profile fixtures with complete and incomplete onboarding states.
 - [x] Add photo fixtures across moderation states (`pending`, `approved`, `rejected`).
-- [ ] Implement deterministic token/session simulation and expiry scenarios.
+- [x] Implement deterministic token/session simulation and expiry scenarios.
 - [ ] Implement deletion/recovery timeline simulation.
 
 ## Navigation Tasks
