@@ -13,7 +13,7 @@
 
 ## Firebase Tasks (if applicable)
 - [x] Confirm Firebase adapters remain disabled/guarded in Phase 1 mode.
-- [ ] Add placeholder configuration points for future auth/profile adapters.
+- [x] Add placeholder configuration points for future auth/profile adapters.
 
 ## Mock-Data Tasks
 - [ ] Create persona fixtures for:

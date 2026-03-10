@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 
+import { assertPhase1AdapterSafety, readAdapterPlaceholderConfig } from './src/config/adapterConfig';
 import { assertFirebaseRuntimeSafety, readFirebaseEnvironment, readRuntimeMode } from './src/config/firebaseRuntimeGuard';
 import { configureRuntimeStability } from './src/config/runtimeStability';
 import { AppNavigator } from './src/navigation';
@@ -8,7 +9,9 @@ import { AppStateProvider, useFeatureFlagsState } from './src/state';
 import { ThemeProvider } from './src/theme';
 
 configureRuntimeStability();
-assertFirebaseRuntimeSafety(readRuntimeMode(), readFirebaseEnvironment());
+const runtimeMode = readRuntimeMode();
+assertFirebaseRuntimeSafety(runtimeMode, readFirebaseEnvironment());
+assertPhase1AdapterSafety(runtimeMode, readAdapterPlaceholderConfig());
 
 function AppShell() {
   const { isMockModeEnabled } = useFeatureFlagsState();
