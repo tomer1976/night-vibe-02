@@ -3,9 +3,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ComponentType } from 'react';
 
 import { AccessDeniedScreen } from '../screens/AccessDeniedScreen';
+import { AccountDeletionRecoveryScreen } from '../screens/AccountDeletionRecoveryScreen';
+import { AccountSettingsScreen } from '../screens/AccountSettingsScreen';
 import { AdminEntryScreen } from '../screens/AdminEntryScreen';
 import { AuthEntryScreen } from '../screens/AuthEntryScreen';
+import { DeleteAccountScreen } from '../screens/DeleteAccountScreen';
 import { LoginScreen } from '../screens/LoginScreen';
+import { LinkedAccountsScreen } from '../screens/LinkedAccountsScreen';
 import { ModeratorEntryScreen } from '../screens/ModeratorEntryScreen';
 import { OnboardingBioScreen } from '../screens/OnboardingBioScreen';
 import { OnboardingDateOfBirthScreen } from '../screens/OnboardingDateOfBirthScreen';
@@ -111,6 +115,12 @@ export function AppNavigator() {
         <Stack.Screen name={ROUTE_NAMES.EditProfile}>{() => renderProtectedRoute('EditProfile', EditProfileScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.ProfilePhotosManagement}>
           {() => renderProtectedRoute('ProfilePhotosManagement', ProfilePhotosManagementScreen)}
+        </Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.AccountSettings}>{() => renderProtectedRoute('AccountSettings', AccountSettingsScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.LinkedAccounts}>{() => renderProtectedRoute('LinkedAccounts', LinkedAccountsScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.DeleteAccount}>{() => renderProtectedRoute('DeleteAccount', DeleteAccountScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.AccountDeletionRecovery}>
+          {() => renderProtectedRoute('AccountDeletionRecovery', AccountDeletionRecoveryScreen)}
         </Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.AuthGroup}>{() => renderProtectedRoute('AuthGroup', AuthEntryScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.UserGroup}>{() => renderProtectedRoute('UserGroup', UserEntryScreen)}</Stack.Screen>

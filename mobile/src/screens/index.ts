@@ -1,7 +1,11 @@
 export { AccessDeniedScreen } from './AccessDeniedScreen';
+export { AccountDeletionRecoveryScreen } from './AccountDeletionRecoveryScreen';
+export { AccountSettingsScreen } from './AccountSettingsScreen';
 export { AdminEntryScreen } from './AdminEntryScreen';
 export { AuthEntryScreen } from './AuthEntryScreen';
+export { DeleteAccountScreen } from './DeleteAccountScreen';
 export { EditProfileScreen } from './EditProfileScreen';
+export { LinkedAccountsScreen } from './LinkedAccountsScreen';
 export { LoginScreen } from './LoginScreen';
 export { ModeratorEntryScreen } from './ModeratorEntryScreen';
 export { OnboardingBioScreen } from './OnboardingBioScreen';
@@ -24,3 +28,11 @@ export { UserProfileScreen } from './UserProfileScreen';
 export { WelcomeScreen } from './WelcomeScreen';
 export { calculateAge, DEFAULT_ONBOARDING_DRAFT, type OnboardingDraft } from './onboardingDraft';
 export { DEFAULT_PROFILE_DRAFT, readProfileDraftFromParams, type ProfileDraft, type ProfilePhotoDraft, type ProfilePhotoModerationStatus } from './profileDraft';
+export {
+	DEFAULT_ACCOUNT_SETTINGS_DRAFT,
+	readAccountSettingsDraftFromParams,
+	type AccountSettingsDraft,
+	type AccountStatusDraft,
+	type LinkedAccountDraft,
+	type LinkedAccountProvider,
+} from './accountSettingsDraft';

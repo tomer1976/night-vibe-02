@@ -6,6 +6,7 @@ import { Badge, BottomNavShell, Button, Card, ListItem, TopBar } from '../compon
 import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
 import { useRouteAccessSelectors } from '../state/routeSelectors';
 import { useTheme } from '../theme';
+import { DEFAULT_ACCOUNT_SETTINGS_DRAFT } from './accountSettingsDraft';
 import { readProfileDraftFromParams } from './profileDraft';
 
 const navItems = [
@@ -107,6 +108,12 @@ export function UserProfileScreen() {
           onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.ProfilePhotosManagement, { draft }))}
           subtitle="Upload/remove photos and moderation states"
           title="Profile Photos Management Screen"
+          trailingText="Open"
+        />
+        <ListItem
+          onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.AccountSettings, { draft: DEFAULT_ACCOUNT_SETTINGS_DRAFT }))}
+          subtitle="Manage linked accounts and deletion lifecycle"
+          title="Account Settings Screen"
           trailingText="Open"
         />
 

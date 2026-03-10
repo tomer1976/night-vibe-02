@@ -132,6 +132,10 @@ export function canAccessRoute(routeName: AppRouteName, context: SimulatedRoleCo
     case ROUTE_NAMES.UserProfile:
     case ROUTE_NAMES.EditProfile:
     case ROUTE_NAMES.ProfilePhotosManagement:
+    case ROUTE_NAMES.AccountSettings:
+    case ROUTE_NAMES.LinkedAccounts:
+    case ROUTE_NAMES.DeleteAccount:
+    case ROUTE_NAMES.AccountDeletionRecovery:
       return context.activeRoleContext === 'RegularUser';
     case ROUTE_NAMES.OwnerGroup:
       return context.activeRoleContext === 'VenueOwner';
