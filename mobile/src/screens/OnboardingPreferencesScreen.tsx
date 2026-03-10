@@ -64,10 +64,25 @@ export function OnboardingPreferencesScreen() {
       title="Onboarding Step 6: Preferences"
       totalSteps={7}
     >
-      <Input keyboardType="number-pad" label="Preferred Age Min" onChangeText={setPreferredAgeMin} testID="onboarding-pref-min" value={preferredAgeMin} />
-      <Input keyboardType="number-pad" label="Preferred Age Max" onChangeText={setPreferredAgeMax} testID="onboarding-pref-max" value={preferredAgeMax} />
+      <Input
+        helperText="Minimum age must be at least 18."
+        keyboardType="number-pad"
+        label="Preferred Age Min"
+        onChangeText={setPreferredAgeMin}
+        testID="onboarding-pref-min"
+        value={preferredAgeMin}
+      />
+      <Input
+        helperText="Maximum age must be greater than or equal to minimum age."
+        keyboardType="number-pad"
+        label="Preferred Age Max"
+        onChangeText={setPreferredAgeMax}
+        testID="onboarding-pref-max"
+        value={preferredAgeMax}
+      />
       <Input
         errorText={errorText}
+        helperText="Use comma-separated values, for example: female, male"
         label="Preferred Genders (comma-separated)"
         onChangeText={setPreferredGenders}
         placeholder="female, male"

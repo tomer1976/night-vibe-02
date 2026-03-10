@@ -50,8 +50,10 @@ export function OnboardingDateOfBirthScreen() {
     >
       <Input
         autoCapitalize="none"
+        helperText="You must be at least 18 years old."
         errorText={errorText}
         label="Date of Birth"
+        maxLength={10}
         onChangeText={setDateOfBirth}
         placeholder="1998-12-31"
         testID="onboarding-dob-input"

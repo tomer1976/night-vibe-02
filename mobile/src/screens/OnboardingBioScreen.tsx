@@ -51,11 +51,13 @@ export function OnboardingBioScreen() {
     >
       <Input
         errorText={errorText}
+        helperText="Keep it short and friendly."
         label="Bio"
         multiline
         numberOfLines={4}
         onChangeText={setBio}
         placeholder="Tell people what makes your night out fun..."
+        style={{ textAlignVertical: 'top' }}
         testID="onboarding-bio-input"
         value={bio}
       />

@@ -57,6 +57,25 @@ describe('primitive components', () => {
     expect(getByDisplayValue('test@example.com')).toBeTruthy();
   });
 
+  it('renders Input helper text and hides it when error is present', () => {
+    const { getByText, queryByText, rerender } = render(
+      <ThemeProvider>
+        <Input helperText="Use your real name" label="Display Name" value="Alex" />
+      </ThemeProvider>
+    );
+
+    expect(getByText('Use your real name')).toBeTruthy();
+
+    rerender(
+      <ThemeProvider>
+        <Input errorText="Name is required" helperText="Use your real name" label="Display Name" value="" />
+      </ThemeProvider>
+    );
+
+    expect(getByText('Name is required')).toBeTruthy();
+    expect(queryByText('Use your real name')).toBeNull();
+  });
+
   it('renders InlineErrorMessage only when message exists', () => {
     const { getByText } = render(
       <ThemeProvider>

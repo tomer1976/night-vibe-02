@@ -38,7 +38,16 @@ export function OnboardingNameScreen() {
 
   return (
     <OnboardingStepLayout onNext={goNext} step={1} subtitle="Tell us your name." title="Onboarding Step 1: Name" totalSteps={7}>
-      <Input errorText={errorText} label="Full Name" onChangeText={setFullName} placeholder="Alex" testID="onboarding-name-input" value={fullName} />
+      <Input
+        autoCapitalize="words"
+        errorText={errorText}
+        helperText="This is shown on your profile."
+        label="Full Name"
+        onChangeText={setFullName}
+        placeholder="Alex"
+        testID="onboarding-name-input"
+        value={fullName}
+      />
     </OnboardingStepLayout>
   );
 }
