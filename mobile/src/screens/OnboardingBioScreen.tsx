@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { Input } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { validateBioLength } from '../validation/formValidation';
 import { OnboardingStepLayout } from './OnboardingStepLayout';
 import { readDraftFromParams } from './onboardingDraft';
 
@@ -20,9 +21,10 @@ export function OnboardingBioScreen() {
 
   const goNext = () => {
     const normalizedBio = bio.trim();
+    const nextError = validateBioLength(normalizedBio);
 
-    if (normalizedBio.length < 10 || normalizedBio.length > 300) {
-      setErrorText('Bio must be between 10 and 300 characters.');
+    if (nextError) {
+      setErrorText(nextError);
       return;
     }
 

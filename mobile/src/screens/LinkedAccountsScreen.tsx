@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, Card, ListItem, TopBar } from '../components';
+import { Button, Card, InlineErrorMessage, ListItem, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useTheme } from '../theme';
 import { LinkedAccountProvider, readAccountSettingsDraftFromParams } from './accountSettingsDraft';
@@ -77,7 +77,7 @@ export function LinkedAccountsScreen() {
             ))}
           </View>
 
-          {errorMessage ? <Text style={[styles.error, { color: theme.colors.danger, marginTop: theme.spacing.sm }]}>{errorMessage}</Text> : null}
+          <InlineErrorMessage message={errorMessage} />
         </Card>
 
         <View style={[styles.actions, { gap: theme.spacing.md }]}> 
@@ -104,9 +104,6 @@ const styles = StyleSheet.create({
   },
   meta: {
     fontSize: 14,
-  },
-  error: {
-    fontSize: 13,
   },
   actions: {
     width: '100%',

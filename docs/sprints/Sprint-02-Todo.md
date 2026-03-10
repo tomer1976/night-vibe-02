@@ -5,7 +5,7 @@
 - [x] Implement complete onboarding screen set with stepper/navigation controls.
 - [x] Build profile screens (view/edit/photos) using shared Sprint 01 design components.
 - [x] Build account/settings screens (Account Settings, Linked Accounts, Delete/Recovery flows).
-- [ ] Add reusable form validation and inline error messaging components.
+- [x] Add reusable form validation and inline error messaging components.
 
 ## Backend Tasks (if applicable)
 - [ ] Define auth/profile/account-lifecycle service interfaces for future Phase 2 real implementation.

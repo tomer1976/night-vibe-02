@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { Input } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { validateMinLength } from '../validation/formValidation';
 import { OnboardingStepLayout } from './OnboardingStepLayout';
 import { readDraftFromParams } from './onboardingDraft';
 
@@ -16,11 +17,14 @@ export function OnboardingNameScreen() {
 
   const goNext = () => {
     const normalizedName = fullName.trim();
+    const nextError = validateMinLength(normalizedName, 2, 'Enter at least 2 characters for your name.');
 
-    if (normalizedName.length < 2) {
-      setErrorText('Enter at least 2 characters for your name.');
+    if (nextError) {
+      setErrorText(nextError);
       return;
     }
+
+    setErrorText(undefined);
 
     navigation.dispatch(
       StackActions.replace(ROUTE_NAMES.OnboardingDateOfBirth, {

@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { Input } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { normalizePreferredGenders, validateAgeRange, validatePreferredGenders } from '../validation/formValidation';
 import { OnboardingStepLayout } from './OnboardingStepLayout';
 import { readDraftFromParams } from './onboardingDraft';
 
@@ -30,17 +31,15 @@ export function OnboardingPreferencesScreen() {
   };
 
   const goNext = () => {
-    const minAge = Number(preferredAgeMin);
-    const maxAge = Number(preferredAgeMax);
-    const normalizedGenders = preferredGenders
-      .split(',')
-      .map((item) => item.trim())
-      .filter((item) => item.length > 0);
+    const ageError = validateAgeRange(preferredAgeMin, preferredAgeMax);
+    const genderError = validatePreferredGenders(preferredGenders);
 
-    if (!Number.isFinite(minAge) || !Number.isFinite(maxAge) || minAge < 18 || maxAge < minAge || normalizedGenders.length === 0) {
+    if (ageError || genderError) {
       setErrorText('Set valid age boundaries and at least one preferred gender.');
       return;
     }
+
+    const normalizedGenders = normalizePreferredGenders(preferredGenders);
 
     setErrorText(undefined);
 
@@ -48,8 +47,8 @@ export function OnboardingPreferencesScreen() {
       StackActions.replace(ROUTE_NAMES.OnboardingTerms, {
         draft: {
           ...draft,
-          preferredAgeMin: String(minAge),
-          preferredAgeMax: String(maxAge),
+          preferredAgeMin: String(Number(preferredAgeMin)),
+          preferredAgeMax: String(Number(preferredAgeMax)),
           preferredGenders: normalizedGenders.join(', '),
         },
       })

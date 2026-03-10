@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Card, Input, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useTheme } from '../theme';
+import { validateDeletionConfirmationToken } from '../validation/formValidation';
 import { readAccountSettingsDraftFromParams } from './accountSettingsDraft';
 
 const DELETE_CONFIRMATION_TOKEN = 'DELETE';
@@ -20,8 +21,10 @@ export function DeleteAccountScreen() {
   const [tokenError, setTokenError] = useState<string | undefined>();
 
   const requestDeletion = () => {
-    if (confirmationToken.trim().toUpperCase() !== DELETE_CONFIRMATION_TOKEN) {
-      setTokenError('Type DELETE to confirm account deletion request.');
+    const nextTokenError = validateDeletionConfirmationToken(confirmationToken, DELETE_CONFIRMATION_TOKEN);
+
+    if (nextTokenError) {
+      setTokenError(nextTokenError);
       return;
     }
 

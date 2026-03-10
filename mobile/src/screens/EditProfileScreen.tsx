@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Card, Input, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useTheme } from '../theme';
+import { normalizePreferredGenders, validateAgeRange, validateBioLength, validateMinLength, validatePreferredGenders } from '../validation/formValidation';
 import { readProfileDraftFromParams } from './profileDraft';
 
 export function EditProfileScreen() {
@@ -29,37 +30,34 @@ export function EditProfileScreen() {
     let hasError = false;
     const normalizedDisplayName = displayName.trim();
     const normalizedBio = bio.trim();
-    const normalizedGenders = preferredGenders
-      .split(',')
-      .map((entry) => entry.trim())
-      .filter((entry) => entry.length > 0)
-      .join(',');
+    const normalizedGenders = normalizePreferredGenders(preferredGenders).join(',');
 
     setNameError(undefined);
     setBioError(undefined);
     setAgeError(undefined);
     setGenderError(undefined);
 
-    if (normalizedDisplayName.length < 2) {
-      setNameError('Display name must be at least 2 characters.');
+    const nextNameError = validateMinLength(normalizedDisplayName, 2, 'Display name must be at least 2 characters.');
+    if (nextNameError) {
+      setNameError(nextNameError);
       hasError = true;
     }
 
-    if (normalizedBio.length === 0 || normalizedBio.length > 300) {
-      setBioError('Bio is required and must be 300 characters or less.');
+    const nextBioError = validateBioLength(normalizedBio);
+    if (nextBioError) {
+      setBioError(nextBioError);
       hasError = true;
     }
 
-    const minAge = Number(preferredAgeMin);
-    const maxAge = Number(preferredAgeMax);
-
-    if (!Number.isFinite(minAge) || !Number.isFinite(maxAge) || minAge < 18 || maxAge < minAge) {
-      setAgeError('Use valid ages where min is at least 18 and max is not lower than min.');
+    const nextAgeError = validateAgeRange(preferredAgeMin, preferredAgeMax);
+    if (nextAgeError) {
+      setAgeError(nextAgeError);
       hasError = true;
     }
 
-    if (normalizedGenders.length === 0) {
-      setGenderError('Provide at least one preferred gender.');
+    const nextGenderError = validatePreferredGenders(preferredGenders);
+    if (nextGenderError) {
+      setGenderError(nextGenderError);
       hasError = true;
     }
 
@@ -73,8 +71,8 @@ export function EditProfileScreen() {
           ...draft,
           displayName: normalizedDisplayName,
           bio: normalizedBio,
-          preferredAgeMin: String(minAge),
-          preferredAgeMax: String(maxAge),
+          preferredAgeMin: String(Number(preferredAgeMin)),
+          preferredAgeMax: String(Number(preferredAgeMax)),
           preferredGenders: normalizedGenders,
         },
       })

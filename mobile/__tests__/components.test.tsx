@@ -8,6 +8,7 @@ import {
   EmptyStateTemplate,
   ErrorStateTemplate,
   Input,
+  InlineErrorMessage,
   ListItem,
   LoadingStateTemplate,
   StateView,
@@ -54,6 +55,19 @@ describe('primitive components', () => {
     expect(getByText('Email')).toBeTruthy();
     expect(getByText('Invalid email')).toBeTruthy();
     expect(getByDisplayValue('test@example.com')).toBeTruthy();
+  });
+
+  it('renders InlineErrorMessage only when message exists', () => {
+    const { getByText } = render(
+      <ThemeProvider>
+        <>
+          <InlineErrorMessage message="Inline validation error" />
+          <InlineErrorMessage />
+        </>
+      </ThemeProvider>
+    );
+
+    expect(getByText('Inline validation error')).toBeTruthy();
   });
 
   it('renders Card and Badge', () => {

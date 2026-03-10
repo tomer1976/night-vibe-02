@@ -1,6 +1,7 @@
 import { StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native';
 
 import { useTheme } from '../theme';
+import { InlineErrorMessage } from './InlineErrorMessage';
 
 type InputProps = TextInputProps & {
   label?: string;
@@ -32,7 +33,7 @@ export function Input({ label, errorText, ...props }: InputProps) {
         ]}
         {...props}
       />
-      {hasError ? <Text style={[styles.error, { color: theme.colors.danger, fontSize: theme.typography.meta }]}>{errorText}</Text> : null}
+      <InlineErrorMessage message={errorText} />
     </View>
   );
 }
@@ -48,8 +49,5 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     minHeight: 44,
     width: '100%',
-  },
-  error: {
-    marginTop: 6,
   },
 });

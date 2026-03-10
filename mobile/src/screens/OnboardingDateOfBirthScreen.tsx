@@ -3,8 +3,9 @@ import { useState } from 'react';
 
 import { Input } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { validateAdultDateOfBirth } from '../validation/formValidation';
 import { OnboardingStepLayout } from './OnboardingStepLayout';
-import { calculateAge, readDraftFromParams } from './onboardingDraft';
+import { readDraftFromParams } from './onboardingDraft';
 
 export function OnboardingDateOfBirthScreen() {
   const navigation = useNavigation();
@@ -19,10 +20,10 @@ export function OnboardingDateOfBirthScreen() {
   };
 
   const goNext = () => {
-    const age = calculateAge(dateOfBirth.trim());
+    const nextError = validateAdultDateOfBirth(dateOfBirth);
 
-    if (age < 18) {
-      setErrorText('You must be at least 18 years old. Use YYYY-MM-DD format.');
+    if (nextError) {
+      setErrorText(nextError);
       return;
     }
 
