@@ -25,6 +25,13 @@ export type Sprint02ProfileFixture = {
   profileCompleted: boolean;
 };
 
+export type Sprint02PhotoFixture = {
+  uid: string;
+  photoId: string;
+  photoUrl: string;
+  moderationStatus: 'pending' | 'approved' | 'rejected';
+};
+
 export type MockFixtureRoleContext = {
   uid: string;
   availableRoles: readonly Role[];
@@ -367,5 +374,26 @@ export const sprint02ProfileFixtures: readonly Sprint02ProfileFixture[] = Object
     uid: 'u-regular-1',
     displayName: 'Alex',
     profileCompleted: true,
+  }),
+]);
+
+export const sprint02PhotoFixtures: readonly Sprint02PhotoFixture[] = Object.freeze([
+  Object.freeze({
+    uid: 'u-persona-active-1',
+    photoId: 'photo-active-approved-1',
+    photoUrl: 'mock://profile-photo/u-persona-active-1/1',
+    moderationStatus: 'approved',
+  }),
+  Object.freeze({
+    uid: 'u-persona-new-1',
+    photoId: 'photo-new-pending-1',
+    photoUrl: 'mock://profile-photo/u-persona-new-1/1',
+    moderationStatus: 'pending',
+  }),
+  Object.freeze({
+    uid: 'u-persona-banned-1',
+    photoId: 'photo-banned-rejected-1',
+    photoUrl: 'mock://profile-photo/u-persona-banned-1/1',
+    moderationStatus: 'rejected',
   }),
 ]);

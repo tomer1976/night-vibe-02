@@ -1,4 +1,4 @@
-import { sprint01Fixtures, sprint02AuthPersonaFixtures, sprint02ProfileFixtures } from '../src/mocks';
+import { sprint01Fixtures, sprint02AuthPersonaFixtures, sprint02PhotoFixtures, sprint02ProfileFixtures } from '../src/mocks';
 
 describe('sprint01 fixtures', () => {
   it('provides deterministic fixture counts', () => {
@@ -35,6 +35,20 @@ describe('sprint01 fixtures', () => {
     for (const profile of sprint02ProfileFixtures) {
       expect(fixtureUserIds.has(profile.uid)).toBe(true);
       expect(profile.displayName.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('includes Sprint-02 photo fixtures across moderation states', () => {
+    expect(sprint02PhotoFixtures.length).toBeGreaterThanOrEqual(3);
+
+    const moderationStates = new Set(sprint02PhotoFixtures.map((photo) => photo.moderationStatus));
+    expect(moderationStates).toEqual(new Set(['pending', 'approved', 'rejected']));
+
+    const fixtureUserIds = new Set(sprint01Fixtures.users.map((user) => user.uid));
+    for (const photo of sprint02PhotoFixtures) {
+      expect(fixtureUserIds.has(photo.uid)).toBe(true);
+      expect(photo.photoId.length).toBeGreaterThan(0);
+      expect(photo.photoUrl.startsWith('mock://')).toBe(true);
     }
   });
 

@@ -23,7 +23,7 @@
   - banned user
   - pending deletion user
 - [x] Add profile fixtures with complete and incomplete onboarding states.
-- [ ] Add photo fixtures across moderation states (`pending`, `approved`, `rejected`).
+- [x] Add photo fixtures across moderation states (`pending`, `approved`, `rejected`).
 - [ ] Implement deterministic token/session simulation and expiry scenarios.
 - [ ] Implement deletion/recovery timeline simulation.
 
