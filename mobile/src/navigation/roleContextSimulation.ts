@@ -98,6 +98,15 @@ export function canAccessRoute(routeName: AppRouteName, context: SimulatedRoleCo
     return true;
   }
 
+  if (
+    routeName === ROUTE_NAMES.Welcome ||
+    routeName === ROUTE_NAMES.Login ||
+    routeName === ROUTE_NAMES.SessionRecovery ||
+    routeName === ROUTE_NAMES.AccessDenied
+  ) {
+    return true;
+  }
+
   if (routeName === ROUTE_NAMES.AuthGroup) {
     return !context.isAuthenticated;
   }

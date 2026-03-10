@@ -1,17 +1,28 @@
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { useEffect } from 'react';
 
-import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
+import { useAuthState } from '../state';
 import { useRouteAccessSelectors } from '../state/routeSelectors';
 import { ShellEntryScreen } from './ShellEntryScreen';
 
 export function SplashScreen() {
   const navigation = useNavigation();
-  const { resolve, simulatedRoleContext } = useRouteAccessSelectors();
+  const { accountStatus, isAuthenticated } = useAuthState();
+  const { resolve } = useRouteAccessSelectors();
 
   useEffect(() => {
-    const requestedRoute = simulatedRoleContext.isAuthenticated ? ROUTE_NAMES.UserGroup : ROUTE_NAMES.AuthGroup;
-    const targetRoute = resolve(requestedRoute);
+    let targetRoute: AppRouteName = ROUTE_NAMES.Welcome;
+
+    if (!isAuthenticated) {
+      targetRoute = ROUTE_NAMES.Welcome;
+    } else if (accountStatus === 'pending_deletion') {
+      targetRoute = ROUTE_NAMES.SessionRecovery;
+    } else if (accountStatus === 'suspended' || accountStatus === 'banned' || accountStatus === 'deleted') {
+      targetRoute = ROUTE_NAMES.AccessDenied;
+    } else {
+      targetRoute = resolve(ROUTE_NAMES.UserGroup);
+    }
 
     const timeoutId = setTimeout(() => {
       navigation.dispatch(StackActions.replace(targetRoute));
@@ -20,7 +31,7 @@ export function SplashScreen() {
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [navigation, resolve, simulatedRoleContext.isAuthenticated]);
+  }, [accountStatus, isAuthenticated, navigation, resolve]);
 
   return <ShellEntryScreen title="Splash" subtitle="Application shell bootstrap route." stateTemplate="loading" />;
 }

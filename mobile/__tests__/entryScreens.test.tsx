@@ -2,18 +2,26 @@ import { render } from '@testing-library/react-native';
 import { NavigationContainer } from '@react-navigation/native';
 
 import {
+  AccessDeniedScreen,
   AdminEntryScreen,
   AuthEntryScreen,
+  LoginScreen,
   ModeratorEntryScreen,
   OwnerEntryScreen,
+  SessionRecoveryScreen,
   UserEntryScreen,
+  WelcomeScreen,
 } from '../src/screens';
 import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
 
 describe('entry screens', () => {
   it.each([
-    [AuthEntryScreen, 'Auth Entry'],
+    [AuthEntryScreen, 'Welcome Screen'],
+    [WelcomeScreen, 'Welcome Screen'],
+    [LoginScreen, 'Login Screen'],
+    [SessionRecoveryScreen, 'Session Recovery Screen'],
+    [AccessDeniedScreen, 'Account Access Denied Screen'],
     [UserEntryScreen, 'User Entry'],
     [OwnerEntryScreen, 'Owner Entry'],
     [ModeratorEntryScreen, 'Moderator Entry'],
@@ -35,7 +43,6 @@ describe('entry screens', () => {
   });
 
   it.each([
-    [AuthEntryScreen, 'auth'],
     [UserEntryScreen, 'user'],
     [OwnerEntryScreen, 'owner'],
     [ModeratorEntryScreen, 'moderator'],

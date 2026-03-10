@@ -1,6 +1,10 @@
 export const ROUTE_NAMES = {
   Splash: 'Splash',
   AuthGroup: 'AuthGroup',
+  Welcome: 'Welcome',
+  Login: 'Login',
+  SessionRecovery: 'SessionRecovery',
+  AccessDenied: 'AccessDenied',
   UserGroup: 'UserGroup',
   OwnerGroup: 'OwnerGroup',
   ModeratorGroup: 'ModeratorGroup',
@@ -24,6 +28,10 @@ export type RouteModuleOwner = (typeof ROUTE_MODULE_OWNERS)[keyof typeof ROUTE_M
 export const ROUTE_GROUP_OWNERSHIP: Record<AppRouteName, RouteModuleOwner> = {
   [ROUTE_NAMES.Splash]: ROUTE_MODULE_OWNERS.AppShell,
   [ROUTE_NAMES.AuthGroup]: ROUTE_MODULE_OWNERS.Auth,
+  [ROUTE_NAMES.Welcome]: ROUTE_MODULE_OWNERS.Auth,
+  [ROUTE_NAMES.Login]: ROUTE_MODULE_OWNERS.Auth,
+  [ROUTE_NAMES.SessionRecovery]: ROUTE_MODULE_OWNERS.Auth,
+  [ROUTE_NAMES.AccessDenied]: ROUTE_MODULE_OWNERS.Auth,
   [ROUTE_NAMES.UserGroup]: ROUTE_MODULE_OWNERS.User,
   [ROUTE_NAMES.OwnerGroup]: ROUTE_MODULE_OWNERS.VenueOwner,
   [ROUTE_NAMES.ModeratorGroup]: ROUTE_MODULE_OWNERS.Moderation,

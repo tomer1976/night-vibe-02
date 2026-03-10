@@ -2,13 +2,17 @@ import { NavigationContainer, Theme as NavigationTheme } from '@react-navigation
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ComponentType } from 'react';
 
+import { AccessDeniedScreen } from '../screens/AccessDeniedScreen';
 import { AdminEntryScreen } from '../screens/AdminEntryScreen';
 import { AuthEntryScreen } from '../screens/AuthEntryScreen';
+import { LoginScreen } from '../screens/LoginScreen';
 import { ModeratorEntryScreen } from '../screens/ModeratorEntryScreen';
 import { OwnerEntryScreen } from '../screens/OwnerEntryScreen';
+import { SessionRecoveryScreen } from '../screens/SessionRecoveryScreen';
 import { SplashScreen } from '../screens/SplashScreen';
 import { UnknownRouteFallbackScreen } from '../screens/UnknownRouteFallbackScreen';
 import { UserEntryScreen } from '../screens/UserEntryScreen';
+import { WelcomeScreen } from '../screens/WelcomeScreen';
 import { useRouteAccessSelectors } from '../state/routeSelectors';
 import { useTheme } from '../theme';
 import { ROUTE_NAMES } from './routeGroups';
@@ -80,6 +84,10 @@ export function AppNavigator() {
         }}
       >
         <Stack.Screen name={ROUTE_NAMES.Splash} component={SplashScreen} />
+        <Stack.Screen name={ROUTE_NAMES.Welcome} component={WelcomeScreen} />
+        <Stack.Screen name={ROUTE_NAMES.Login} component={LoginScreen} />
+        <Stack.Screen name={ROUTE_NAMES.SessionRecovery} component={SessionRecoveryScreen} />
+        <Stack.Screen name={ROUTE_NAMES.AccessDenied} component={AccessDeniedScreen} />
         <Stack.Screen name={ROUTE_NAMES.AuthGroup}>{() => renderProtectedRoute('AuthGroup', AuthEntryScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.UserGroup}>{() => renderProtectedRoute('UserGroup', UserEntryScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.OwnerGroup}>{() => renderProtectedRoute('OwnerGroup', OwnerEntryScreen)}</Stack.Screen>

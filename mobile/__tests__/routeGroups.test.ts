@@ -5,6 +5,10 @@ describe('route groups', () => {
     expect(Object.values(ROUTE_NAMES)).toEqual([
       'Splash',
       'AuthGroup',
+      'Welcome',
+      'Login',
+      'SessionRecovery',
+      'AccessDenied',
       'UserGroup',
       'OwnerGroup',
       'ModeratorGroup',
@@ -27,6 +31,10 @@ describe('route groups', () => {
     expect(ROUTE_GROUP_OWNERSHIP).toEqual({
       Splash: 'app-shell',
       AuthGroup: 'auth',
+      Welcome: 'auth',
+      Login: 'auth',
+      SessionRecovery: 'auth',
+      AccessDenied: 'auth',
       UserGroup: 'user',
       OwnerGroup: 'venue-owner',
       ModeratorGroup: 'moderation',

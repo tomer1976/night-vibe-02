@@ -1,5 +1,5 @@
-import { ShellEntryScreen } from './ShellEntryScreen';
+import { WelcomeScreen } from './WelcomeScreen';
 
 export function AuthEntryScreen() {
-  return <ShellEntryScreen title="Auth Entry" subtitle="Authentication route group shell." routeContext="auth" />;
+  return <WelcomeScreen />;
 }
