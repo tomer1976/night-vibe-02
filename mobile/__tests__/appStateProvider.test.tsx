@@ -4,7 +4,16 @@ import { Pressable, Text, View } from 'react-native';
 import { AppStateProvider, useAuthState, useFeatureFlagsState, useRoleState } from '../src/state';
 
 function StateProbe() {
-  const { accountStatus, isAuthenticated, setAuthenticated } = useAuthState();
+  const {
+    accountStatus,
+    authLifecycle,
+    beginAuthentication,
+    completeAuthentication,
+    enterSessionRecovery,
+    isAuthenticated,
+    resetAuthState,
+    setAuthenticated,
+  } = useAuthState();
   const { activeRoleContext, availableRoles, setActiveRoleContext } = useRoleState();
   const { isMockModeEnabled, isRoleSimulationEnabled, setRoleSimulationEnabled } = useFeatureFlagsState();
 
@@ -12,6 +21,7 @@ function StateProbe() {
     <View>
       <Text>{`auth:${isAuthenticated}`}</Text>
       <Text>{`status:${accountStatus}`}</Text>
+      <Text>{`lifecycle:${authLifecycle}`}</Text>
       <Text>{`activeRole:${activeRoleContext ?? 'none'}`}</Text>
       <Text>{`roles:${availableRoles.join('|')}`}</Text>
       <Text>{`mockMode:${isMockModeEnabled}`}</Text>
@@ -25,6 +35,18 @@ function StateProbe() {
       </Pressable>
       <Pressable onPress={() => setRoleSimulationEnabled(false)} testID="disable-role-sim">
         <Text>disable-role-sim</Text>
+      </Pressable>
+      <Pressable onPress={beginAuthentication} testID="begin-authentication">
+        <Text>begin-authentication</Text>
+      </Pressable>
+      <Pressable onPress={() => completeAuthentication('suspended')} testID="complete-auth-suspended">
+        <Text>complete-auth-suspended</Text>
+      </Pressable>
+      <Pressable onPress={enterSessionRecovery} testID="enter-session-recovery">
+        <Text>enter-session-recovery</Text>
+      </Pressable>
+      <Pressable onPress={() => resetAuthState('active', false)} testID="reset-auth-signed-out">
+        <Text>reset-auth-signed-out</Text>
       </Pressable>
     </View>
   );
@@ -55,6 +77,7 @@ describe('AppStateProvider', () => {
 
     expect(getByText('auth:true')).toBeTruthy();
     expect(getByText('status:active')).toBeTruthy();
+    expect(getByText('lifecycle:authenticated')).toBeTruthy();
     expect(getByText('activeRole:VenueOwner')).toBeTruthy();
     expect(getByText('roles:RegularUser|VenueOwner')).toBeTruthy();
   });
@@ -75,5 +98,41 @@ describe('AppStateProvider', () => {
     expect(getByText('auth:false')).toBeTruthy();
     expect(getByText('activeRole:Administrator')).toBeTruthy();
     expect(getByText('roleSimulation:false')).toBeTruthy();
+  });
+
+  it('runs auth lifecycle transitions via auth store actions', () => {
+    const { getByTestId, getByText } = render(
+      <AppStateProvider>
+        <StateProbe />
+      </AppStateProvider>
+    );
+
+    act(() => {
+      fireEvent.press(getByTestId('begin-authentication'));
+    });
+
+    expect(getByText('lifecycle:authenticating')).toBeTruthy();
+
+    act(() => {
+      fireEvent.press(getByTestId('complete-auth-suspended'));
+    });
+
+    expect(getByText('status:suspended')).toBeTruthy();
+    expect(getByText('lifecycle:access_denied')).toBeTruthy();
+
+    act(() => {
+      fireEvent.press(getByTestId('enter-session-recovery'));
+    });
+
+    expect(getByText('status:pending_deletion')).toBeTruthy();
+    expect(getByText('lifecycle:session_recovery')).toBeTruthy();
+
+    act(() => {
+      fireEvent.press(getByTestId('reset-auth-signed-out'));
+    });
+
+    expect(getByText('auth:false')).toBeTruthy();
+    expect(getByText('status:active')).toBeTruthy();
+    expect(getByText('lifecycle:signed_out')).toBeTruthy();
   });
 });

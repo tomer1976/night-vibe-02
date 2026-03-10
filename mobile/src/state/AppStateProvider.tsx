@@ -1,14 +1,22 @@
-import { createContext, PropsWithChildren, useContext, useMemo, useState } from 'react';
+import { createContext, PropsWithChildren, useContext, useMemo, useReducer, useState } from 'react';
 
 import { AccountStatus, Role } from '../contracts';
 import { readRuntimeMode } from '../config/firebaseRuntimeGuard';
 import { readSimulatedRoleContextFromEnv } from '../navigation/roleContextSimulation';
+import { AuthLifecycle, authStoreReducer, createInitialAuthStoreState } from './authStateStore';
 
 export type AuthState = {
   accountStatus: AccountStatus;
   isAuthenticated: boolean;
+  authLifecycle: AuthLifecycle;
   setAccountStatus: (status: AccountStatus) => void;
   setAuthenticated: (value: boolean) => void;
+  beginAuthentication: () => void;
+  completeAuthentication: (status: AccountStatus, isAuthenticated?: boolean) => void;
+  enterSessionRecovery: () => void;
+  resolveSessionRecovery: () => void;
+  denyAccess: (status: Extract<AccountStatus, 'suspended' | 'banned' | 'deleted'>) => void;
+  resetAuthState: (status?: AccountStatus, isAuthenticated?: boolean) => void;
 };
 
 export type RoleState = {
@@ -32,8 +40,15 @@ export type OnboardingState = {
 const defaultAuthState: AuthState = {
   accountStatus: 'active',
   isAuthenticated: true,
+  authLifecycle: 'authenticated',
   setAccountStatus: () => undefined,
   setAuthenticated: () => undefined,
+  beginAuthentication: () => undefined,
+  completeAuthentication: () => undefined,
+  enterSessionRecovery: () => undefined,
+  resolveSessionRecovery: () => undefined,
+  denyAccess: () => undefined,
+  resetAuthState: () => undefined,
 };
 
 const defaultRoleState: RoleState = {
@@ -62,8 +77,14 @@ const OnboardingStateContext = createContext<OnboardingState>(defaultOnboardingS
 export function AppStateProvider({ children }: PropsWithChildren) {
   const simulatedRoleContext = readSimulatedRoleContextFromEnv();
 
-  const [accountStatus, setAccountStatus] = useState<AccountStatus>('active');
-  const [isAuthenticated, setAuthenticated] = useState<boolean>(simulatedRoleContext.isAuthenticated);
+  const [authStoreState, dispatchAuthStore] = useReducer(
+    authStoreReducer,
+    createInitialAuthStoreState({
+      accountStatus: 'active',
+      isAuthenticated: simulatedRoleContext.isAuthenticated,
+    })
+  );
+
   const [activeRoleContext, setActiveRoleContext] = useState<Role | null>(simulatedRoleContext.activeRoleContext);
   const [availableRoles, setAvailableRoles] = useState<Role[]>([...simulatedRoleContext.availableRoles]);
   const [isRoleSimulationEnabled, setRoleSimulationEnabled] = useState(true);
@@ -71,12 +92,54 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 
   const authState = useMemo<AuthState>(
     () => ({
-      accountStatus,
-      isAuthenticated,
-      setAccountStatus,
-      setAuthenticated,
+      accountStatus: authStoreState.accountStatus,
+      isAuthenticated: authStoreState.isAuthenticated,
+      authLifecycle: authStoreState.authLifecycle,
+      setAccountStatus: (status) => {
+        dispatchAuthStore({
+          type: 'SET_ACCOUNT_STATUS',
+          status,
+        });
+      },
+      setAuthenticated: (value) => {
+        dispatchAuthStore({
+          type: 'SET_AUTHENTICATED',
+          isAuthenticated: value,
+        });
+      },
+      beginAuthentication: () => {
+        dispatchAuthStore({ type: 'BEGIN_AUTHENTICATION' });
+      },
+      completeAuthentication: (status, isAuthenticated = true) => {
+        dispatchAuthStore({
+          type: 'COMPLETE_AUTHENTICATION',
+          payload: {
+            accountStatus: status,
+            isAuthenticated,
+          },
+        });
+      },
+      enterSessionRecovery: () => {
+        dispatchAuthStore({ type: 'ENTER_SESSION_RECOVERY' });
+      },
+      resolveSessionRecovery: () => {
+        dispatchAuthStore({ type: 'RESOLVE_SESSION_RECOVERY' });
+      },
+      denyAccess: (status) => {
+        dispatchAuthStore({
+          type: 'DENY_ACCESS',
+          status,
+        });
+      },
+      resetAuthState: (status = 'active', isAuthenticated = false) => {
+        dispatchAuthStore({
+          type: 'RESET_AUTH_STATE',
+          accountStatus: status,
+          isAuthenticated,
+        });
+      },
     }),
-    [accountStatus, isAuthenticated]
+    [authStoreState]
   );
 
   const roleState = useMemo<RoleState>(

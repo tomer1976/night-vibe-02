@@ -16,7 +16,7 @@ const ACCOUNT_STATUS_COPY: Record<'suspended' | 'banned' | 'deleted', string> = 
 export function AccessDeniedScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
-  const { accountStatus, setAuthenticated } = useAuthState();
+  const { accountStatus, resetAuthState } = useAuthState();
 
   const deniedReason =
     accountStatus === 'banned' || accountStatus === 'suspended' || accountStatus === 'deleted'
@@ -41,7 +41,7 @@ export function AccessDeniedScreen() {
             <Button
               label="Back to Welcome"
               onPress={() => {
-                setAuthenticated(false);
+                resetAuthState('active', false);
                 navigation.dispatch(StackActions.replace(ROUTE_NAMES.Welcome));
               }}
             />

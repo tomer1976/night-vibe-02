@@ -10,17 +10,15 @@ import { useTheme } from '../theme';
 export function SessionRecoveryScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
-  const { setAccountStatus, setAuthenticated } = useAuthState();
+  const { resetAuthState, resolveSessionRecovery } = useAuthState();
 
   const recoverSession = () => {
-    setAuthenticated(true);
-    setAccountStatus('active');
+    resolveSessionRecovery();
     navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserGroup));
   };
 
   const cancelRecovery = () => {
-    setAuthenticated(false);
-    setAccountStatus('pending_deletion');
+    resetAuthState('pending_deletion', false);
     navigation.dispatch(StackActions.replace(ROUTE_NAMES.Welcome));
   };
 

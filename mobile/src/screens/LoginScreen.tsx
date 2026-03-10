@@ -13,7 +13,7 @@ import { useTheme } from '../theme';
 export function LoginScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
-  const { setAccountStatus, setAuthenticated } = useAuthState();
+  const { beginAuthentication, completeAuthentication, resetAuthState } = useAuthState();
   const { setProfileCompleted } = useOnboardingState();
   const services = useServiceLocator();
 
@@ -32,6 +32,7 @@ export function LoginScreen() {
 
     setErrorText(undefined);
     setSubmitErrorText(undefined);
+    beginAuthentication();
     setIsSubmitting(true);
 
     try {
@@ -41,7 +42,7 @@ export function LoginScreen() {
       });
 
       if (loginResponse.status === 'FAIL') {
-        setAuthenticated(false);
+        resetAuthState('active', false);
         setProfileCompleted(false);
         setSubmitErrorText(loginResponse.error.message);
         return;
@@ -57,8 +58,7 @@ export function LoginScreen() {
       const isProfileCompleted =
         profileResponse.status === 'SUCCESS' ? profileResponse.data.profileCompleted : !loginResponse.data.isNewUser;
 
-      setAuthenticated(true);
-      setAccountStatus(resolvedAccountStatus);
+      completeAuthentication(resolvedAccountStatus, true);
       setProfileCompleted(isProfileCompleted);
 
       const targetRoute = resolveAuthEntryRoute({
