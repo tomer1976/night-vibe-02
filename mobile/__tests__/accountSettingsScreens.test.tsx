@@ -65,4 +65,16 @@ describe('account/settings screens', () => {
 
     expect(getByText('active')).toBeTruthy();
   });
+
+  it('discards unsaved linked account edits when cancel is pressed', () => {
+    const { getByText } = render(<AccountSettingsTestNavigator />);
+
+    expect(getByText('Linked Providers: 1/3')).toBeTruthy();
+
+    fireEvent.press(getByText('Linked Accounts Screen'));
+    fireEvent.press(getByText('Apple Provider'));
+    fireEvent.press(getByText('Cancel'));
+
+    expect(getByText('Linked Providers: 1/3')).toBeTruthy();
+  });
 });

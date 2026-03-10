@@ -1,21 +1,20 @@
-import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, Card, Input, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { useAccountLifecycleState } from '../state';
 import { useTheme } from '../theme';
 import { validateDeletionConfirmationToken } from '../validation/formValidation';
-import { readAccountSettingsDraftFromParams } from './accountSettingsDraft';
 
 const DELETE_CONFIRMATION_TOKEN = 'DELETE';
 
 export function DeleteAccountScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
-  const route = useRoute();
-  const draft = readAccountSettingsDraftFromParams(route.params);
+  const { savedDraft: draft, requestAccountDeletion } = useAccountLifecycleState();
 
   const [confirmationToken, setConfirmationToken] = useState('');
   const [tokenError, setTokenError] = useState<string | undefined>();
@@ -29,16 +28,9 @@ export function DeleteAccountScreen() {
     }
 
     setTokenError(undefined);
+    requestAccountDeletion(new Date().toISOString());
 
-    navigation.dispatch(
-      StackActions.replace(ROUTE_NAMES.AccountDeletionRecovery, {
-        draft: {
-          ...draft,
-          status: 'pending_deletion',
-          deletionRequestedAt: new Date().toISOString(),
-        },
-      })
-    );
+    navigation.dispatch(StackActions.replace(ROUTE_NAMES.AccountDeletionRecovery));
   };
 
   return (
@@ -62,7 +54,7 @@ export function DeleteAccountScreen() {
 
         <View style={[styles.actions, { gap: theme.spacing.md }]}> 
           <Button label="Request Deletion" onPress={requestDeletion} variant="destructive" />
-          <Button label="Cancel" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.AccountSettings, { draft }))} variant="secondary" />
+          <Button label="Cancel" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.AccountSettings))} variant="secondary" />
         </View>
       </View>
     </SafeAreaView>

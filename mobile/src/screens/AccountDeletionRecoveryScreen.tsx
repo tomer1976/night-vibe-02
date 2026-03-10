@@ -1,30 +1,22 @@
-import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AccountStateBannerCard, Button, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { useAccountLifecycleState } from '../state';
 import { useTheme } from '../theme';
-import { readAccountSettingsDraftFromParams } from './accountSettingsDraft';
 
 export function AccountDeletionRecoveryScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
-  const route = useRoute();
-  const draft = readAccountSettingsDraftFromParams(route.params);
+  const { recoverAccount, savedDraft: draft } = useAccountLifecycleState();
 
   const isPendingDeletion = draft.status === 'pending_deletion';
 
-  const recoverAccount = () => {
-    navigation.dispatch(
-      StackActions.replace(ROUTE_NAMES.AccountSettings, {
-        draft: {
-          ...draft,
-          status: 'active',
-          deletionRequestedAt: null,
-        },
-      })
-    );
+  const handleRecoverAccount = () => {
+    recoverAccount();
+    navigation.dispatch(StackActions.replace(ROUTE_NAMES.AccountSettings));
   };
 
   return (
@@ -51,8 +43,8 @@ export function AccountDeletionRecoveryScreen() {
         />
 
         <View style={[styles.actions, { gap: theme.spacing.md }]}> 
-          {isPendingDeletion ? <Button label="Recover Account" onPress={recoverAccount} /> : null}
-          <Button label="Back to Account Settings" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.AccountSettings, { draft }))} variant="secondary" />
+          {isPendingDeletion ? <Button label="Recover Account" onPress={handleRecoverAccount} /> : null}
+          <Button label="Back to Account Settings" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.AccountSettings))} variant="secondary" />
         </View>
       </View>
     </SafeAreaView>

@@ -34,3 +34,20 @@ export function readAccountSettingsDraftFromParams(params: unknown): AccountSett
     linkedAccounts: typedParams?.draft?.linkedAccounts ?? DEFAULT_ACCOUNT_SETTINGS_DRAFT.linkedAccounts,
   };
 }
+
+export function areAccountSettingsDraftsEqual(left: AccountSettingsDraft, right: AccountSettingsDraft): boolean {
+  if (
+    left.status !== right.status ||
+    left.deletionRequestedAt !== right.deletionRequestedAt ||
+    left.recoveryWindowDays !== right.recoveryWindowDays ||
+    left.linkedAccounts.length !== right.linkedAccounts.length
+  ) {
+    return false;
+  }
+
+  return left.linkedAccounts.every((leftAccount, index) => {
+    const rightAccount = right.linkedAccounts[index];
+
+    return leftAccount.provider === rightAccount.provider && leftAccount.linked === rightAccount.linked;
+  });
+}

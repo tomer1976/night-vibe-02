@@ -3,7 +3,12 @@ import { createContext, PropsWithChildren, useCallback, useContext, useMemo, use
 import { AccountStatus, Role } from '../contracts';
 import { readRuntimeMode } from '../config/firebaseRuntimeGuard';
 import { readSimulatedRoleContextFromEnv } from '../navigation/roleContextSimulation';
+import { AccountSettingsDraft, LinkedAccountDraft, LinkedAccountProvider } from '../screens/accountSettingsDraft';
 import { ProfileDraft } from '../screens/profileDraft';
+import {
+  accountLifecycleStoreReducer,
+  createInitialAccountLifecycleStoreState,
+} from './accountLifecycleStore';
 import { AuthLifecycle, authStoreReducer, createInitialAuthStoreState } from './authStateStore';
 import {
   ONBOARDING_TOTAL_STEPS,
@@ -67,6 +72,20 @@ export type ProfileDraftState = {
   resetProfileDraft: () => void;
 };
 
+export type AccountLifecycleState = {
+  savedDraft: AccountSettingsDraft;
+  editingLinkedAccounts: LinkedAccountDraft[];
+  isEditingLinkedAccounts: boolean;
+  replaceAccountLifecycleDraft: (draft: AccountSettingsDraft) => void;
+  startLinkedAccountsEdit: () => void;
+  toggleLinkedProvider: (provider: LinkedAccountProvider) => void;
+  saveLinkedAccountsEdit: () => void;
+  cancelLinkedAccountsEdit: () => void;
+  requestAccountDeletion: (requestedAtIso: string) => void;
+  recoverAccount: () => void;
+  resetAccountLifecycle: () => void;
+};
+
 const defaultAuthState: AuthState = {
   accountStatus: 'active',
   isAuthenticated: true,
@@ -119,11 +138,26 @@ const defaultProfileDraftState: ProfileDraftState = {
   resetProfileDraft: () => undefined,
 };
 
+const defaultAccountLifecycleState: AccountLifecycleState = {
+  savedDraft: createInitialAccountLifecycleStoreState().savedDraft,
+  editingLinkedAccounts: createInitialAccountLifecycleStoreState().editingLinkedAccounts,
+  isEditingLinkedAccounts: false,
+  replaceAccountLifecycleDraft: () => undefined,
+  startLinkedAccountsEdit: () => undefined,
+  toggleLinkedProvider: () => undefined,
+  saveLinkedAccountsEdit: () => undefined,
+  cancelLinkedAccountsEdit: () => undefined,
+  requestAccountDeletion: () => undefined,
+  recoverAccount: () => undefined,
+  resetAccountLifecycle: () => undefined,
+};
+
 const AuthStateContext = createContext<AuthState>(defaultAuthState);
 const RoleStateContext = createContext<RoleState>(defaultRoleState);
 const FeatureFlagsStateContext = createContext<FeatureFlagsState>(defaultFeatureFlagsState);
 const OnboardingStateContext = createContext<OnboardingState>(defaultOnboardingState);
 const ProfileDraftStateContext = createContext<ProfileDraftState>(defaultProfileDraftState);
+const AccountLifecycleStateContext = createContext<AccountLifecycleState>(defaultAccountLifecycleState);
 
 export function AppStateProvider({ children }: PropsWithChildren) {
   const simulatedRoleContext = readSimulatedRoleContextFromEnv();
@@ -146,6 +180,10 @@ export function AppStateProvider({ children }: PropsWithChildren) {
   const [profileDraftStoreState, dispatchProfileDraftStore] = useReducer(
     profileDraftStoreReducer,
     createInitialProfileDraftStoreState()
+  );
+  const [accountLifecycleStoreState, dispatchAccountLifecycleStore] = useReducer(
+    accountLifecycleStoreReducer,
+    createInitialAccountLifecycleStoreState()
   );
   const [profileCompleted, setProfileCompleted] = useState(true);
 
@@ -180,6 +218,47 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 
   const resetProfileDraft = useCallback(() => {
     dispatchProfileDraftStore({ type: 'RESET_DRAFT' });
+  }, []);
+
+  const replaceAccountLifecycleDraft = useCallback((draft: AccountSettingsDraft) => {
+    dispatchAccountLifecycleStore({
+      type: 'REPLACE_DRAFT',
+      draft,
+    });
+  }, []);
+
+  const startLinkedAccountsEdit = useCallback(() => {
+    dispatchAccountLifecycleStore({ type: 'START_LINKED_ACCOUNTS_EDIT' });
+  }, []);
+
+  const toggleLinkedProvider = useCallback((provider: LinkedAccountProvider) => {
+    dispatchAccountLifecycleStore({
+      type: 'TOGGLE_LINKED_PROVIDER',
+      provider,
+    });
+  }, []);
+
+  const saveLinkedAccountsEdit = useCallback(() => {
+    dispatchAccountLifecycleStore({ type: 'SAVE_LINKED_ACCOUNTS_EDIT' });
+  }, []);
+
+  const cancelLinkedAccountsEdit = useCallback(() => {
+    dispatchAccountLifecycleStore({ type: 'CANCEL_LINKED_ACCOUNTS_EDIT' });
+  }, []);
+
+  const requestAccountDeletion = useCallback((requestedAtIso: string) => {
+    dispatchAccountLifecycleStore({
+      type: 'REQUEST_DELETION',
+      requestedAtIso,
+    });
+  }, []);
+
+  const recoverAccount = useCallback(() => {
+    dispatchAccountLifecycleStore({ type: 'RECOVER_ACCOUNT' });
+  }, []);
+
+  const resetAccountLifecycle = useCallback(() => {
+    dispatchAccountLifecycleStore({ type: 'RESET_ACCOUNT_LIFECYCLE' });
   }, []);
 
   const authState = useMemo<AuthState>(
@@ -308,12 +387,41 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     ]
   );
 
+  const accountLifecycleState = useMemo<AccountLifecycleState>(
+    () => ({
+      savedDraft: accountLifecycleStoreState.savedDraft,
+      editingLinkedAccounts: accountLifecycleStoreState.editingLinkedAccounts,
+      isEditingLinkedAccounts: accountLifecycleStoreState.isEditingLinkedAccounts,
+      replaceAccountLifecycleDraft,
+      startLinkedAccountsEdit,
+      toggleLinkedProvider,
+      saveLinkedAccountsEdit,
+      cancelLinkedAccountsEdit,
+      requestAccountDeletion,
+      recoverAccount,
+      resetAccountLifecycle,
+    }),
+    [
+      accountLifecycleStoreState,
+      cancelLinkedAccountsEdit,
+      recoverAccount,
+      replaceAccountLifecycleDraft,
+      requestAccountDeletion,
+      resetAccountLifecycle,
+      saveLinkedAccountsEdit,
+      startLinkedAccountsEdit,
+      toggleLinkedProvider,
+    ]
+  );
+
   return (
     <FeatureFlagsStateContext.Provider value={featureFlagsState}>
       <AuthStateContext.Provider value={authState}>
         <RoleStateContext.Provider value={roleState}>
           <OnboardingStateContext.Provider value={onboardingState}>
-            <ProfileDraftStateContext.Provider value={profileDraftState}>{children}</ProfileDraftStateContext.Provider>
+            <ProfileDraftStateContext.Provider value={profileDraftState}>
+              <AccountLifecycleStateContext.Provider value={accountLifecycleState}>{children}</AccountLifecycleStateContext.Provider>
+            </ProfileDraftStateContext.Provider>
           </OnboardingStateContext.Provider>
         </RoleStateContext.Provider>
       </AuthStateContext.Provider>
@@ -339,4 +447,8 @@ export function useOnboardingState(): OnboardingState {
 
 export function useProfileDraftState(): ProfileDraftState {
   return useContext(ProfileDraftStateContext);
+}
+
+export function useAccountLifecycleState(): AccountLifecycleState {
+  return useContext(AccountLifecycleStateContext);
 }

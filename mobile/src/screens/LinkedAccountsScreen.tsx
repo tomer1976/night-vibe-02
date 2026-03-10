@@ -1,10 +1,11 @@
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, Card, InlineErrorMessage, ListItem, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { useAccountLifecycleState } from '../state';
 import { useTheme } from '../theme';
 import { LinkedAccountProvider, readAccountSettingsDraftFromParams } from './accountSettingsDraft';
 
@@ -12,15 +13,38 @@ export function LinkedAccountsScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
   const route = useRoute();
-  const draft = readAccountSettingsDraftFromParams(route.params);
-
-  const [linkedAccounts, setLinkedAccounts] = useState(draft.linkedAccounts);
+  const {
+    cancelLinkedAccountsEdit,
+    editingLinkedAccounts,
+    isEditingLinkedAccounts,
+    replaceAccountLifecycleDraft,
+    saveLinkedAccountsEdit,
+    startLinkedAccountsEdit,
+    toggleLinkedProvider,
+  } = useAccountLifecycleState();
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
 
-  const linkedCount = useMemo(() => linkedAccounts.filter((account) => account.linked).length, [linkedAccounts]);
+  useEffect(() => {
+    const typedParams = route.params as { draft?: unknown } | undefined;
+
+    if (typedParams?.draft) {
+      replaceAccountLifecycleDraft(readAccountSettingsDraftFromParams(route.params));
+    }
+
+    startLinkedAccountsEdit();
+  }, [replaceAccountLifecycleDraft, route.params, startLinkedAccountsEdit]);
+
+  const linkedCount = useMemo(
+    () => editingLinkedAccounts.filter((account) => account.linked).length,
+    [editingLinkedAccounts],
+  );
 
   const toggleProvider = (provider: LinkedAccountProvider) => {
-    const target = linkedAccounts.find((account) => account.provider === provider);
+    if (!isEditingLinkedAccounts) {
+      return;
+    }
+
+    const target = editingLinkedAccounts.find((account) => account.provider === provider);
 
     if (!target) {
       return;
@@ -32,27 +56,12 @@ export function LinkedAccountsScreen() {
     }
 
     setErrorMessage(undefined);
-    setLinkedAccounts((previous) =>
-      previous.map((account) =>
-        account.provider === provider
-          ? {
-              ...account,
-              linked: !account.linked,
-            }
-          : account
-      )
-    );
+    toggleLinkedProvider(provider);
   };
 
   const saveLinkedAccounts = () => {
-    navigation.dispatch(
-      StackActions.replace(ROUTE_NAMES.AccountSettings, {
-        draft: {
-          ...draft,
-          linkedAccounts,
-        },
-      })
-    );
+    saveLinkedAccountsEdit();
+    navigation.dispatch(StackActions.replace(ROUTE_NAMES.AccountSettings));
   };
 
   return (
@@ -66,7 +75,7 @@ export function LinkedAccountsScreen() {
           <Text style={[styles.meta, { color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall, marginBottom: theme.spacing.md }]}>Linked providers: {linkedCount}</Text>
 
           <View style={[styles.items, { gap: theme.spacing.sm }]}> 
-            {linkedAccounts.map((account) => (
+            {editingLinkedAccounts.map((account) => (
               <ListItem
                 key={account.provider}
                 onPress={() => toggleProvider(account.provider)}
@@ -82,7 +91,14 @@ export function LinkedAccountsScreen() {
 
         <View style={[styles.actions, { gap: theme.spacing.md }]}> 
           <Button label="Save" onPress={saveLinkedAccounts} />
-          <Button label="Cancel" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.AccountSettings, { draft }))} variant="secondary" />
+          <Button
+            label="Cancel"
+            onPress={() => {
+              cancelLinkedAccountsEdit();
+              navigation.dispatch(StackActions.replace(ROUTE_NAMES.AccountSettings));
+            }}
+            variant="secondary"
+          />
         </View>
       </View>
     </SafeAreaView>

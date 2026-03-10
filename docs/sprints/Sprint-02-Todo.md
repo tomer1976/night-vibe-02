@@ -42,7 +42,7 @@
 - [x] Implement auth state store with status enum support.
 - [x] Implement onboarding progress store and completion gate selector.
 - [x] Implement profile draft/edit store with save/cancel semantics.
-- [ ] Implement account lifecycle state store for deletion/recovery simulation.
+- [x] Implement account lifecycle state store for deletion/recovery simulation.
 
 ## Testing Tasks
 - [ ] Add auth routing tests per account status.

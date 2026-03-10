@@ -1,11 +1,17 @@
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
+import { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge, Button, Card, ListItem, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { useAccountLifecycleState } from '../state';
 import { useTheme } from '../theme';
-import { readAccountSettingsDraftFromParams } from './accountSettingsDraft';
+import {
+  areAccountSettingsDraftsEqual,
+  DEFAULT_ACCOUNT_SETTINGS_DRAFT,
+  readAccountSettingsDraftFromParams,
+} from './accountSettingsDraft';
 
 const statusToneByValue = {
   active: 'success',
@@ -19,7 +25,28 @@ export function AccountSettingsScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
   const route = useRoute();
-  const draft = readAccountSettingsDraftFromParams(route.params);
+  const { replaceAccountLifecycleDraft, savedDraft: draft } = useAccountLifecycleState();
+  const hasSeededFromParamsRef = useRef(false);
+
+  useEffect(() => {
+    if (hasSeededFromParamsRef.current) {
+      return;
+    }
+
+    const typedParams = route.params as { draft?: unknown } | undefined;
+
+    if (!typedParams?.draft) {
+      return;
+    }
+
+    if (!areAccountSettingsDraftsEqual(draft, DEFAULT_ACCOUNT_SETTINGS_DRAFT)) {
+      hasSeededFromParamsRef.current = true;
+      return;
+    }
+
+    replaceAccountLifecycleDraft(readAccountSettingsDraftFromParams(route.params));
+    hasSeededFromParamsRef.current = true;
+  }, [draft, replaceAccountLifecycleDraft, route.params]);
 
   const linkedProviders = draft.linkedAccounts.filter((account) => account.linked).length;
 
@@ -43,19 +70,19 @@ export function AccountSettingsScreen() {
         </Card>
 
         <ListItem
-          onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.LinkedAccounts, { draft }))}
+          onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.LinkedAccounts))}
           subtitle="Link and unlink provider accounts"
           title="Linked Accounts Screen"
           trailingText="Open"
         />
         <ListItem
-          onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.DeleteAccount, { draft }))}
+          onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.DeleteAccount))}
           subtitle="Request account deletion and start recovery window"
           title="Delete Account Screen"
           trailingText="Open"
         />
         <ListItem
-          onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.AccountDeletionRecovery, { draft }))}
+          onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.AccountDeletionRecovery))}
           subtitle="Cancel pending deletion within recovery window"
           title="Account Deletion Recovery Screen"
           trailingText="Open"
