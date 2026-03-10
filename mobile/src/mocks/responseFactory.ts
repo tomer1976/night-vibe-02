@@ -24,12 +24,55 @@ export type MockResponseFactory = {
   resetScenarios(): void;
 };
 
-const defaultErrorMessages: Record<ApiErrorCode, string> = {
-  VALIDATION_ERROR: 'Mock validation failed.',
-  UNAUTHORIZED: 'Mock session is unauthorized.',
-  PERMISSION_DENIED: 'Mock permission denied for this operation.',
-  ACCESS_DENIED: 'Mock access denied by policy.',
-  INTERNAL_ERROR: 'Mock internal error occurred.',
+export const mockApiErrorMapping: Record<ApiErrorCode, { message: string; httpStatus: number }> = {
+  VALIDATION_ERROR: {
+    message: 'Mock validation failed.',
+    httpStatus: 400,
+  },
+  UNAUTHORIZED: {
+    message: 'Mock session is unauthorized.',
+    httpStatus: 401,
+  },
+  PERMISSION_DENIED: {
+    message: 'Mock permission denied for this operation.',
+    httpStatus: 403,
+  },
+  NOT_CHECKED_IN: {
+    message: 'Mock operation requires an active venue session.',
+    httpStatus: 403,
+  },
+  OUT_OF_RANGE: {
+    message: 'Mock check-in location is out of allowed range.',
+    httpStatus: 403,
+  },
+  DUPLICATE_INTERACTION: {
+    message: 'Mock duplicate interaction detected.',
+    httpStatus: 409,
+  },
+  CHAT_EXPIRED: {
+    message: 'Mock chat is no longer active.',
+    httpStatus: 409,
+  },
+  RATE_LIMIT_EXCEEDED: {
+    message: 'Mock rate limit exceeded. Try again later.',
+    httpStatus: 429,
+  },
+  ACCESS_DENIED: {
+    message: 'Mock access denied by policy.',
+    httpStatus: 403,
+  },
+  NOT_FOUND: {
+    message: 'Mock resource not found.',
+    httpStatus: 404,
+  },
+  CONFLICT: {
+    message: 'Mock request conflicts with current state.',
+    httpStatus: 409,
+  },
+  INTERNAL_ERROR: {
+    message: 'Mock internal error occurred.',
+    httpStatus: 500,
+  },
 };
 
 export function createMockResponseFactory(options?: MockResponseFactoryOptions): MockResponseFactory {
@@ -74,8 +117,8 @@ export function createMockResponseFactory(options?: MockResponseFactoryOptions):
       request_id,
       error: {
         code: activeScenario,
-        message: input.errorMessage ?? defaultErrorMessages[activeScenario],
-        details: input.details,
+        message: input.errorMessage ?? mockApiErrorMapping[activeScenario].message,
+        details: input.details ?? { http_status: mockApiErrorMapping[activeScenario].httpStatus },
       },
     };
   };

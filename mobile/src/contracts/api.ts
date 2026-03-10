@@ -4,7 +4,14 @@ export type ApiErrorCode =
   | 'VALIDATION_ERROR'
   | 'UNAUTHORIZED'
   | 'PERMISSION_DENIED'
+  | 'NOT_CHECKED_IN'
+  | 'OUT_OF_RANGE'
+  | 'DUPLICATE_INTERACTION'
+  | 'CHAT_EXPIRED'
+  | 'RATE_LIMIT_EXCEEDED'
   | 'ACCESS_DENIED'
+  | 'NOT_FOUND'
+  | 'CONFLICT'
   | 'INTERNAL_ERROR';
 
 export type ApiError = {

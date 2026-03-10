@@ -9,7 +9,7 @@
 
 ## Backend Tasks (if applicable)
 - [x] Define auth/profile/account-lifecycle service interfaces for future Phase 2 real implementation.
-- [ ] Define mock error mapping for expected API error codes.
+- [x] Define mock error mapping for expected API error codes.
 
 ## Firebase Tasks (if applicable)
 - [ ] Confirm Firebase adapters remain disabled/guarded in Phase 1 mode.

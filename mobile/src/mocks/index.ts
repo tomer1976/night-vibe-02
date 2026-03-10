@@ -6,6 +6,7 @@ export {
 
 export {
   createMockResponseFactory,
+  mockApiErrorMapping,
   type MockResponseFactory,
   type MockResponseFactoryOptions,
   type MockResponseInput,

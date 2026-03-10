@@ -1,4 +1,4 @@
-import { createMockResponseFactory } from '../src/mocks';
+import { createMockResponseFactory, mockApiErrorMapping } from '../src/mocks';
 
 describe('mock response factory', () => {
   it('returns success envelope by default', () => {
@@ -81,5 +81,24 @@ describe('mock response factory', () => {
     const third = factory.build({ key: 'chat.sendMessage', data: { sent: true } });
     expect(third.status).toBe('SUCCESS');
     expect(third.request_id).toBe('req-test-0003');
+  });
+
+  it('maps all expected API error codes to deterministic messages and status details', () => {
+    const factory = createMockResponseFactory({ seed: 'req-test' });
+
+    for (const [code, mapping] of Object.entries(mockApiErrorMapping)) {
+      const response = factory.build({
+        key: `error.${code}`,
+        data: {},
+        scenario: code as keyof typeof mockApiErrorMapping,
+      });
+
+      expect(response.status).toBe('FAIL');
+      if (response.status === 'FAIL') {
+        expect(response.error.code).toBe(code);
+        expect(response.error.message).toBe(mapping.message);
+        expect(response.error.details).toEqual({ http_status: mapping.httpStatus });
+      }
+    }
   });
 });

@@ -42,12 +42,22 @@ This document defines how the mobile client handles API response envelopes and c
 
 ## Error Code Mapping
 
+Implementation source for mock-mode mapping:
+- `mobile/src/mocks/responseFactory.ts` (`mockApiErrorMapping`)
+
 | Error Code | Typical Cause | Client UX Behavior |
 |---|---|---|
 | `VALIDATION_ERROR` | Invalid input, cursor, or field format | Show field-level or inline validation guidance; do not retry automatically |
 | `UNAUTHORIZED` | Missing/expired session | Route to auth flow; clear protected in-memory state |
 | `PERMISSION_DENIED` | Role/context is not allowed | Show access denied messaging; keep user in safe fallback route |
+| `NOT_CHECKED_IN` | Venue-gated endpoint without active session | Route user to session-required screen and show context action |
+| `OUT_OF_RANGE` | Check-in attempt outside configured radius | Show location/range guidance and retry option |
+| `DUPLICATE_INTERACTION` | Repeated like/pass for same actor-target scope | Show no-op or already-processed state |
+| `CHAT_EXPIRED` | Message sent to inactive/expired chat | Keep history visible, disable send action |
+| `RATE_LIMIT_EXCEEDED` | Request burst beyond policy | Show backoff guidance; avoid immediate auto-retry |
 | `ACCESS_DENIED` | Policy/safety/account gate denies action | Show blocked action message; avoid exposing protected data |
+| `NOT_FOUND` | Missing resource or stale route reference | Show safe fallback state and refresh/navigation option |
+| `CONFLICT` | State transition conflict or duplicate write race | Show current-state message and allow refresh |
 | `INTERNAL_ERROR` | Unexpected backend/mock failure | Show retryable error state and include `request_id` in logs |
 
 ## Logging and Telemetry
