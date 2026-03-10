@@ -4,7 +4,9 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, Card, Input, TopBar } from '../components';
+import { resolveAuthEntryRoute } from '../navigation/authEntryRouting';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { useServiceLocator } from '../services';
 import { useAuthState } from '../state';
 import { useTheme } from '../theme';
 
@@ -12,13 +14,14 @@ export function LoginScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
   const { setAccountStatus, setAuthenticated } = useAuthState();
+  const services = useServiceLocator();
 
   const [identityInput, setIdentityInput] = useState('');
   const [errorText, setErrorText] = useState<string | undefined>();
 
   const normalizedIdentity = useMemo(() => identityInput.trim().toLowerCase(), [identityInput]);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (normalizedIdentity.length === 0) {
       setErrorText('Enter an email or persona key to continue.');
       return;
@@ -26,44 +29,33 @@ export function LoginScreen() {
 
     setErrorText(undefined);
 
-    if (normalizedIdentity.includes('pending')) {
-      setAuthenticated(true);
-      setAccountStatus('pending_deletion');
-      navigation.dispatch(StackActions.replace(ROUTE_NAMES.SessionRecovery));
+    const loginResponse = await services.auth.login({
+      provider: 'google',
+      providerToken: normalizedIdentity,
+    });
+
+    if (loginResponse.status === 'FAIL') {
+      setAuthenticated(false);
+      setErrorText(loginResponse.error.message);
       return;
     }
 
-    if (normalizedIdentity.includes('suspended')) {
-      setAuthenticated(true);
-      setAccountStatus('suspended');
-      navigation.dispatch(StackActions.replace(ROUTE_NAMES.AccessDenied));
-      return;
-    }
-
-    if (normalizedIdentity.includes('banned')) {
-      setAuthenticated(true);
-      setAccountStatus('banned');
-      navigation.dispatch(StackActions.replace(ROUTE_NAMES.AccessDenied));
-      return;
-    }
-
-    if (normalizedIdentity.includes('deleted')) {
-      setAuthenticated(true);
-      setAccountStatus('deleted');
-      navigation.dispatch(StackActions.replace(ROUTE_NAMES.AccessDenied));
-      return;
-    }
-
-    if (normalizedIdentity.includes('new')) {
-      setAuthenticated(true);
-      setAccountStatus('active');
-      navigation.dispatch(StackActions.replace(ROUTE_NAMES.OnboardingName));
-      return;
+    let resolvedAccountStatus = loginResponse.data.status;
+    const accountStatusResponse = await services.accountLifecycle.getAccountStatus();
+    if (accountStatusResponse.status === 'SUCCESS') {
+      resolvedAccountStatus = accountStatusResponse.data.status;
     }
 
     setAuthenticated(true);
-    setAccountStatus('active');
-    navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserGroup));
+    setAccountStatus(resolvedAccountStatus);
+
+    const targetRoute = resolveAuthEntryRoute({
+      isAuthenticated: true,
+      accountStatus: resolvedAccountStatus,
+      isNewUser: loginResponse.data.isNewUser,
+    });
+
+    navigation.dispatch(StackActions.replace(targetRoute));
   };
 
   return (

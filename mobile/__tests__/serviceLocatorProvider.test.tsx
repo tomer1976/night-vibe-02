@@ -62,6 +62,40 @@ describe('mock service locator wiring', () => {
     }
   });
 
+  it('maps login persona hints to expected account statuses', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const suspendedLogin = await locator.services.auth.login({
+      provider: 'google',
+      providerToken: 'suspended-user@example.com',
+    });
+    expect(suspendedLogin.status).toBe('SUCCESS');
+    if (suspendedLogin.status === 'SUCCESS') {
+      expect(suspendedLogin.data.status).toBe('suspended');
+      expect(suspendedLogin.data.isNewUser).toBe(false);
+    }
+
+    const pendingLogin = await locator.services.auth.login({
+      provider: 'google',
+      providerToken: 'pending-user@example.com',
+    });
+    expect(pendingLogin.status).toBe('SUCCESS');
+    if (pendingLogin.status === 'SUCCESS') {
+      expect(pendingLogin.data.status).toBe('pending_deletion');
+      expect(pendingLogin.data.isNewUser).toBe(false);
+    }
+
+    const deletedLogin = await locator.services.auth.login({
+      provider: 'google',
+      providerToken: 'deleted-user@example.com',
+    });
+    expect(deletedLogin.status).toBe('SUCCESS');
+    if (deletedLogin.status === 'SUCCESS') {
+      expect(deletedLogin.data.status).toBe('deleted');
+      expect(deletedLogin.data.isNewUser).toBe(false);
+    }
+  });
+
   it('returns incomplete onboarding profile fixture for the Sprint-02 new-user persona', async () => {
     const locator = createMockBackendServiceLocator({
       activeUserId: 'u-persona-new-1',

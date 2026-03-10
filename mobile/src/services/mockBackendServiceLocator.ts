@@ -18,6 +18,7 @@ import {
   MockClock,
   MockResponseFactory,
   sprint01Fixtures,
+  sprint02AuthPersonaFixtures,
   sprint02ProfileFixtures,
 } from '../mocks';
 
@@ -104,10 +105,36 @@ function buildDiscoveryCandidates(activeUserId: string): DiscoveryCandidate[] {
     }));
 }
 
+function resolvePersonaFixtureByHint(loginHint: string) {
+  const normalizedHint = loginHint.trim().toLowerCase();
+
+  if (normalizedHint.length === 0) {
+    return null;
+  }
+
+  if (normalizedHint.includes('new')) {
+    return sprint02AuthPersonaFixtures.find((persona) => persona.personaKey === 'new_user') ?? null;
+  }
+
+  if (normalizedHint.includes('suspended')) {
+    return sprint02AuthPersonaFixtures.find((persona) => persona.personaKey === 'suspended_user') ?? null;
+  }
+
+  if (normalizedHint.includes('banned')) {
+    return sprint02AuthPersonaFixtures.find((persona) => persona.personaKey === 'banned_user') ?? null;
+  }
+
+  if (normalizedHint.includes('pending')) {
+    return sprint02AuthPersonaFixtures.find((persona) => persona.personaKey === 'pending_deletion_user') ?? null;
+  }
+
+  return sprint02AuthPersonaFixtures.find((persona) => persona.personaKey === 'active_returning_user') ?? null;
+}
+
 export function createMockBackendServiceLocator(options?: MockServiceLocatorOptions): MockServiceLocator {
   const activeUserId = options?.activeUserId ?? DEFAULT_USER_ID;
-  const activeUser = sprint01Fixtures.users.find((user) => user.uid === activeUserId) ?? sprint01Fixtures.users[0];
-  const activeRoleContext = sprint01Fixtures.roleContexts.find((context) => context.uid === activeUser.uid);
+  let currentUser = sprint01Fixtures.users.find((user) => user.uid === activeUserId) ?? sprint01Fixtures.users[0];
+  let currentRoleContext = sprint01Fixtures.roleContexts.find((context) => context.uid === currentUser.uid);
 
   const clock = options?.clock ?? createMockClock({
     startAt: '2026-03-08T20:00:00.000Z',
@@ -130,10 +157,10 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
   }
 
   const authSession = {
-    uid: activeUser.uid,
-    status: activeUser.status,
-    roles: [...activeUser.roles],
-    activeRoleContext: activeUser.activeRoleContext,
+    uid: currentUser.uid,
+    status: currentUser.status,
+    roles: [...currentUser.roles],
+    activeRoleContext: currentUser.activeRoleContext,
   };
 
   let linkedProviders = authSession.roles.length > 0 ? (['google'] as ('google' | 'apple')[]) : [];
@@ -152,8 +179,8 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
     const issuedAtMs = asMillis(issuedAt);
 
     sessionVersion += 1;
-    activeAccessToken = `mock-access-${activeUser.uid}-v${sessionVersion}`;
-    activeRefreshToken = `mock-refresh-${activeUser.uid}-v${sessionVersion}`;
+    activeAccessToken = `mock-access-${currentUser.uid}-v${sessionVersion}`;
+    activeRefreshToken = `mock-refresh-${currentUser.uid}-v${sessionVersion}`;
     accessTokenExpiresAtMs = issuedAtMs + accessTokenTtlMs;
     refreshTokenExpiresAtMs = issuedAtMs + refreshTokenTtlMs;
 
@@ -225,25 +252,72 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
   }
 
   issueSessionTokens();
-  const seededProfile = sprint02ProfileFixtures.find((profile) => profile.uid === activeUser.uid);
+  const seededProfile = sprint02ProfileFixtures.find((profile) => profile.uid === currentUser.uid);
   let activeUserProfile: UserProfile = {
-    uid: activeUser.uid,
-    displayName: seededProfile?.displayName ?? activeUser.displayName,
+    uid: currentUser.uid,
+    displayName: seededProfile?.displayName ?? currentUser.displayName,
     profileCompleted: seededProfile?.profileCompleted ?? true,
   };
 
   const services: BackendServiceContracts = {
     auth: {
       getSession: async () => responseFactory.build({ key: 'auth.getSession', data: authSession }),
-      login: async () =>
-        responseFactory.build({
+      login: async (request) => {
+        const loginHint = request.providerToken ?? '';
+
+        if (loginHint.trim().toLowerCase().includes('deleted')) {
+          accountStatus = 'deleted';
+          authSession.status = 'deleted';
+
+          return responseFactory.build({
+            key: 'auth.login',
+            data: {
+              ...authSession,
+              ...issueSessionTokens(),
+              isNewUser: false,
+            },
+          });
+        }
+
+        const matchedPersona = resolvePersonaFixtureByHint(loginHint);
+
+        if (matchedPersona) {
+          const personaUser = sprint01Fixtures.users.find((user) => user.uid === matchedPersona.uid);
+          if (personaUser) {
+            currentUser = personaUser;
+            currentRoleContext = sprint01Fixtures.roleContexts.find((context) => context.uid === currentUser.uid);
+            linkedProviders = ['google'];
+
+            authSession.uid = currentUser.uid;
+            authSession.status = currentUser.status;
+            authSession.roles = [...currentUser.roles];
+            authSession.activeRoleContext = currentUser.activeRoleContext;
+            accountStatus = currentUser.status;
+            deletionRequestedAtMs = null;
+            deletionFinalizesAtMs = null;
+
+            if (accountStatus === 'pending_deletion') {
+              scheduleDeletionTimeline(clock.peek());
+            }
+
+            const personaProfile = sprint02ProfileFixtures.find((profile) => profile.uid === currentUser.uid);
+            activeUserProfile = {
+              uid: currentUser.uid,
+              displayName: personaProfile?.displayName ?? currentUser.displayName,
+              profileCompleted: personaProfile?.profileCompleted ?? !currentUser.isNewUser,
+            };
+          }
+        }
+
+        return responseFactory.build({
           key: 'auth.login',
           data: {
             ...authSession,
             ...issueSessionTokens(),
-            isNewUser: activeUser.isNewUser,
+            isNewUser: currentUser.isNewUser,
           },
-        }),
+        });
+      },
       refreshSession: async (refreshToken) => {
         const failedValidation = validateRefreshToken(refreshToken);
         if (failedValidation) {
@@ -252,7 +326,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
 
         const issuedAt = clock.now();
         const issuedAtMs = asMillis(issuedAt);
-        activeAccessToken = `mock-access-${activeUser.uid}-v${sessionVersion}`;
+        activeAccessToken = `mock-access-${currentUser.uid}-v${sessionVersion}`;
         accessTokenExpiresAtMs = issuedAtMs + accessTokenTtlMs;
 
         return responseFactory.build({
@@ -277,7 +351,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       getMyProfile: async () => responseFactory.build({ key: 'profile.getMyProfile', data: activeUserProfile }),
       updateMyProfile: async (profile) => {
         activeUserProfile = {
-          uid: activeUser.uid,
+          uid: currentUser.uid,
           displayName: profile.displayName ?? activeUserProfile.displayName,
           profileCompleted: profile.profileCompleted ?? activeUserProfile.profileCompleted,
         };
@@ -286,7 +360,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       },
       upsertMyProfile: async (profile) => {
         activeUserProfile = {
-          uid: activeUser.uid,
+          uid: currentUser.uid,
           displayName: profile.displayName ?? activeUserProfile.displayName,
           profileCompleted: profile.profileCompleted ?? activeUserProfile.profileCompleted,
         };
@@ -307,6 +381,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
     accountLifecycle: {
       getAccountStatus: async () => {
         applyDeletionTimeline();
+        authSession.status = accountStatus;
         return responseFactory.build({ key: 'accountLifecycle.getAccountStatus', data: { status: accountStatus } });
       },
       requestAccountDeletion: async () => {
@@ -331,9 +406,11 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
           const requestedAtIso = clock.now();
           scheduleDeletionTimeline(requestedAtIso);
           accountStatus = 'pending_deletion';
+          authSession.status = 'pending_deletion';
         }
 
         accountStatus = 'pending_deletion';
+        authSession.status = 'pending_deletion';
 
         return responseFactory.build({
           key: 'accountLifecycle.requestAccountDeletion',
@@ -362,6 +439,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
         }
 
         accountStatus = 'active';
+        authSession.status = 'active';
         deletionRequestedAtMs = null;
         deletionFinalizesAtMs = null;
 
@@ -383,7 +461,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
     },
     roles: {
       getAvailableRoles: async () => {
-        const roles = [...(activeRoleContext?.availableRoles ?? ['RegularUser'])] as Role[];
+        const roles = [...(currentRoleContext?.availableRoles ?? ['RegularUser'])] as Role[];
         return responseFactory.build({ key: 'roles.getAvailableRoles', data: roles });
       },
       setActiveRoleContext: async (role) =>
@@ -407,7 +485,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
     },
     presence: {
       getActiveSession: async () => {
-        const session = sprint01Fixtures.sessions.find((entry) => entry.userId === activeUser.uid && entry.status === 'active');
+        const session = sprint01Fixtures.sessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
 
         const mappedSession: VenueSession | null = session
           ? {
@@ -422,8 +500,8 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       },
       checkIn: async (venueId) => {
         const session: VenueSession = {
-          sessionId: `s-${activeUser.uid}-${clock.now()}`,
-          userId: activeUser.uid,
+          sessionId: `s-${currentUser.uid}-${clock.now()}`,
+          userId: currentUser.uid,
           venueId,
           status: 'active',
         };
@@ -434,7 +512,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
     },
     discovery: {
       getCandidates: async () => {
-        const items = buildDiscoveryCandidates(activeUser.uid);
+        const items = buildDiscoveryCandidates(currentUser.uid);
         return responseFactory.build({ key: 'discovery.getCandidates', data: { items } });
       },
     },
@@ -444,13 +522,13 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
     },
     match: {
       getMatches: async () => {
-        const matches = computeMatchRecords(activeUser.uid);
+        const matches = computeMatchRecords(currentUser.uid);
         return responseFactory.build({ key: 'match.getMatches', data: matches });
       },
     },
     chat: {
       getThreads: async () => {
-        const matches = computeMatchRecords(activeUser.uid);
+        const matches = computeMatchRecords(currentUser.uid);
         const threads: ChatThread[] = matches.map((match) => ({
           chatId: `chat-${match.matchId}`,
           matchId: match.matchId,
@@ -467,7 +545,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       reportUser: async (targetUserId) => {
         const report: SafetyReport = {
           reportId: `report-${clock.now()}`,
-          reporterId: activeUser.uid,
+          reporterId: currentUser.uid,
           reportedUserId: targetUserId,
           status: 'pending',
         };

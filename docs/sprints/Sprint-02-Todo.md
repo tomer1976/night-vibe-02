@@ -28,7 +28,7 @@
 - [x] Implement deletion/recovery timeline simulation.
 
 ## Navigation Tasks
-- [ ] Wire entry routing based on mock auth/account status.
+- [x] Wire entry routing based on mock auth/account status.
 - [ ] Implement onboarding gating route guard to block post-onboarding routes.
 - [ ] Ensure deep-link fallback behavior routes to safe screens in mock mode.
 

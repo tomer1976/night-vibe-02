@@ -2,6 +2,7 @@ import { StackActions, useNavigation } from '@react-navigation/native';
 import { useEffect } from 'react';
 
 import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
+import { resolveAuthEntryRoute } from '../navigation/authEntryRouting';
 import { useAuthState } from '../state';
 import { useRouteAccessSelectors } from '../state/routeSelectors';
 import { ShellEntryScreen } from './ShellEntryScreen';
@@ -12,15 +13,13 @@ export function SplashScreen() {
   const { resolve } = useRouteAccessSelectors();
 
   useEffect(() => {
-    let targetRoute: AppRouteName = ROUTE_NAMES.Welcome;
+    let targetRoute: AppRouteName = resolveAuthEntryRoute({
+      isAuthenticated,
+      accountStatus,
+      isNewUser: false,
+    });
 
-    if (!isAuthenticated) {
-      targetRoute = ROUTE_NAMES.Welcome;
-    } else if (accountStatus === 'pending_deletion') {
-      targetRoute = ROUTE_NAMES.SessionRecovery;
-    } else if (accountStatus === 'suspended' || accountStatus === 'banned' || accountStatus === 'deleted') {
-      targetRoute = ROUTE_NAMES.AccessDenied;
-    } else {
+    if (targetRoute === ROUTE_NAMES.UserGroup) {
       targetRoute = resolve(ROUTE_NAMES.UserGroup);
     }
 
