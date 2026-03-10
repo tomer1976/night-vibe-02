@@ -16,7 +16,7 @@
 - [x] Add placeholder configuration points for future auth/profile adapters.
 
 ## Mock-Data Tasks
-- [ ] Create persona fixtures for:
+- [x] Create persona fixtures for:
   - new user
   - active returning user
   - suspended user

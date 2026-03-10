@@ -4,8 +4,19 @@ export type MockFixtureUser = {
   uid: string;
   displayName: string;
   status: AccountStatus;
+  isNewUser: boolean;
   roles: readonly Role[];
   activeRoleContext: Role;
+};
+
+export type Sprint02PersonaKey = 'new_user' | 'active_returning_user' | 'suspended_user' | 'banned_user' | 'pending_deletion_user';
+
+export type Sprint02AuthPersonaFixture = {
+  personaKey: Sprint02PersonaKey;
+  uid: string;
+  displayName: string;
+  status: AccountStatus;
+  isNewUser: boolean;
 };
 
 export type MockFixtureRoleContext = {
@@ -61,6 +72,47 @@ const users: readonly MockFixtureUser[] = Object.freeze([
     uid: 'u-regular-1',
     displayName: 'Alex',
     status: 'active',
+    isNewUser: false,
+    roles: regularUserRoles,
+    activeRoleContext: 'RegularUser',
+  }),
+  Object.freeze({
+    uid: 'u-persona-new-1',
+    displayName: 'Ari New',
+    status: 'active',
+    isNewUser: true,
+    roles: regularUserRoles,
+    activeRoleContext: 'RegularUser',
+  }),
+  Object.freeze({
+    uid: 'u-persona-active-1',
+    displayName: 'Riley Active',
+    status: 'active',
+    isNewUser: false,
+    roles: regularUserRoles,
+    activeRoleContext: 'RegularUser',
+  }),
+  Object.freeze({
+    uid: 'u-persona-suspended-1',
+    displayName: 'Casey Suspended',
+    status: 'suspended',
+    isNewUser: false,
+    roles: regularUserRoles,
+    activeRoleContext: 'RegularUser',
+  }),
+  Object.freeze({
+    uid: 'u-persona-banned-1',
+    displayName: 'Parker Banned',
+    status: 'banned',
+    isNewUser: false,
+    roles: regularUserRoles,
+    activeRoleContext: 'RegularUser',
+  }),
+  Object.freeze({
+    uid: 'u-persona-pending-del-1',
+    displayName: 'Jordan Pending',
+    status: 'pending_deletion',
+    isNewUser: false,
     roles: regularUserRoles,
     activeRoleContext: 'RegularUser',
   }),
@@ -68,6 +120,7 @@ const users: readonly MockFixtureUser[] = Object.freeze([
     uid: 'u-owner-1',
     displayName: 'Jordan',
     status: 'active',
+    isNewUser: false,
     roles: ownerRoles,
     activeRoleContext: 'VenueOwner',
   }),
@@ -75,6 +128,7 @@ const users: readonly MockFixtureUser[] = Object.freeze([
     uid: 'u-moderator-1',
     displayName: 'Morgan',
     status: 'active',
+    isNewUser: false,
     roles: moderatorRoles,
     activeRoleContext: 'Moderator',
   }),
@@ -82,6 +136,7 @@ const users: readonly MockFixtureUser[] = Object.freeze([
     uid: 'u-admin-1',
     displayName: 'Taylor',
     status: 'active',
+    isNewUser: false,
     roles: adminRoles,
     activeRoleContext: 'Administrator',
   }),
@@ -90,6 +145,31 @@ const users: readonly MockFixtureUser[] = Object.freeze([
 const roleContexts: readonly MockFixtureRoleContext[] = Object.freeze([
   Object.freeze({
     uid: 'u-regular-1',
+    availableRoles: regularUserRoles,
+    defaultRole: 'RegularUser',
+  }),
+  Object.freeze({
+    uid: 'u-persona-new-1',
+    availableRoles: regularUserRoles,
+    defaultRole: 'RegularUser',
+  }),
+  Object.freeze({
+    uid: 'u-persona-active-1',
+    availableRoles: regularUserRoles,
+    defaultRole: 'RegularUser',
+  }),
+  Object.freeze({
+    uid: 'u-persona-suspended-1',
+    availableRoles: regularUserRoles,
+    defaultRole: 'RegularUser',
+  }),
+  Object.freeze({
+    uid: 'u-persona-banned-1',
+    availableRoles: regularUserRoles,
+    defaultRole: 'RegularUser',
+  }),
+  Object.freeze({
+    uid: 'u-persona-pending-del-1',
     availableRoles: regularUserRoles,
     defaultRole: 'RegularUser',
   }),
@@ -212,3 +292,41 @@ export const sprint01Fixtures: MockFixtureSet = Object.freeze({
   sessions,
   interactions,
 });
+
+export const sprint02AuthPersonaFixtures: readonly Sprint02AuthPersonaFixture[] = Object.freeze([
+  Object.freeze({
+    personaKey: 'new_user',
+    uid: 'u-persona-new-1',
+    displayName: 'Ari New',
+    status: 'active',
+    isNewUser: true,
+  }),
+  Object.freeze({
+    personaKey: 'active_returning_user',
+    uid: 'u-persona-active-1',
+    displayName: 'Riley Active',
+    status: 'active',
+    isNewUser: false,
+  }),
+  Object.freeze({
+    personaKey: 'suspended_user',
+    uid: 'u-persona-suspended-1',
+    displayName: 'Casey Suspended',
+    status: 'suspended',
+    isNewUser: false,
+  }),
+  Object.freeze({
+    personaKey: 'banned_user',
+    uid: 'u-persona-banned-1',
+    displayName: 'Parker Banned',
+    status: 'banned',
+    isNewUser: false,
+  }),
+  Object.freeze({
+    personaKey: 'pending_deletion_user',
+    uid: 'u-persona-pending-del-1',
+    displayName: 'Jordan Pending',
+    status: 'pending_deletion',
+    isNewUser: false,
+  }),
+]);

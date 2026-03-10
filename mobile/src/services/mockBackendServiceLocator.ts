@@ -123,7 +123,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
             ...authSession,
             accessToken: `mock-access-${request.provider}-${activeUser.uid}`,
             refreshToken: `mock-refresh-${activeUser.uid}`,
-            isNewUser: false,
+            isNewUser: activeUser.isNewUser,
           },
         }),
       refreshSession: async () =>

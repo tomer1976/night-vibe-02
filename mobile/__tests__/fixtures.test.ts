@@ -1,12 +1,27 @@
-import { sprint01Fixtures } from '../src/mocks';
+import { sprint01Fixtures, sprint02AuthPersonaFixtures } from '../src/mocks';
 
 describe('sprint01 fixtures', () => {
   it('provides deterministic fixture counts', () => {
-    expect(sprint01Fixtures.users).toHaveLength(4);
-    expect(sprint01Fixtures.roleContexts).toHaveLength(4);
+    expect(sprint01Fixtures.users).toHaveLength(9);
+    expect(sprint01Fixtures.roleContexts).toHaveLength(9);
     expect(sprint01Fixtures.venues).toHaveLength(3);
     expect(sprint01Fixtures.sessions).toHaveLength(4);
     expect(sprint01Fixtures.interactions).toHaveLength(3);
+  });
+
+  it('includes required Sprint-02 auth personas', () => {
+    expect(sprint02AuthPersonaFixtures).toHaveLength(5);
+
+    const personaKeys = new Set(sprint02AuthPersonaFixtures.map((persona) => persona.personaKey));
+    expect(personaKeys).toEqual(
+      new Set(['new_user', 'active_returning_user', 'suspended_user', 'banned_user', 'pending_deletion_user'])
+    );
+
+    const fixtureUserIds = new Set(sprint01Fixtures.users.map((user) => user.uid));
+
+    for (const persona of sprint02AuthPersonaFixtures) {
+      expect(fixtureUserIds.has(persona.uid)).toBe(true);
+    }
   });
 
   it('keeps role context aligned with assigned user roles', () => {

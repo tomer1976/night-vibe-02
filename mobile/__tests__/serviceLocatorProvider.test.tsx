@@ -48,6 +48,20 @@ describe('mock service locator wiring', () => {
     }
   });
 
+  it('returns isNewUser=true for the Sprint-02 new-user persona login', async () => {
+    const locator = createMockBackendServiceLocator({
+      activeUserId: 'u-persona-new-1',
+    });
+
+    const loginResponse = await locator.services.auth.login({ provider: 'google' });
+    expect(loginResponse.status).toBe('SUCCESS');
+
+    if (loginResponse.status === 'SUCCESS') {
+      expect(loginResponse.data.isNewUser).toBe(true);
+      expect(loginResponse.data.status).toBe('active');
+    }
+  });
+
   it('provides services through ServiceLocatorProvider', async () => {
     function Probe() {
       const services = useServiceLocator();
