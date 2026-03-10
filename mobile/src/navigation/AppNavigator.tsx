@@ -1,6 +1,6 @@
 import { NavigationContainer, Theme as NavigationTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ComponentType } from 'react';
+import { ComponentType, useMemo } from 'react';
 
 import { AccessDeniedScreen } from '../screens/AccessDeniedScreen';
 import { AccountDeletionRecoveryScreen } from '../screens/AccountDeletionRecoveryScreen';
@@ -28,16 +28,49 @@ import { UnknownRouteFallbackScreen } from '../screens/UnknownRouteFallbackScree
 import { UserEntryScreen } from '../screens/UserEntryScreen';
 import { UserProfileScreen } from '../screens/UserProfileScreen';
 import { WelcomeScreen } from '../screens/WelcomeScreen';
+import { useAuthState, useFeatureFlagsState, useOnboardingState } from '../state';
 import { useRouteAccessSelectors } from '../state/routeSelectors';
 import { useTheme } from '../theme';
+import { resolveDeepLinkTargetRoute } from './deepLinkRouting';
 import { ROUTE_NAMES } from './routeGroups';
 
 const Stack = createNativeStackNavigator();
 
 export function AppNavigator() {
   const theme = useTheme();
+  const { accountStatus } = useAuthState();
+  const { isMockModeEnabled } = useFeatureFlagsState();
+  const { profileCompleted } = useOnboardingState();
   const routeAccessSelectors = useRouteAccessSelectors();
   const { simulatedRoleContext } = routeAccessSelectors;
+  const isDeepLinkingEnabled = isMockModeEnabled && process.env.NODE_ENV !== 'test';
+
+  const linking = useMemo(
+    () => {
+      if (!isDeepLinkingEnabled) {
+        return undefined;
+      }
+
+      return {
+        prefixes: ['nightvibe://', 'https://nightvibe.app'],
+        getStateFromPath: (path: string) => {
+          const targetRouteName = resolveDeepLinkTargetRoute({
+            path,
+            accountStatus,
+            isMockModeEnabled,
+            profileCompleted,
+            simulatedRoleContext,
+          });
+
+          return {
+            index: 0,
+            routes: [{ name: targetRouteName }],
+          };
+        },
+      };
+    },
+    [accountStatus, isDeepLinkingEnabled, isMockModeEnabled, profileCompleted, simulatedRoleContext]
+  );
 
   const renderProtectedRoute = (routeName: keyof typeof ROUTE_NAMES, ScreenComponent: ComponentType) => {
     const requestedRouteName = ROUTE_NAMES[routeName];
@@ -89,7 +122,7 @@ export function AppNavigator() {
   };
 
   return (
-    <NavigationContainer theme={navigationTheme}>
+    <NavigationContainer linking={linking} theme={navigationTheme}>
       <Stack.Navigator
         initialRouteName={ROUTE_NAMES.Splash}
         screenOptions={{

@@ -30,7 +30,7 @@
 ## Navigation Tasks
 - [x] Wire entry routing based on mock auth/account status.
 - [x] Implement onboarding gating route guard to block post-onboarding routes.
-- [ ] Ensure deep-link fallback behavior routes to safe screens in mock mode.
+- [x] Ensure deep-link fallback behavior routes to safe screens in mock mode.
 
 ## UI Tasks
 - [ ] Implement onboarding input components with UX-consistent spacing/typography.
