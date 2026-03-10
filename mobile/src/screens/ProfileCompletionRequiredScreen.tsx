@@ -6,33 +6,26 @@ import { Button, Card, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useTheme } from '../theme';
 
-export function WelcomeScreen() {
+export function ProfileCompletionRequiredScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
       <View style={[styles.top, { paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.lg }]}> 
-        <TopBar title="Night Vibe" subtitle="Welcome" />
+        <TopBar title="Night Vibe" subtitle="Profile Completion Required" />
       </View>
 
       <View style={[styles.content, { paddingHorizontal: theme.spacing.lg }]}> 
-        <Card subtitle="Sign in to continue with your mock authentication flow." title="Welcome Screen">
+        <Card
+          subtitle="Your onboarding details are captured. Venue and discovery access stay gated until profile completion is confirmed by flow state."
+          title="Profile Completion Required Screen"
+        >
           <View style={{ gap: theme.spacing.md }}>
             <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.body }}>
-              Continue to login or recover a pending deletion session.
+              Continue to the user shell in mock mode.
             </Text>
-            <Button label="Go to Login" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.Login))} />
-            <Button
-              label="Start Onboarding"
-              onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.OnboardingName))}
-              variant="secondary"
-            />
-            <Button
-              label="Session Recovery"
-              onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.SessionRecovery))}
-              variant="secondary"
-            />
+            <Button label="Continue" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserGroup))} />
           </View>
         </Card>
       </View>

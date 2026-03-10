@@ -54,6 +54,13 @@ export function LoginScreen() {
       return;
     }
 
+    if (normalizedIdentity.includes('new')) {
+      setAuthenticated(true);
+      setAccountStatus('active');
+      navigation.dispatch(StackActions.replace(ROUTE_NAMES.OnboardingName));
+      return;
+    }
+
     setAuthenticated(true);
     setAccountStatus('active');
     navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserGroup));
@@ -78,7 +85,7 @@ export function LoginScreen() {
               value={identityInput}
             />
             <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.meta }}>
-              Persona hints: use suspended, banned, pending, or deleted in the value.
+              Persona hints: use new, suspended, banned, pending, or deleted in the value.
             </Text>
             <Button label="Sign In" onPress={handleLogin} />
             <Button label="Back to Welcome" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.Welcome))} variant="secondary" />

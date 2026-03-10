@@ -102,7 +102,15 @@ export function canAccessRoute(routeName: AppRouteName, context: SimulatedRoleCo
     routeName === ROUTE_NAMES.Welcome ||
     routeName === ROUTE_NAMES.Login ||
     routeName === ROUTE_NAMES.SessionRecovery ||
-    routeName === ROUTE_NAMES.AccessDenied
+    routeName === ROUTE_NAMES.AccessDenied ||
+    routeName === ROUTE_NAMES.OnboardingName ||
+    routeName === ROUTE_NAMES.OnboardingDateOfBirth ||
+    routeName === ROUTE_NAMES.OnboardingGender ||
+    routeName === ROUTE_NAMES.OnboardingPhotoUpload ||
+    routeName === ROUTE_NAMES.OnboardingBio ||
+    routeName === ROUTE_NAMES.OnboardingPreferences ||
+    routeName === ROUTE_NAMES.OnboardingTerms ||
+    routeName === ROUTE_NAMES.ProfileCompletionRequired
   ) {
     return true;
   }

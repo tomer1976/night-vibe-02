@@ -7,7 +7,15 @@ import { AdminEntryScreen } from '../screens/AdminEntryScreen';
 import { AuthEntryScreen } from '../screens/AuthEntryScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { ModeratorEntryScreen } from '../screens/ModeratorEntryScreen';
+import { OnboardingBioScreen } from '../screens/OnboardingBioScreen';
+import { OnboardingDateOfBirthScreen } from '../screens/OnboardingDateOfBirthScreen';
+import { OnboardingGenderScreen } from '../screens/OnboardingGenderScreen';
+import { OnboardingNameScreen } from '../screens/OnboardingNameScreen';
+import { OnboardingPhotoUploadScreen } from '../screens/OnboardingPhotoUploadScreen';
+import { OnboardingPreferencesScreen } from '../screens/OnboardingPreferencesScreen';
+import { OnboardingTermsScreen } from '../screens/OnboardingTermsScreen';
 import { OwnerEntryScreen } from '../screens/OwnerEntryScreen';
+import { ProfileCompletionRequiredScreen } from '../screens/ProfileCompletionRequiredScreen';
 import { SessionRecoveryScreen } from '../screens/SessionRecoveryScreen';
 import { SplashScreen } from '../screens/SplashScreen';
 import { UnknownRouteFallbackScreen } from '../screens/UnknownRouteFallbackScreen';
@@ -88,6 +96,14 @@ export function AppNavigator() {
         <Stack.Screen name={ROUTE_NAMES.Login} component={LoginScreen} />
         <Stack.Screen name={ROUTE_NAMES.SessionRecovery} component={SessionRecoveryScreen} />
         <Stack.Screen name={ROUTE_NAMES.AccessDenied} component={AccessDeniedScreen} />
+        <Stack.Screen name={ROUTE_NAMES.OnboardingName} component={OnboardingNameScreen} />
+        <Stack.Screen name={ROUTE_NAMES.OnboardingDateOfBirth} component={OnboardingDateOfBirthScreen} />
+        <Stack.Screen name={ROUTE_NAMES.OnboardingGender} component={OnboardingGenderScreen} />
+        <Stack.Screen name={ROUTE_NAMES.OnboardingPhotoUpload} component={OnboardingPhotoUploadScreen} />
+        <Stack.Screen name={ROUTE_NAMES.OnboardingBio} component={OnboardingBioScreen} />
+        <Stack.Screen name={ROUTE_NAMES.OnboardingPreferences} component={OnboardingPreferencesScreen} />
+        <Stack.Screen name={ROUTE_NAMES.OnboardingTerms} component={OnboardingTermsScreen} />
+        <Stack.Screen name={ROUTE_NAMES.ProfileCompletionRequired} component={ProfileCompletionRequiredScreen} />
         <Stack.Screen name={ROUTE_NAMES.AuthGroup}>{() => renderProtectedRoute('AuthGroup', AuthEntryScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.UserGroup}>{() => renderProtectedRoute('UserGroup', UserEntryScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.OwnerGroup}>{() => renderProtectedRoute('OwnerGroup', OwnerEntryScreen)}</Stack.Screen>

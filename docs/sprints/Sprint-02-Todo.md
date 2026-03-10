@@ -2,7 +2,7 @@
 
 ## Frontend Tasks
 - [x] Implement auth flow screens (Splash, Welcome, Login, Session Recovery, Access Denied).
-- [ ] Implement complete onboarding screen set with stepper/navigation controls.
+- [x] Implement complete onboarding screen set with stepper/navigation controls.
 - [ ] Build profile screens (view/edit/photos) using shared Sprint 01 design components.
 - [ ] Build account/settings screens (Account Settings, Linked Accounts, Delete/Recovery flows).
 - [ ] Add reusable form validation and inline error messaging components.
