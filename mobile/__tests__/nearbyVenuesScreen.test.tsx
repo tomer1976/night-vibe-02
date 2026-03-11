@@ -30,17 +30,25 @@ function NearbyVenuesTestNavigator() {
 
 describe('nearby venues screen', () => {
   it('renders venue list with category/status/activity metadata from mock discovery', async () => {
-    const { getByText, findByText } = render(<NearbyVenuesTestNavigator />);
+    const { getByText, findAllByText, findByText } = render(<NearbyVenuesTestNavigator />);
 
     fireEvent.press(getByText('Nearby Venues Screen'));
 
     expect(await findByText('Nearby Venues Screen')).toBeTruthy();
     expect(await findByText('Halo Club')).toBeTruthy();
     expect(await findByText('Luna Lounge')).toBeTruthy();
-    expect(await findByText('1.06 km • club • active • 2 active • Busy now')).toBeTruthy();
-    expect(await findByText('1.35 km • lounge • active • 0 active • Calm now')).toBeTruthy();
+    expect(await findByText('Category: club')).toBeTruthy();
+    expect(await findByText('Category: lounge')).toBeTruthy();
+    expect(await findByText('Distance: 1.06 km')).toBeTruthy();
+    expect(await findByText('Distance: 1.35 km')).toBeTruthy();
+    expect(await findByText('Activity: 2 active attendees')).toBeTruthy();
+    expect(await findByText('Activity: 0 active attendees')).toBeTruthy();
+    const activeStatusBadges = await findAllByText('Status: active');
+    expect(activeStatusBadges).toHaveLength(2);
+    expect(await findByText('Live: Busy now')).toBeTruthy();
+    expect(await findByText('Live: Calm now')).toBeTruthy();
 
-    fireEvent.press(getByText('Halo Club'));
+    fireEvent.press(getByText('View Details: Halo Club'));
 
     expect(await findByText('Venue Details Screen')).toBeTruthy();
     fireEvent.press(getByText('Start Check-In'));

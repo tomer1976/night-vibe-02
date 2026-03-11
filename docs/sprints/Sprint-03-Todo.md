@@ -29,7 +29,7 @@
 - [x] Add guards for profile completion/account status before venue routes.
 
 ## UI Tasks
-- [ ] Build venue list cards with distance, category, and activity indicators.
+- [x] Build venue list cards with distance, category, and activity indicators.
 - [ ] Build session status cards and timer/elapsed indicators.
 - [ ] Add clear messaging states for denied check-in reasons.
 - [ ] Add empty-state and retry-state components for venue/presence views.

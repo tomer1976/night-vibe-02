@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { VenueSummary } from '../contracts';
-import { Button, Card, EmptyStateTemplate, ErrorStateTemplate, ListItem, LoadingStateTemplate, TopBar } from '../components';
+import { Badge, Button, Card, EmptyStateTemplate, ErrorStateTemplate, LoadingStateTemplate, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
 import { useTheme } from '../theme';
@@ -21,6 +21,30 @@ const formatLiveStatusLabel = (status: VenueSummary['activitySnapshot']['liveSta
   }
 
   return 'Calm now';
+};
+
+const toVenueStatusTone = (status: VenueSummary['status']) => {
+  if (status === 'active') {
+    return 'success' as const;
+  }
+
+  if (status === 'pending') {
+    return 'warning' as const;
+  }
+
+  return 'danger' as const;
+};
+
+const toLiveStatusTone = (status: VenueSummary['activitySnapshot']['liveStatus']) => {
+  if (status === 'busy') {
+    return 'danger' as const;
+  }
+
+  if (status === 'steady') {
+    return 'warning' as const;
+  }
+
+  return 'success' as const;
 };
 
 export function NearbyVenuesScreen() {
@@ -83,13 +107,30 @@ export function NearbyVenuesScreen() {
           <Card subtitle={summaryText} title="Nearby Venues Screen">
             <View style={{ gap: theme.spacing.md }}>
               {venues.map((venue) => (
-                <ListItem
-                  key={venue.venueId}
-                  onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.VenueDetails, { venueId: venue.venueId }))}
-                  subtitle={`${venue.distanceKm.toFixed(2)} km • ${formatCategoryLabel(venue.category)} • ${venue.status} • ${venue.activitySnapshot.checkinCount} active • ${formatLiveStatusLabel(venue.activitySnapshot.liveStatus)}`}
-                  title={venue.name}
-                  trailingText="Details"
-                />
+                <Card key={venue.venueId} subtitle={`Category: ${formatCategoryLabel(venue.category)}`} title={venue.name}>
+                  <View style={{ gap: theme.spacing.sm }}>
+                    <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
+                      <Badge label={`Status: ${venue.status}`} tone={toVenueStatusTone(venue.status)} />
+                      <Badge
+                        label={`Live: ${formatLiveStatusLabel(venue.activitySnapshot.liveStatus)}`}
+                        tone={toLiveStatusTone(venue.activitySnapshot.liveStatus)}
+                      />
+                    </View>
+
+                    <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
+                      Distance: {venue.distanceKm.toFixed(2)} km
+                    </Text>
+                    <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
+                      Activity: {venue.activitySnapshot.checkinCount} active attendees
+                    </Text>
+
+                    <Button
+                      label={`View Details: ${venue.name}`}
+                      onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.VenueDetails, { venueId: venue.venueId }))}
+                      variant="secondary"
+                    />
+                  </View>
+                </Card>
               ))}
 
               <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.meta }}>
