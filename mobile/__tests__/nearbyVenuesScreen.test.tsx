@@ -2,7 +2,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fireEvent, render } from '@testing-library/react-native';
 
-import { NearbyVenuesScreen, UserEntryScreen, VenueDetailsScreen } from '../src/screens';
+import { CheckInConfirmationScreen, NearbyVenuesScreen, UserEntryScreen, VenueDetailsScreen } from '../src/screens';
 import { ServiceLocatorProvider } from '../src/services';
 import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
@@ -19,6 +19,7 @@ function NearbyVenuesTestNavigator() {
               <Stack.Screen component={UserEntryScreen} name="UserGroup" />
               <Stack.Screen component={NearbyVenuesScreen} name="NearbyVenues" />
               <Stack.Screen component={VenueDetailsScreen} name="VenueDetails" />
+              <Stack.Screen component={CheckInConfirmationScreen} name="CheckInConfirmation" />
             </Stack.Navigator>
           </NavigationContainer>
         </ServiceLocatorProvider>
@@ -42,6 +43,7 @@ describe('nearby venues screen', () => {
     fireEvent.press(getByText('Halo Club'));
 
     expect(await findByText('Venue Details Screen')).toBeTruthy();
-    expect(await findByText('Start Check-In')).toBeTruthy();
+    fireEvent.press(getByText('Start Check-In'));
+    expect(await findByText('Venue Check-In Confirmation Screen')).toBeTruthy();
   });
 });

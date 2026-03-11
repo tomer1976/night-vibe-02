@@ -47,6 +47,18 @@ const DEFAULT_ACCESS_TOKEN_TTL_MS = 15 * 60 * 1000;
 const DEFAULT_REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const DELETION_RECOVERY_WINDOW_DAYS = 30;
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const CHECKIN_RADIUS_METERS = 75;
+
+function calculateMockDistanceMeters(
+  left: { latitude: number; longitude: number },
+  right: { latitude: number; longitude: number }
+) {
+  const latDeltaMeters = (left.latitude - right.latitude) * 111_320;
+  const longitudeMetersFactor = 111_320 * Math.cos((right.latitude * Math.PI) / 180);
+  const lonDeltaMeters = (left.longitude - right.longitude) * longitudeMetersFactor;
+
+  return Math.sqrt(latDeltaMeters * latDeltaMeters + lonDeltaMeters * lonDeltaMeters);
+}
 
 function computeMatchRecords(activeUserId: string): MatchRecord[] {
   const likes = sprint01Fixtures.interactions.filter((interaction) => interaction.action === 'like');
@@ -537,12 +549,69 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
         return responseFactory.build({ key: 'presence.getMyActiveSession', data: mappedSession });
       },
       checkInWithContext: async (request) => {
+        const targetVenue = sprint01Fixtures.venues.find((venue) => venue.venueId === request.venueId);
+
+        if (!targetVenue || targetVenue.status !== 'active') {
+          return responseFactory.build({
+            key: 'presence.checkInWithContext',
+            data: {
+              status: 'SUCCESS',
+              venueId: request.venueId,
+              sessionId: '',
+              checkinTimestamp: clock.peek(),
+              previousVenueCheckout: false,
+            },
+            scenario: 'NOT_FOUND',
+            errorMessage: 'Mock venue is not active or not found for check-in.',
+          });
+        }
+
+        if (!Number.isFinite(request.latitude) || !Number.isFinite(request.longitude)) {
+          return responseFactory.build({
+            key: 'presence.checkInWithContext',
+            data: {
+              status: 'SUCCESS',
+              venueId: request.venueId,
+              sessionId: '',
+              checkinTimestamp: clock.peek(),
+              previousVenueCheckout: false,
+            },
+            scenario: 'PERMISSION_DENIED',
+            errorMessage: 'Mock location is unavailable or permission was denied.',
+          });
+        }
+
+        const distanceMeters = calculateMockDistanceMeters(
+          { latitude: request.latitude, longitude: request.longitude },
+          { latitude: targetVenue.latitude, longitude: targetVenue.longitude }
+        );
+
+        if (distanceMeters > CHECKIN_RADIUS_METERS) {
+          return responseFactory.build({
+            key: 'presence.checkInWithContext',
+            data: {
+              status: 'SUCCESS',
+              venueId: request.venueId,
+              sessionId: '',
+              checkinTimestamp: clock.peek(),
+              previousVenueCheckout: false,
+            },
+            scenario: 'OUT_OF_RANGE',
+            errorMessage: 'Mock check-in is outside the allowed proximity radius.',
+            details: {
+              distance_meters: Math.round(distanceMeters),
+              max_allowed_meters: CHECKIN_RADIUS_METERS,
+            },
+          });
+        }
+
+        const currentActiveSession = sprint01Fixtures.sessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
         const response: PresenceCheckInResult = {
           status: 'SUCCESS',
           venueId: request.venueId,
           sessionId: `s-${currentUser.uid}-${clock.now()}`,
           checkinTimestamp: clock.peek(),
-          previousVenueCheckout: true,
+          previousVenueCheckout: Boolean(currentActiveSession && currentActiveSession.venueId !== request.venueId),
         };
 
         return responseFactory.build({ key: 'presence.checkInWithContext', data: response });

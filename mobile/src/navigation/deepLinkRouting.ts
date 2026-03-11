@@ -29,6 +29,7 @@ const DEEP_LINK_PATH_TO_ROUTE: Record<string, AppRouteName> = {
   'profile-completion-required': ROUTE_NAMES.ProfileCompletionRequired,
   user: ROUTE_NAMES.UserGroup,
   'venues/details': ROUTE_NAMES.VenueDetails,
+  'venues/check-in-confirmation': ROUTE_NAMES.CheckInConfirmation,
   profile: ROUTE_NAMES.UserProfile,
   'profile/edit': ROUTE_NAMES.EditProfile,
   'profile/photos': ROUTE_NAMES.ProfilePhotosManagement,
@@ -53,6 +54,7 @@ function isPostOnboardingRoute(routeName: AppRouteName) {
   return (
     routeName === ROUTE_NAMES.UserGroup ||
     routeName === ROUTE_NAMES.VenueDetails ||
+    routeName === ROUTE_NAMES.CheckInConfirmation ||
     routeName === ROUTE_NAMES.UserProfile ||
     routeName === ROUTE_NAMES.EditProfile ||
     routeName === ROUTE_NAMES.ProfilePhotosManagement ||

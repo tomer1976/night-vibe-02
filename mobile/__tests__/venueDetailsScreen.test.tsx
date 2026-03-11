@@ -2,7 +2,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fireEvent, render } from '@testing-library/react-native';
 
-import { VenueDetailsScreen } from '../src/screens';
+import { CheckInConfirmationScreen, VenueDetailsScreen } from '../src/screens';
 import { ServiceLocatorProvider } from '../src/services';
 import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
@@ -17,6 +17,7 @@ function VenueDetailsTestNavigator() {
           <NavigationContainer>
             <Stack.Navigator initialRouteName="VenueDetails" screenOptions={{ headerShown: false }}>
               <Stack.Screen component={VenueDetailsScreen} initialParams={{ venueId: 'v-halo-club' }} name="VenueDetails" />
+              <Stack.Screen component={CheckInConfirmationScreen} name="CheckInConfirmation" />
             </Stack.Navigator>
           </NavigationContainer>
         </ServiceLocatorProvider>
@@ -26,12 +27,12 @@ function VenueDetailsTestNavigator() {
 }
 
 describe('venue details screen', () => {
-  it('supports check-in entry action from venue details for active venues', async () => {
+  it('navigates into check-in confirmation flow from venue details', async () => {
     const { findByText, getByText } = render(<VenueDetailsTestNavigator />);
 
     expect(await findByText('Venue Details Screen')).toBeTruthy();
     fireEvent.press(getByText('Start Check-In'));
 
-    expect(await findByText(/Check-in entry started for Halo Club\./)).toBeTruthy();
+    expect(await findByText('Venue Check-In Confirmation Screen')).toBeTruthy();
   });
 });

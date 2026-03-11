@@ -13,11 +13,6 @@ type VenueDetailsRouteParams = {
   venueId?: string;
 };
 
-const MOCK_CHECKIN_COORDINATES = {
-  latitude: 32.0853,
-  longitude: 34.7818,
-};
-
 const formatCategoryLabel = (category: VenueSummary['category']) => category.replaceAll('_', ' ');
 
 const formatLiveStatusLabel = (status: VenueSummary['activitySnapshot']['liveStatus']) => {
@@ -56,8 +51,6 @@ export function VenueDetailsScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorText, setErrorText] = useState<string | undefined>();
   const [venue, setVenue] = useState<VenueSummary | null>(null);
-  const [isSubmittingCheckIn, setIsSubmittingCheckIn] = useState(false);
-  const [checkInResultText, setCheckInResultText] = useState<string | undefined>();
 
   const loadVenueDetails = useCallback(async () => {
     if (!venueId) {
@@ -114,33 +107,18 @@ export function VenueDetailsScreen() {
     return 'Start Check-In';
   }, [venue]);
 
-  const handleCheckInEntry = useCallback(async () => {
-    if (!venue || !canAttemptCheckIn || isSubmittingCheckIn) {
+  const handleCheckInEntry = useCallback(() => {
+    if (!venue || !canAttemptCheckIn) {
       return;
     }
 
-    setIsSubmittingCheckIn(true);
-    setCheckInResultText(undefined);
-
-    try {
-      const response = await services.presence.checkInWithContext({
+    navigation.dispatch(
+      StackActions.push(ROUTE_NAMES.CheckInConfirmation, {
         venueId: venue.venueId,
-        latitude: MOCK_CHECKIN_COORDINATES.latitude,
-        longitude: MOCK_CHECKIN_COORDINATES.longitude,
-      });
-
-      if (response.status === 'FAIL') {
-        setCheckInResultText(`Check-in entry failed: ${response.error.code}.`);
-        return;
-      }
-
-      setCheckInResultText(`Check-in entry started for ${venue.name}. Session ${response.data.sessionId} created.`);
-    } catch {
-      setCheckInResultText('Check-in entry failed: INTERNAL_ERROR.');
-    } finally {
-      setIsSubmittingCheckIn(false);
-    }
-  }, [canAttemptCheckIn, isSubmittingCheckIn, services.presence, venue]);
+        venueName: venue.name,
+      })
+    );
+  }, [canAttemptCheckIn, navigation, venue]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
@@ -172,13 +150,9 @@ export function VenueDetailsScreen() {
                 </Text>
               ) : null}
 
-              {checkInResultText ? (
-                <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>{checkInResultText}</Text>
-              ) : null}
-
               <Button
-                disabled={!canAttemptCheckIn || isSubmittingCheckIn}
-                label={isSubmittingCheckIn ? 'Starting Check-In...' : checkInButtonLabel}
+                disabled={!canAttemptCheckIn}
+                label={checkInButtonLabel}
                 onPress={() => void handleCheckInEntry()}
               />
 

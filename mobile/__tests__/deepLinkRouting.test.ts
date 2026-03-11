@@ -19,6 +19,7 @@ describe('deep link routing', () => {
     expect(resolveRouteFromDeepLinkPath('profile/photos')).toBe(ROUTE_NAMES.ProfilePhotosManagement);
     expect(resolveRouteFromDeepLinkPath('/settings/account?ref=qa')).toBe(ROUTE_NAMES.AccountSettings);
     expect(resolveRouteFromDeepLinkPath('/venues/details')).toBe(ROUTE_NAMES.VenueDetails);
+    expect(resolveRouteFromDeepLinkPath('/venues/check-in-confirmation')).toBe(ROUTE_NAMES.CheckInConfirmation);
   });
 
   it('routes unknown deep links to safe auth entry route in mock mode', () => {
@@ -73,6 +74,7 @@ describe('deep link routing', () => {
     const postOnboardingPaths = [
       '/user',
       '/venues/details',
+      '/venues/check-in-confirmation',
       '/profile',
       '/profile/edit',
       '/profile/photos',

@@ -7,6 +7,7 @@ import { AccountDeletionRecoveryScreen } from '../screens/AccountDeletionRecover
 import { AccountSettingsScreen } from '../screens/AccountSettingsScreen';
 import { AdminEntryScreen } from '../screens/AdminEntryScreen';
 import { AuthEntryScreen } from '../screens/AuthEntryScreen';
+import { CheckInConfirmationScreen } from '../screens/CheckInConfirmationScreen';
 import { DeleteAccountScreen } from '../screens/DeleteAccountScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { LinkedAccountsScreen } from '../screens/LinkedAccountsScreen';
@@ -148,6 +149,7 @@ export function AppNavigator() {
         <Stack.Screen name={ROUTE_NAMES.ProfileCompletionRequired} component={ProfileCompletionRequiredScreen} />
         <Stack.Screen name={ROUTE_NAMES.NearbyVenues}>{() => renderProtectedRoute('NearbyVenues', NearbyVenuesScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.VenueDetails}>{() => renderProtectedRoute('VenueDetails', VenueDetailsScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.CheckInConfirmation}>{() => renderProtectedRoute('CheckInConfirmation', CheckInConfirmationScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.UserProfile}>{() => renderProtectedRoute('UserProfile', UserProfileScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.EditProfile}>{() => renderProtectedRoute('EditProfile', EditProfileScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.ProfilePhotosManagement}>

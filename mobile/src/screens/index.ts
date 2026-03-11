@@ -3,6 +3,7 @@ export { AccountDeletionRecoveryScreen } from './AccountDeletionRecoveryScreen';
 export { AccountSettingsScreen } from './AccountSettingsScreen';
 export { AdminEntryScreen } from './AdminEntryScreen';
 export { AuthEntryScreen } from './AuthEntryScreen';
+export { CheckInConfirmationScreen } from './CheckInConfirmationScreen';
 export { DeleteAccountScreen } from './DeleteAccountScreen';
 export { EditProfileScreen } from './EditProfileScreen';
 export { LinkedAccountsScreen } from './LinkedAccountsScreen';
