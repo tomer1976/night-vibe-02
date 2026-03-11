@@ -45,5 +45,6 @@ describe('nearby venues screen', () => {
     expect(await findByText('Venue Details Screen')).toBeTruthy();
     fireEvent.press(getByText('Start Check-In'));
     expect(await findByText('Venue Check-In Confirmation Screen')).toBeTruthy();
+    expect(await findByText('Venue: Halo Club')).toBeTruthy();
   });
 });
