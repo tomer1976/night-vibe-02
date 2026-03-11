@@ -37,7 +37,7 @@ describe('active venue session screen', () => {
     expect(await findByText('Venue: v-halo-club')).toBeTruthy();
     expect(await findByText('User: u-regular-1')).toBeTruthy();
     expect(await findByText('Status: active')).toBeTruthy();
-    expect(await findByText('Transitions: 2')).toBeTruthy();
+    expect(await findByText('Transitions: 3')).toBeTruthy();
 
     fireEvent.press(getByText('Open Venue Presence'));
     expect(await findByText('Venue Presence Screen')).toBeTruthy();

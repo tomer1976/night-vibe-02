@@ -12,7 +12,7 @@ describe('sprint01 fixtures', () => {
     expect(sprint01Fixtures.users).toHaveLength(9);
     expect(sprint01Fixtures.roleContexts).toHaveLength(9);
     expect(sprint01Fixtures.venues).toHaveLength(5);
-    expect(sprint01Fixtures.sessions).toHaveLength(4);
+    expect(sprint01Fixtures.sessions).toHaveLength(5);
     expect(sprint01Fixtures.interactions).toHaveLength(3);
   });
 
@@ -92,6 +92,15 @@ describe('sprint01 fixtures', () => {
     const uniqueActiveUserIds = new Set(activeUserIds);
 
     expect(uniqueActiveUserIds.size).toBe(activeUserIds.length);
+  });
+
+  it('includes Sprint-03 replaced and expired session fixtures for transition scenarios', () => {
+    const sessionIds = new Set(sprint01Fixtures.sessions.map((session) => session.sessionId));
+    const sessionStatuses = new Set(sprint01Fixtures.sessions.map((session) => session.status));
+
+    expect(sessionIds.has('s-regular-1-replaced-closed')).toBe(true);
+    expect(sessionIds.has('s-admin-1-expired')).toBe(true);
+    expect(sessionStatuses).toEqual(new Set(['active', 'closed', 'expired']));
   });
 
   it('ensures interactions reference known users, venues, and sessions', () => {

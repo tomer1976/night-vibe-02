@@ -162,6 +162,15 @@ describe('mock service locator wiring', () => {
           transitionedAt: '2026-03-08T18:45:00.000Z',
         },
         {
+          sessionId: 's-regular-1-replaced-closed',
+          userId: 'u-regular-1',
+          venueId: 'v-luna-lounge',
+          fromStatus: 'active',
+          toStatus: 'closed',
+          reason: 'auto_replaced',
+          transitionedAt: '2026-03-08T18:59:00.000Z',
+        },
+        {
           sessionId: 's-admin-1-expired',
           userId: 'u-admin-1',
           venueId: 'v-luna-lounge',

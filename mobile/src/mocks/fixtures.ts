@@ -258,6 +258,14 @@ const venues: readonly MockFixtureVenue[] = Object.freeze([
 
 const sessions: readonly MockFixtureSession[] = Object.freeze([
   Object.freeze({
+    sessionId: 's-regular-1-replaced-closed',
+    userId: 'u-regular-1',
+    venueId: 'v-luna-lounge',
+    status: 'closed',
+    checkinAt: '2026-03-08T18:35:00.000Z',
+    checkoutAt: '2026-03-08T18:59:00.000Z',
+  }),
+  Object.freeze({
     sessionId: 's-regular-1-active',
     userId: 'u-regular-1',
     venueId: 'v-halo-club',
