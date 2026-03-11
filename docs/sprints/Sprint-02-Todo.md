@@ -61,7 +61,7 @@
 ## Documentation Tasks
 - [x] Document auth/onboarding state machine transitions.
 - [x] Document persona fixture catalog and usage instructions.
-- [ ] Document mocked-vs-real boundaries for Sprint 02 modules.
+- [x] Document mocked-vs-real boundaries for Sprint 02 modules.
 - [ ] Update sprint execution notes with unresolved risks for Sprint 03.
 
 ## Release/Readiness Tasks (if applicable)
