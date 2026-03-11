@@ -137,4 +137,14 @@ describe('profile screens', () => {
     expect(getByText('No photos yet')).toBeTruthy();
     expect(getAllByText('Add Mock Photo').length).toBeGreaterThan(0);
   });
+
+  it('keeps photo changes synchronized with saved profile draft after finishing photos management', () => {
+    const { getByText } = render(<ProfileTestNavigator />);
+
+    fireEvent.press(getByText('Profile Photos Management Screen'));
+    fireEvent.press(getByText('Add Mock Photo'));
+    fireEvent.press(getByText('Done'));
+
+    expect(getByText('Photos 1/3 approved')).toBeTruthy();
+  });
 });

@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge, Button, Card, EmptyStateTemplate, ErrorStateTemplate, ListItem, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { useProfileDraftState } from '../state';
 import { useTheme } from '../theme';
 import { ProfilePhotoDraft, ProfilePhotoModerationStatus, readProfileDraftFromParams } from './profileDraft';
 
@@ -39,6 +40,7 @@ export function ProfilePhotosManagementScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
   const route = useRoute();
+  const { replaceProfileDraft } = useProfileDraftState();
   const draft = readProfileDraftFromParams(route.params);
   const [photos, setPhotos] = useState<ProfilePhotoDraft[]>(draft.photos);
   const [errorText, setErrorText] = useState<string | undefined>();
@@ -137,16 +139,20 @@ export function ProfilePhotosManagementScreen() {
           <Button label="Add Mock Photo" onPress={addMockPhoto} />
           <Button
             label="Done"
-            onPress={() =>
+            onPress={() => {
+              const nextDraft = {
+                ...draft,
+                photos,
+              };
+
+              replaceProfileDraft(nextDraft);
+
               navigation.dispatch(
                 StackActions.replace(ROUTE_NAMES.UserProfile, {
-                  draft: {
-                    ...draft,
-                    photos,
-                  },
+                  draft: nextDraft,
                 })
-              )
-            }
+              );
+            }}
             variant="secondary"
           />
         </View>
