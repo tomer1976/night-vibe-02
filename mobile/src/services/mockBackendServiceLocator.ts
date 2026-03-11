@@ -478,6 +478,14 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
             venueId: venue.venueId,
             name: venue.name,
             distanceKm: Number((1.2 + index * 0.7).toFixed(2)),
+            category: venue.category,
+            status: venue.status,
+            activitySnapshot: {
+              checkinCount: sprint01Fixtures.sessions.filter(
+                (session) => session.status === 'active' && session.venueId === venue.venueId
+              ).length,
+              liveStatus: index === 0 ? 'busy' : 'steady',
+            },
           }));
 
         return responseFactory.build({ key: 'venues.getNearbyVenues', data: venues });

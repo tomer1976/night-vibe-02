@@ -11,6 +11,7 @@ import { DeleteAccountScreen } from '../screens/DeleteAccountScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { LinkedAccountsScreen } from '../screens/LinkedAccountsScreen';
 import { ModeratorEntryScreen } from '../screens/ModeratorEntryScreen';
+import { NearbyVenuesScreen } from '../screens/NearbyVenuesScreen';
 import { OnboardingBioScreen } from '../screens/OnboardingBioScreen';
 import { OnboardingDateOfBirthScreen } from '../screens/OnboardingDateOfBirthScreen';
 import { OnboardingGenderScreen } from '../screens/OnboardingGenderScreen';
@@ -144,6 +145,7 @@ export function AppNavigator() {
         <Stack.Screen name={ROUTE_NAMES.OnboardingPreferences} component={OnboardingPreferencesScreen} />
         <Stack.Screen name={ROUTE_NAMES.OnboardingTerms} component={OnboardingTermsScreen} />
         <Stack.Screen name={ROUTE_NAMES.ProfileCompletionRequired} component={ProfileCompletionRequiredScreen} />
+        <Stack.Screen name={ROUTE_NAMES.NearbyVenues}>{() => renderProtectedRoute('NearbyVenues', NearbyVenuesScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.UserProfile}>{() => renderProtectedRoute('UserProfile', UserProfileScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.EditProfile}>{() => renderProtectedRoute('EditProfile', EditProfileScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.ProfilePhotosManagement}>

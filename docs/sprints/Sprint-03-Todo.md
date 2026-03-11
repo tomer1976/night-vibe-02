@@ -1,7 +1,7 @@
 # Sprint-03 Todo - Mock Venues, Nearby Discovery, Check-In, and Check-Out
 
 ## Frontend Tasks
-- [ ] Implement Nearby Venues list screen with category/status/activity metadata.
+- [x] Implement Nearby Venues list screen with category/status/activity metadata.
 - [ ] Implement Venue Details screen and check-in entry action.
 - [ ] Implement Check-In Confirmation flow with scenario-based outcomes.
 - [ ] Implement Active Venue Session screen and live session-state indicators.

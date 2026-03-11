@@ -8,6 +8,7 @@ export { EditProfileScreen } from './EditProfileScreen';
 export { LinkedAccountsScreen } from './LinkedAccountsScreen';
 export { LoginScreen } from './LoginScreen';
 export { ModeratorEntryScreen } from './ModeratorEntryScreen';
+export { NearbyVenuesScreen } from './NearbyVenuesScreen';
 export { OnboardingBioScreen } from './OnboardingBioScreen';
 export { OnboardingDateOfBirthScreen } from './OnboardingDateOfBirthScreen';
 export { OnboardingGenderScreen } from './OnboardingGenderScreen';

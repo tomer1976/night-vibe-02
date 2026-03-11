@@ -19,6 +19,12 @@ export type VenueSummary = {
   venueId: string;
   name: string;
   distanceKm: number;
+  category: 'bar' | 'club' | 'restaurant' | 'lounge' | 'event_space' | 'festival' | 'other';
+  status: 'pending' | 'active' | 'rejected' | 'suspended' | 'expired';
+  activitySnapshot: {
+    checkinCount: number;
+    liveStatus: 'calm' | 'steady' | 'busy';
+  };
 };
 
 export type VenueSession = {

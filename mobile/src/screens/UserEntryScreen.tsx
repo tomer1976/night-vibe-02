@@ -90,6 +90,12 @@ export function UserEntryScreen() {
       <View style={[styles.content, { gap: theme.spacing.md, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.lg }]}> 
         <Card subtitle="Mock auth/onboarding complete. Continue to profile flows." title="User Entry">
           <ListItem
+            onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.NearbyVenues))}
+            subtitle="Browse nearby venues with category, status, and activity metadata"
+            title="Nearby Venues Screen"
+            trailingText="Open"
+          />
+          <ListItem
             onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.UserProfile, { draft: DEFAULT_PROFILE_DRAFT }))}
             subtitle="View profile details and completion status"
             title="User Profile Screen"

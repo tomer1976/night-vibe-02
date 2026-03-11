@@ -17,6 +17,7 @@ describe('route groups', () => {
       'OnboardingPreferences',
       'OnboardingTerms',
       'ProfileCompletionRequired',
+      'NearbyVenues',
       'UserProfile',
       'EditProfile',
       'ProfilePhotosManagement',
@@ -58,6 +59,7 @@ describe('route groups', () => {
       OnboardingPreferences: 'auth',
       OnboardingTerms: 'auth',
       ProfileCompletionRequired: 'auth',
+      NearbyVenues: 'user',
       UserProfile: 'user',
       EditProfile: 'user',
       ProfilePhotosManagement: 'user',
@@ -81,6 +83,7 @@ describe('route groups', () => {
     const unauthenticated = readSimulatedRoleContextFromEnv({ EXPO_PUBLIC_MOCK_IS_AUTHENTICATED: 'false' });
 
     expect(canAccessRoute(ROUTE_NAMES.UserGroup, regularUser)).toBe(true);
+    expect(canAccessRoute(ROUTE_NAMES.NearbyVenues, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.OwnerGroup, venueOwner)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.ModeratorGroup, moderator)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.AdminGroup, administrator)).toBe(true);
