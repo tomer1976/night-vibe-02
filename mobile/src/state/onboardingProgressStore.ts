@@ -10,6 +10,7 @@ export type OnboardingProgressAction =
   | { type: 'MARK_STEP_COMPLETED'; step: number }
   | { type: 'GO_TO_NEXT_STEP' }
   | { type: 'GO_TO_PREVIOUS_STEP' }
+  | { type: 'HYDRATE_STATE'; state: OnboardingProgressState }
   | { type: 'RESET_PROGRESS' };
 
 function clampStep(step: number): number {
@@ -89,6 +90,16 @@ export function onboardingProgressReducer(
       return {
         ...state,
         currentStep: previousStep,
+      };
+    }
+
+    case 'HYDRATE_STATE': {
+      return {
+        currentStep: clampStep(action.state.currentStep),
+        completedSteps: action.state.completedSteps
+          .map((step) => clampStep(step))
+          .filter((step, index, items) => items.indexOf(step) === index)
+          .sort((left, right) => left - right),
       };
     }
 

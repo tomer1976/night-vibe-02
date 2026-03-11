@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useCallback, useContext, useMemo, useReducer, useState } from 'react';
+import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 
 import { AccountStatus, Role } from '../contracts';
 import { readRuntimeMode } from '../config/firebaseRuntimeGuard';
@@ -19,6 +19,7 @@ import {
   createInitialProfileDraftStoreState,
   profileDraftStoreReducer,
 } from './profileDraftStore';
+import { readMockAppStateSnapshot, writeMockAppStateSnapshot } from './mockStatePersistence';
 
 export type AuthState = {
   accountStatus: AccountStatus;
@@ -43,6 +44,7 @@ export type RoleState = {
 
 export type FeatureFlagsState = {
   isMockModeEnabled: boolean;
+  isStateHydrated: boolean;
   isRoleSimulationEnabled: boolean;
   setRoleSimulationEnabled: (value: boolean) => void;
 };
@@ -109,6 +111,7 @@ const defaultRoleState: RoleState = {
 
 const defaultFeatureFlagsState: FeatureFlagsState = {
   isMockModeEnabled: readRuntimeMode() === 'phase1-mock',
+  isStateHydrated: false,
   isRoleSimulationEnabled: true,
   setRoleSimulationEnabled: () => undefined,
 };
@@ -160,6 +163,9 @@ const ProfileDraftStateContext = createContext<ProfileDraftState>(defaultProfile
 const AccountLifecycleStateContext = createContext<AccountLifecycleState>(defaultAccountLifecycleState);
 
 export function AppStateProvider({ children }: PropsWithChildren) {
+  const isMockModeEnabled = readRuntimeMode() === 'phase1-mock';
+  const isHydrationEnabledInTests = process.env.EXPO_PUBLIC_ENABLE_MOCK_STATE_HYDRATION_TEST === 'true';
+  const shouldSkipAsyncHydrationForTests = process.env.NODE_ENV === 'test' && !isHydrationEnabledInTests;
   const simulatedRoleContext = readSimulatedRoleContextFromEnv();
 
   const [authStoreState, dispatchAuthStore] = useReducer(
@@ -186,6 +192,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     createInitialAccountLifecycleStoreState()
   );
   const [profileCompleted, setProfileCompleted] = useState(true);
+  const [isStateHydrated, setIsStateHydrated] = useState(!isMockModeEnabled || shouldSkipAsyncHydrationForTests);
 
   const replaceProfileDraft = useCallback((draft: ProfileDraft) => {
     dispatchProfileDraftStore({
@@ -261,6 +268,90 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     dispatchAccountLifecycleStore({ type: 'RESET_ACCOUNT_LIFECYCLE' });
   }, []);
 
+  useEffect(() => {
+    if (shouldSkipAsyncHydrationForTests) {
+      return;
+    }
+
+    if (!isMockModeEnabled) {
+      setIsStateHydrated(true);
+      return;
+    }
+
+    let isMounted = true;
+
+    const hydrateState = async () => {
+      const snapshot = await readMockAppStateSnapshot();
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (snapshot) {
+        dispatchAuthStore({
+          type: 'HYDRATE_STATE',
+          state: snapshot.auth,
+        });
+
+        dispatchOnboardingState({
+          type: 'HYDRATE_STATE',
+          state: snapshot.onboarding,
+        });
+
+        dispatchProfileDraftStore({
+          type: 'REPLACE_DRAFT',
+          draft: snapshot.profileDraft,
+        });
+
+        dispatchAccountLifecycleStore({
+          type: 'REPLACE_DRAFT',
+          draft: snapshot.accountLifecycleDraft,
+        });
+
+        setActiveRoleContext(snapshot.activeRoleContext);
+        setAvailableRoles(snapshot.availableRoles);
+        setRoleSimulationEnabled(snapshot.isRoleSimulationEnabled);
+        setProfileCompleted(snapshot.profileCompleted);
+      }
+
+      setIsStateHydrated(true);
+    };
+
+    void hydrateState();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isMockModeEnabled, shouldSkipAsyncHydrationForTests]);
+
+  useEffect(() => {
+    if (!isMockModeEnabled || !isStateHydrated) {
+      return;
+    }
+
+    void writeMockAppStateSnapshot({
+      auth: authStoreState,
+      activeRoleContext,
+      availableRoles,
+      isRoleSimulationEnabled,
+      onboarding: onboardingStateStore,
+      profileCompleted,
+      profileDraft: profileDraftStoreState.savedDraft,
+      accountLifecycleDraft: accountLifecycleStoreState.savedDraft,
+    });
+  }, [
+    accountLifecycleStoreState.savedDraft,
+    activeRoleContext,
+    authStoreState,
+    availableRoles,
+    isMockModeEnabled,
+    isRoleSimulationEnabled,
+    isStateHydrated,
+    onboardingStateStore,
+    profileCompleted,
+    profileDraftStoreState.savedDraft,
+  ]);
+
   const authState = useMemo<AuthState>(
     () => ({
       accountStatus: authStoreState.accountStatus,
@@ -325,11 +416,12 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 
   const featureFlagsState = useMemo<FeatureFlagsState>(
     () => ({
-      isMockModeEnabled: readRuntimeMode() === 'phase1-mock',
+      isMockModeEnabled,
+      isStateHydrated,
       isRoleSimulationEnabled,
       setRoleSimulationEnabled,
     }),
-    [isRoleSimulationEnabled]
+    [isMockModeEnabled, isRoleSimulationEnabled, isStateHydrated]
   );
 
   const onboardingState = useMemo<OnboardingState>(

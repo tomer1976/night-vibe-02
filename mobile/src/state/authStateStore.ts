@@ -21,6 +21,7 @@ export type AuthStoreAction =
   | { type: 'ENTER_SESSION_RECOVERY' }
   | { type: 'RESOLVE_SESSION_RECOVERY' }
   | { type: 'DENY_ACCESS'; status: Extract<AccountStatus, 'suspended' | 'banned' | 'deleted'> }
+  | { type: 'HYDRATE_STATE'; state: AuthStoreState }
   | { type: 'RESET_AUTH_STATE'; accountStatus?: AccountStatus; isAuthenticated?: boolean };
 
 function lifecycleFromStatus(status: AccountStatus, isAuthenticated: boolean): AuthLifecycle {
@@ -108,6 +109,10 @@ export function authStoreReducer(state: AuthStoreState, action: AuthStoreAction)
         isAuthenticated: true,
         authLifecycle: 'access_denied',
       };
+    }
+
+    case 'HYDRATE_STATE': {
+      return action.state;
     }
 
     case 'RESET_AUTH_STATE': {

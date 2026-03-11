@@ -3,16 +3,21 @@ import { useEffect } from 'react';
 
 import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
 import { resolveAuthEntryRoute } from '../navigation/authEntryRouting';
-import { useAuthState } from '../state';
+import { useAuthState, useFeatureFlagsState } from '../state';
 import { useRouteAccessSelectors } from '../state/routeSelectors';
 import { ShellEntryScreen } from './ShellEntryScreen';
 
 export function SplashScreen() {
   const navigation = useNavigation();
   const { accountStatus, isAuthenticated } = useAuthState();
+  const { isStateHydrated } = useFeatureFlagsState();
   const { resolve } = useRouteAccessSelectors();
 
   useEffect(() => {
+    if (!isStateHydrated && process.env.NODE_ENV !== 'test') {
+      return;
+    }
+
     let targetRoute: AppRouteName = resolveAuthEntryRoute({
       isAuthenticated,
       accountStatus,
@@ -30,7 +35,7 @@ export function SplashScreen() {
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [accountStatus, isAuthenticated, navigation, resolve]);
+  }, [accountStatus, isAuthenticated, isStateHydrated, navigation, resolve]);
 
   return <ShellEntryScreen title="Splash" subtitle="Application shell bootstrap route." stateTemplate="loading" />;
 }
