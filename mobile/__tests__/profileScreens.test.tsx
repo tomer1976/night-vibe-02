@@ -80,6 +80,31 @@ describe('profile screens', () => {
     expect(getByText('At least one photo is required.')).toBeTruthy();
   });
 
+  it('enforces max upload limit and supports retry after dismiss and remove', () => {
+    const { getAllByText, getByText, queryByText } = render(<ProfileTestNavigator />);
+
+    fireEvent.press(getByText('Profile Photos Management Screen'));
+
+    fireEvent.press(getByText('Add Mock Photo'));
+    fireEvent.press(getByText('Add Mock Photo'));
+    fireEvent.press(getByText('Add Mock Photo'));
+    fireEvent.press(getByText('Add Mock Photo'));
+
+    fireEvent.press(getByText('Add Mock Photo'));
+
+    expect(getByText('Photo Update Failed')).toBeTruthy();
+    expect(getByText('Maximum of 6 photos allowed.')).toBeTruthy();
+
+    fireEvent.press(getByText('Dismiss'));
+    expect(queryByText('Photo Update Failed')).toBeNull();
+
+    fireEvent.press(getAllByText('Remove')[0]);
+    fireEvent.press(getByText('Add Mock Photo'));
+
+    expect(queryByText('Photo Update Failed')).toBeNull();
+    expect(queryByText('Maximum of 6 photos allowed.')).toBeNull();
+  });
+
   it('shows empty state when profile has no content', () => {
     const { getByText } = render(
       <ProfileTestNavigator

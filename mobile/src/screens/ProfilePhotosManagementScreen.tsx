@@ -15,6 +15,26 @@ function nextModerationStatus(current: ProfilePhotoModerationStatus): ProfilePho
   return moderationCycle[(currentIndex + 1) % moderationCycle.length];
 }
 
+function createNextPhotoId(photos: ProfilePhotoDraft[]): string {
+  const maxPhotoNumber = photos.reduce((maxValue, photo) => {
+    const match = /^photo-(\d+)$/.exec(photo.photoId);
+
+    if (!match) {
+      return maxValue;
+    }
+
+    const parsed = Number(match[1]);
+
+    if (!Number.isFinite(parsed)) {
+      return maxValue;
+    }
+
+    return Math.max(maxValue, parsed);
+  }, 0);
+
+  return `photo-${maxPhotoNumber + 1}`;
+}
+
 export function ProfilePhotosManagementScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
@@ -32,11 +52,12 @@ export function ProfilePhotosManagementScreen() {
     }
 
     setErrorText(undefined);
+    const nextPhotoId = createNextPhotoId(photos);
     setPhotos((current) => [
       ...current,
       {
-        photoId: `photo-${current.length + 1}`,
-        url: `mock://photo/${current.length + 1}`,
+        photoId: nextPhotoId,
+        url: `mock://photo/${nextPhotoId}`,
         moderationStatus: 'pending',
       },
     ]);

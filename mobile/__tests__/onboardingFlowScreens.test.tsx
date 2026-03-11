@@ -175,4 +175,41 @@ describe('onboarding stepper flow screens', () => {
     fireEvent.press(finishButton);
     expect(getByText('Onboarding Step 7: Terms Acceptance')).toBeTruthy();
   });
+
+  it('enforces onboarding photo upload/remove bounds between 0 and 6', () => {
+    const { getByLabelText, getByTestId, getByText } = render(<OnboardingTestNavigator />);
+
+    fireEvent.changeText(getByTestId('onboarding-name-input'), 'Alex Doe');
+    fireEvent.press(getByLabelText('Next'));
+    fireEvent.changeText(getByTestId('onboarding-dob-input'), '1998-12-31');
+    fireEvent.press(getByLabelText('Next'));
+    fireEvent.press(getByLabelText('female'));
+    fireEvent.press(getByLabelText('Next'));
+
+    expect(getByText('Onboarding Step 4: Photo Upload')).toBeTruthy();
+    expect(getByText('Photos selected: 0 / 6')).toBeTruthy();
+
+    fireEvent.press(getByLabelText('Add Mock Photo'));
+    fireEvent.press(getByLabelText('Add Mock Photo'));
+    fireEvent.press(getByLabelText('Add Mock Photo'));
+    fireEvent.press(getByLabelText('Add Mock Photo'));
+    fireEvent.press(getByLabelText('Add Mock Photo'));
+    fireEvent.press(getByLabelText('Add Mock Photo'));
+    fireEvent.press(getByLabelText('Add Mock Photo'));
+
+    expect(getByText('Photos selected: 6 / 6')).toBeTruthy();
+
+    fireEvent.press(getByLabelText('Remove Photo'));
+    fireEvent.press(getByLabelText('Remove Photo'));
+    fireEvent.press(getByLabelText('Remove Photo'));
+    fireEvent.press(getByLabelText('Remove Photo'));
+    fireEvent.press(getByLabelText('Remove Photo'));
+    fireEvent.press(getByLabelText('Remove Photo'));
+    fireEvent.press(getByLabelText('Remove Photo'));
+
+    expect(getByText('Photos selected: 0 / 6')).toBeTruthy();
+
+    const nextButton = getByLabelText('Next');
+    expect(nextButton.props.accessibilityState?.disabled).toBe(true);
+  });
 });
