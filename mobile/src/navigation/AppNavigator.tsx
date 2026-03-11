@@ -9,6 +9,7 @@ import { ActiveVenueSessionScreen } from '../screens/ActiveVenueSessionScreen';
 import { AdminEntryScreen } from '../screens/AdminEntryScreen';
 import { AuthEntryScreen } from '../screens/AuthEntryScreen';
 import { CheckInConfirmationScreen } from '../screens/CheckInConfirmationScreen';
+import { CheckoutConfirmationScreen } from '../screens/CheckoutConfirmationScreen';
 import { DeleteAccountScreen } from '../screens/DeleteAccountScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { LinkedAccountsScreen } from '../screens/LinkedAccountsScreen';
@@ -152,6 +153,7 @@ export function AppNavigator() {
         <Stack.Screen name={ROUTE_NAMES.VenueDetails}>{() => renderProtectedRoute('VenueDetails', VenueDetailsScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.CheckInConfirmation}>{() => renderProtectedRoute('CheckInConfirmation', CheckInConfirmationScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.ActiveVenueSession}>{() => renderProtectedRoute('ActiveVenueSession', ActiveVenueSessionScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.CheckoutConfirmation}>{() => renderProtectedRoute('CheckoutConfirmation', CheckoutConfirmationScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.UserProfile}>{() => renderProtectedRoute('UserProfile', UserProfileScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.EditProfile}>{() => renderProtectedRoute('EditProfile', EditProfileScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.ProfilePhotosManagement}>

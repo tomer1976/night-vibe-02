@@ -139,6 +139,10 @@ export function ActiveVenueSessionScreen() {
               ) : null}
 
               <Button label="Refresh Session State" onPress={() => void loadSessionState()} variant="secondary" />
+              <Button
+                label="Proceed to Checkout"
+                onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.CheckoutConfirmation))}
+              />
               <Button label="Back to Nearby Venues" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))} variant="secondary" />
             </View>
           </Card>

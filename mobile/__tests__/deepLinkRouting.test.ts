@@ -21,6 +21,7 @@ describe('deep link routing', () => {
     expect(resolveRouteFromDeepLinkPath('/venues/details')).toBe(ROUTE_NAMES.VenueDetails);
     expect(resolveRouteFromDeepLinkPath('/venues/check-in-confirmation')).toBe(ROUTE_NAMES.CheckInConfirmation);
     expect(resolveRouteFromDeepLinkPath('/venues/active-session')).toBe(ROUTE_NAMES.ActiveVenueSession);
+    expect(resolveRouteFromDeepLinkPath('/venues/checkout-confirmation')).toBe(ROUTE_NAMES.CheckoutConfirmation);
   });
 
   it('routes unknown deep links to safe auth entry route in mock mode', () => {
@@ -77,6 +78,7 @@ describe('deep link routing', () => {
       '/venues/details',
       '/venues/check-in-confirmation',
       '/venues/active-session',
+      '/venues/checkout-confirmation',
       '/profile',
       '/profile/edit',
       '/profile/photos',

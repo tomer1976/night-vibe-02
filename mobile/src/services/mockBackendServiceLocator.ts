@@ -173,6 +173,15 @@ function buildPresenceStateTransitions(sessions: readonly MockFixtureSession[]):
     .sort((left, right) => left.transitionedAt.localeCompare(right.transitionedAt));
 }
 
+function mapFixtureSessionToVenueSession(session: MockFixtureSession): VenueSession {
+  return {
+    sessionId: session.sessionId,
+    userId: session.userId,
+    venueId: session.venueId,
+    status: session.status,
+  };
+}
+
 export function createMockBackendServiceLocator(options?: MockServiceLocatorOptions): MockServiceLocator {
   const activeUserId = options?.activeUserId ?? DEFAULT_USER_ID;
   let currentUser = sprint01Fixtures.users.find((user) => user.uid === activeUserId) ?? sprint01Fixtures.users[0];
@@ -189,6 +198,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
 
   const accessTokenTtlMs = options?.sessionSimulation?.accessTokenTtlMs ?? DEFAULT_ACCESS_TOKEN_TTL_MS;
   const refreshTokenTtlMs = options?.sessionSimulation?.refreshTokenTtlMs ?? DEFAULT_REFRESH_TOKEN_TTL_MS;
+  const localSessions: MockFixtureSession[] = sprint01Fixtures.sessions.map((session) => ({ ...session }));
 
   if (!Number.isInteger(accessTokenTtlMs) || accessTokenTtlMs <= 0) {
     throw new Error('Invalid accessTokenTtlMs. Use a positive integer milliseconds value.');
@@ -523,7 +533,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
             category: venue.category,
             status: venue.status,
             activitySnapshot: {
-              checkinCount: sprint01Fixtures.sessions.filter(
+              checkinCount: localSessions.filter(
                 (session) => session.status === 'active' && session.venueId === venue.venueId
               ).length,
               liveStatus: index === 0 ? 'busy' : 'steady',
@@ -535,16 +545,9 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
     },
     presence: {
       getMyActiveSession: async () => {
-        const session = sprint01Fixtures.sessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
+        const session = localSessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
 
-        const mappedSession: VenueSession | null = session
-          ? {
-              sessionId: session.sessionId,
-              userId: session.userId,
-              venueId: session.venueId,
-              status: session.status,
-            }
-          : null;
+        const mappedSession: VenueSession | null = session ? mapFixtureSessionToVenueSession(session) : null;
 
         return responseFactory.build({ key: 'presence.getMyActiveSession', data: mappedSession });
       },
@@ -605,54 +608,115 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
           });
         }
 
-        const currentActiveSession = sprint01Fixtures.sessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
+        const currentActiveSession = localSessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
+
+        if (currentActiveSession && currentActiveSession.venueId !== request.venueId) {
+          currentActiveSession.status = 'closed';
+          currentActiveSession.checkoutAt = clock.now();
+        }
+
+        if (currentActiveSession && currentActiveSession.venueId === request.venueId) {
+          const response: PresenceCheckInResult = {
+            status: 'SUCCESS',
+            venueId: request.venueId,
+            sessionId: currentActiveSession.sessionId,
+            checkinTimestamp: currentActiveSession.checkinAt,
+            previousVenueCheckout: false,
+          };
+
+          return responseFactory.build({ key: 'presence.checkInWithContext', data: response });
+        }
+
+        const createdAt = clock.now();
+        const createdSession: MockFixtureSession = {
+          sessionId: `s-${currentUser.uid}-${createdAt}`,
+          userId: currentUser.uid,
+          venueId: request.venueId,
+          status: 'active',
+          checkinAt: createdAt,
+          checkoutAt: null,
+        };
+
+        localSessions.push(createdSession);
+
         const response: PresenceCheckInResult = {
           status: 'SUCCESS',
           venueId: request.venueId,
-          sessionId: `s-${currentUser.uid}-${clock.now()}`,
-          checkinTimestamp: clock.peek(),
+          sessionId: createdSession.sessionId,
+          checkinTimestamp: createdSession.checkinAt,
           previousVenueCheckout: Boolean(currentActiveSession && currentActiveSession.venueId !== request.venueId),
         };
 
         return responseFactory.build({ key: 'presence.checkInWithContext', data: response });
       },
       checkOutActiveSession: async () => {
+        const currentActiveSession = localSessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
+
+        if (!currentActiveSession) {
+          return responseFactory.build({
+            key: 'presence.checkOutActiveSession',
+            data: {
+              status: 'SUCCESS',
+              checkoutTime: '',
+            },
+            scenario: 'NOT_CHECKED_IN',
+            errorMessage: 'No active session is available to check out.',
+          });
+        }
+
+        const checkoutTime = clock.now();
+        currentActiveSession.status = 'closed';
+        currentActiveSession.checkoutAt = checkoutTime;
+
         const response: PresenceCheckOutResult = {
           status: 'SUCCESS',
-          checkoutTime: clock.now(),
+          checkoutTime,
         };
 
         return responseFactory.build({ key: 'presence.checkOutActiveSession', data: response });
       },
       getStateTransitions: async () => {
-        const transitions = buildPresenceStateTransitions(sprint01Fixtures.sessions);
+        const transitions = buildPresenceStateTransitions(localSessions);
         return responseFactory.build({ key: 'presence.getStateTransitions', data: transitions });
       },
       getActiveSession: async () => {
-        const session = sprint01Fixtures.sessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
+        const session = localSessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
 
-        const mappedSession: VenueSession | null = session
-          ? {
-              sessionId: session.sessionId,
-              userId: session.userId,
-              venueId: session.venueId,
-              status: session.status,
-            }
-          : null;
+        const mappedSession: VenueSession | null = session ? mapFixtureSessionToVenueSession(session) : null;
 
         return responseFactory.build({ key: 'presence.getActiveSession', data: mappedSession });
       },
       checkIn: async (venueId) => {
-        const session: VenueSession = {
-          sessionId: `s-${currentUser.uid}-${clock.now()}`,
+        const currentActiveSession = localSessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
+        if (currentActiveSession) {
+          currentActiveSession.status = 'closed';
+          currentActiveSession.checkoutAt = clock.now();
+        }
+
+        const createdAt = clock.now();
+        const session: MockFixtureSession = {
+          sessionId: `s-${currentUser.uid}-${createdAt}`,
           userId: currentUser.uid,
           venueId,
           status: 'active',
+          checkinAt: createdAt,
+          checkoutAt: null,
         };
 
-        return responseFactory.build({ key: 'presence.checkIn', data: session });
+        localSessions.push(session);
+
+        return responseFactory.build({ key: 'presence.checkIn', data: mapFixtureSessionToVenueSession(session) });
       },
-      checkOut: async () => responseFactory.build({ key: 'presence.checkOut', data: { sessionClosed: true } }),
+      checkOut: async (sessionId) => {
+        const existingSession = localSessions.find((entry) => entry.sessionId === sessionId && entry.userId === currentUser.uid);
+
+        if (existingSession && existingSession.status === 'active') {
+          existingSession.status = 'closed';
+          existingSession.checkoutAt = clock.now();
+        }
+
+        return responseFactory.build({ key: 'presence.checkOut', data: { sessionClosed: true } });
+      },
     },
     discovery: {
       getCandidates: async () => {
@@ -710,7 +774,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
     },
     analytics: {
       getVenueAnalytics: async (venueId) => {
-        const population = sprint01Fixtures.sessions.filter((session) => session.status === 'active' && session.venueId === venueId).length;
+        const population = localSessions.filter((session) => session.status === 'active' && session.venueId === venueId).length;
         const snapshot: VenueAnalyticsSnapshot = {
           venueId,
           population,

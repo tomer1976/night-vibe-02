@@ -5,6 +5,7 @@ export { AdminEntryScreen } from './AdminEntryScreen';
 export { AuthEntryScreen } from './AuthEntryScreen';
 export { CheckInConfirmationScreen } from './CheckInConfirmationScreen';
 export { ActiveVenueSessionScreen } from './ActiveVenueSessionScreen';
+export { CheckoutConfirmationScreen } from './CheckoutConfirmationScreen';
 export { DeleteAccountScreen } from './DeleteAccountScreen';
 export { EditProfileScreen } from './EditProfileScreen';
 export { LinkedAccountsScreen } from './LinkedAccountsScreen';

@@ -174,6 +174,35 @@ describe('mock service locator wiring', () => {
     }
   });
 
+  it('updates active session state after checkout in mock presence lifecycle', async () => {
+    const locator = createMockBackendServiceLocator({
+      activeUserId: 'u-regular-1',
+    });
+
+    const beforeCheckout = await locator.services.presence.getMyActiveSession();
+    expect(beforeCheckout.status).toBe('SUCCESS');
+    if (beforeCheckout.status === 'SUCCESS') {
+      expect(beforeCheckout.data?.status).toBe('active');
+    }
+
+    const checkoutResponse = await locator.services.presence.checkOutActiveSession();
+    expect(checkoutResponse.status).toBe('SUCCESS');
+
+    const afterCheckout = await locator.services.presence.getMyActiveSession();
+    expect(afterCheckout.status).toBe('SUCCESS');
+    if (afterCheckout.status === 'SUCCESS') {
+      expect(afterCheckout.data).toBeNull();
+    }
+
+    const transitionsResponse = await locator.services.presence.getStateTransitions();
+    expect(transitionsResponse.status).toBe('SUCCESS');
+    if (transitionsResponse.status === 'SUCCESS') {
+      const regularUserClose = transitionsResponse.data.find((entry) => entry.userId === 'u-regular-1' && entry.reason === 'manual_checkout');
+      expect(regularUserClose).toBeDefined();
+      expect(regularUserClose?.toStatus).toBe('closed');
+    }
+  });
+
   it('returns unauthorized when refresh token is invalid or expired', async () => {
     const clock = createMockClock({
       startAt: '2026-03-08T20:00:00.000Z',
