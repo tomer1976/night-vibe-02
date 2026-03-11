@@ -1,6 +1,36 @@
-import { BackendServiceContracts } from '../src/contracts';
+import { BackendServiceContracts, PresenceCallableOperations } from '../src/contracts';
 
 describe('backend service contracts', () => {
+  it('defines placeholder callable operations for future check-in/check-out integration', async () => {
+    const callables: PresenceCallableOperations = {
+      checkIn: async (request) => ({
+        status: 'SUCCESS',
+        request_id: 'req-callable-checkin',
+        data: {
+          status: 'SUCCESS',
+          venueId: request.venueId,
+          sessionId: 's-callable',
+          checkinTimestamp: '2026-03-12T00:00:00Z',
+          previousVenueCheckout: false,
+        },
+      }),
+      checkOut: async () => ({
+        status: 'SUCCESS',
+        request_id: 'req-callable-checkout',
+        data: {
+          status: 'SUCCESS',
+          checkoutTime: '2026-03-12T00:10:00Z',
+        },
+      }),
+    };
+
+    const checkInResponse = await callables.checkIn({ venueId: 'v1', latitude: 32.1, longitude: 34.8 });
+    const checkOutResponse = await callables.checkOut({});
+
+    expect(checkInResponse.status).toBe('SUCCESS');
+    expect(checkOutResponse.status).toBe('SUCCESS');
+  });
+
   it('supports a complete typed service locator without concrete implementations', async () => {
     const services: BackendServiceContracts = {
       auth: {

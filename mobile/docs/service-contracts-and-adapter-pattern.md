@@ -74,6 +74,9 @@ Sprint-03 extends venue/presence readiness with conversion-safe contracts:
 - `presence.checkInWithContext` (`venueId`, coordinates, optional idempotency key)
 - `presence.checkOutActiveSession`
 - `presence.getStateTransitions` for deterministic close/expiry reason timelines
+- placeholder callable interfaces for future backend wiring:
+	- `PresenceCallableOperations.checkIn`
+	- `PresenceCallableOperations.checkOut`
 
 Legacy Sprint-01 method names remain available as compatibility shims (`auth.signInWithProvider`, `profile.updateMyProfile`) to avoid route/screen churn while migration proceeds.
 

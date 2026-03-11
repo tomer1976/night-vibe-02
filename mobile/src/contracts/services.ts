@@ -92,6 +92,27 @@ export type PresenceCheckOutResult = {
   checkoutTime: string;
 };
 
+// Sprint-03 placeholder callable contracts for future Firebase conversion.
+export type PresenceCheckInCallableRequest = {
+  venueId: string;
+  latitude: number;
+  longitude: number;
+  idempotencyKey?: string;
+};
+
+export type PresenceCheckInCallableResponse = PresenceCheckInResult;
+
+export type PresenceCheckOutCallableRequest = {
+  idempotencyKey?: string;
+};
+
+export type PresenceCheckOutCallableResponse = PresenceCheckOutResult;
+
+export interface PresenceCallableOperations {
+  checkIn(request: PresenceCheckInCallableRequest): Promise<ApiResponse<PresenceCheckInCallableResponse>>;
+  checkOut(request: PresenceCheckOutCallableRequest): Promise<ApiResponse<PresenceCheckOutCallableResponse>>;
+}
+
 export interface AuthService {
   getSession(): Promise<ApiResponse<AuthSession>>;
   login(request: AuthLoginRequest): Promise<ApiResponse<AuthLoginResult>>;

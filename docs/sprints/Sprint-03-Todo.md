@@ -14,7 +14,7 @@
 
 ## Firebase Tasks (if applicable)
 - [x] Ensure Firebase adapters remain disabled in Phase 1 mode.
-- [ ] Add placeholder interfaces for future check-in/check-out callable operations.
+- [x] Add placeholder interfaces for future check-in/check-out callable operations.
 
 ## Mock-Data Tasks
 - [ ] Create venue fixture catalog (active/pending/rejected/suspended examples).
