@@ -15,6 +15,7 @@ function RouteSelectorProbe() {
   const venueDetailsResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.VenueDetails);
   const checkInConfirmationResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.CheckInConfirmation);
   const activeVenueSessionResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.ActiveVenueSession);
+  const venuePresenceResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.VenuePresence);
   const checkoutConfirmationResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.CheckoutConfirmation);
   const userProfileResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.UserProfile);
   const accountSettingsResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.AccountSettings);
@@ -31,6 +32,8 @@ function RouteSelectorProbe() {
       <Text>{`checkInConfirmationResolved:${checkInConfirmationResolution.resolvedRoute}`}</Text>
       <Text>{`activeVenueSessionAllowed:${activeVenueSessionResolution.isAllowed}`}</Text>
       <Text>{`activeVenueSessionResolved:${activeVenueSessionResolution.resolvedRoute}`}</Text>
+      <Text>{`venuePresenceAllowed:${venuePresenceResolution.isAllowed}`}</Text>
+      <Text>{`venuePresenceResolved:${venuePresenceResolution.resolvedRoute}`}</Text>
       <Text>{`checkoutConfirmationAllowed:${checkoutConfirmationResolution.isAllowed}`}</Text>
       <Text>{`checkoutConfirmationResolved:${checkoutConfirmationResolution.resolvedRoute}`}</Text>
       <Text>{`userProfileAllowed:${userProfileResolution.isAllowed}`}</Text>
@@ -128,6 +131,8 @@ describe('route state selectors', () => {
     expect(getByText(`checkInConfirmationResolved:${ROUTE_NAMES.CheckInConfirmation}`)).toBeTruthy();
     expect(getByText('activeVenueSessionAllowed:true')).toBeTruthy();
     expect(getByText(`activeVenueSessionResolved:${ROUTE_NAMES.ActiveVenueSession}`)).toBeTruthy();
+    expect(getByText('venuePresenceAllowed:true')).toBeTruthy();
+    expect(getByText(`venuePresenceResolved:${ROUTE_NAMES.VenuePresence}`)).toBeTruthy();
     expect(getByText('checkoutConfirmationAllowed:true')).toBeTruthy();
     expect(getByText(`checkoutConfirmationResolved:${ROUTE_NAMES.CheckoutConfirmation}`)).toBeTruthy();
     expect(getByText('userProfileAllowed:true')).toBeTruthy();
@@ -145,6 +150,8 @@ describe('route state selectors', () => {
     expect(getByText(`checkInConfirmationResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
     expect(getByText('activeVenueSessionAllowed:false')).toBeTruthy();
     expect(getByText(`activeVenueSessionResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
+    expect(getByText('venuePresenceAllowed:false')).toBeTruthy();
+    expect(getByText(`venuePresenceResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
     expect(getByText('checkoutConfirmationAllowed:false')).toBeTruthy();
     expect(getByText(`checkoutConfirmationResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
     expect(getByText('userProfileAllowed:false')).toBeTruthy();
@@ -162,6 +169,8 @@ describe('route state selectors', () => {
     expect(getByText(`checkInConfirmationResolved:${ROUTE_NAMES.CheckInConfirmation}`)).toBeTruthy();
     expect(getByText('activeVenueSessionAllowed:true')).toBeTruthy();
     expect(getByText(`activeVenueSessionResolved:${ROUTE_NAMES.ActiveVenueSession}`)).toBeTruthy();
+    expect(getByText('venuePresenceAllowed:true')).toBeTruthy();
+    expect(getByText(`venuePresenceResolved:${ROUTE_NAMES.VenuePresence}`)).toBeTruthy();
     expect(getByText('checkoutConfirmationAllowed:true')).toBeTruthy();
     expect(getByText(`checkoutConfirmationResolved:${ROUTE_NAMES.CheckoutConfirmation}`)).toBeTruthy();
     expect(getByText('userProfileAllowed:true')).toBeTruthy();

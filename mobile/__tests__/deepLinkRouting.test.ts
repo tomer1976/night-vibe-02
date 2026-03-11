@@ -21,6 +21,7 @@ describe('deep link routing', () => {
     expect(resolveRouteFromDeepLinkPath('/venues/details')).toBe(ROUTE_NAMES.VenueDetails);
     expect(resolveRouteFromDeepLinkPath('/venues/check-in-confirmation')).toBe(ROUTE_NAMES.CheckInConfirmation);
     expect(resolveRouteFromDeepLinkPath('/venues/active-session')).toBe(ROUTE_NAMES.ActiveVenueSession);
+    expect(resolveRouteFromDeepLinkPath('/venues/presence')).toBe(ROUTE_NAMES.VenuePresence);
     expect(resolveRouteFromDeepLinkPath('/venues/checkout-confirmation')).toBe(ROUTE_NAMES.CheckoutConfirmation);
   });
 
@@ -78,6 +79,7 @@ describe('deep link routing', () => {
       '/venues/details',
       '/venues/check-in-confirmation',
       '/venues/active-session',
+      '/venues/presence',
       '/venues/checkout-confirmation',
       '/profile',
       '/profile/edit',

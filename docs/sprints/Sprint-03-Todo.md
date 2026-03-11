@@ -6,7 +6,7 @@
 - [x] Implement Check-In Confirmation flow with scenario-based outcomes.
 - [x] Implement Active Venue Session screen and live session-state indicators.
 - [x] Implement Checkout Confirmation flow and post-checkout state handling.
-- [ ] Implement Venue Presence screen with mock active attendee summaries.
+- [x] Implement Venue Presence screen with mock active attendee summaries.
 
 ## Backend Tasks (if applicable)
 - [x] Define `VenueDiscoveryService` and `PresenceService` contracts for future real conversion.

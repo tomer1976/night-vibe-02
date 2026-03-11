@@ -32,6 +32,7 @@ import { UnknownRouteFallbackScreen } from '../screens/UnknownRouteFallbackScree
 import { UserEntryScreen } from '../screens/UserEntryScreen';
 import { UserProfileScreen } from '../screens/UserProfileScreen';
 import { VenueDetailsScreen } from '../screens/VenueDetailsScreen';
+import { VenuePresenceScreen } from '../screens/VenuePresenceScreen';
 import { WelcomeScreen } from '../screens/WelcomeScreen';
 import { useAuthState, useFeatureFlagsState, useOnboardingState } from '../state';
 import { useRouteAccessSelectors } from '../state/routeSelectors';
@@ -153,6 +154,7 @@ export function AppNavigator() {
         <Stack.Screen name={ROUTE_NAMES.VenueDetails}>{() => renderProtectedRoute('VenueDetails', VenueDetailsScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.CheckInConfirmation}>{() => renderProtectedRoute('CheckInConfirmation', CheckInConfirmationScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.ActiveVenueSession}>{() => renderProtectedRoute('ActiveVenueSession', ActiveVenueSessionScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.VenuePresence}>{() => renderProtectedRoute('VenuePresence', VenuePresenceScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.CheckoutConfirmation}>{() => renderProtectedRoute('CheckoutConfirmation', CheckoutConfirmationScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.UserProfile}>{() => renderProtectedRoute('UserProfile', UserProfileScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.EditProfile}>{() => renderProtectedRoute('EditProfile', EditProfileScreen)}</Stack.Screen>

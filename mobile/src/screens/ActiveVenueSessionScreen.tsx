@@ -140,6 +140,11 @@ export function ActiveVenueSessionScreen() {
 
               <Button label="Refresh Session State" onPress={() => void loadSessionState()} variant="secondary" />
               <Button
+                label="Open Venue Presence"
+                onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.VenuePresence))}
+                variant="secondary"
+              />
+              <Button
                 label="Proceed to Checkout"
                 onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.CheckoutConfirmation))}
               />

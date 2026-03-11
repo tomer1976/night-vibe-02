@@ -21,6 +21,7 @@ describe('route groups', () => {
       'VenueDetails',
       'CheckInConfirmation',
       'ActiveVenueSession',
+      'VenuePresence',
       'CheckoutConfirmation',
       'UserProfile',
       'EditProfile',
@@ -67,6 +68,7 @@ describe('route groups', () => {
       VenueDetails: 'user',
       CheckInConfirmation: 'user',
       ActiveVenueSession: 'user',
+      VenuePresence: 'user',
       CheckoutConfirmation: 'user',
       UserProfile: 'user',
       EditProfile: 'user',
@@ -95,6 +97,7 @@ describe('route groups', () => {
     expect(canAccessRoute(ROUTE_NAMES.VenueDetails, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.CheckInConfirmation, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.ActiveVenueSession, regularUser)).toBe(true);
+    expect(canAccessRoute(ROUTE_NAMES.VenuePresence, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.CheckoutConfirmation, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.OwnerGroup, venueOwner)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.ModeratorGroup, moderator)).toBe(true);

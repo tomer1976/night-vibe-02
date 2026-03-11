@@ -102,6 +102,12 @@ export function UserEntryScreen() {
             trailingText="Open"
           />
           <ListItem
+            onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.VenuePresence))}
+            subtitle="See mock active attendee summaries for your current venue"
+            title="Venue Presence Screen"
+            trailingText="Open"
+          />
+          <ListItem
             onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.UserProfile, { draft: DEFAULT_PROFILE_DRAFT }))}
             subtitle="View profile details and completion status"
             title="User Profile Screen"

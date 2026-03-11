@@ -30,6 +30,7 @@ export { UnknownRouteFallbackScreen } from './UnknownRouteFallbackScreen';
 export { UserEntryScreen } from './UserEntryScreen';
 export { UserProfileScreen } from './UserProfileScreen';
 export { VenueDetailsScreen } from './VenueDetailsScreen';
+export { VenuePresenceScreen } from './VenuePresenceScreen';
 export { WelcomeScreen } from './WelcomeScreen';
 export { calculateAge, DEFAULT_ONBOARDING_DRAFT, type OnboardingDraft } from './onboardingDraft';
 export {
