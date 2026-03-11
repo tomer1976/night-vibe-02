@@ -77,6 +77,15 @@ export type MockVenueDistanceOutput = {
   distanceKm: number;
 };
 
+export type MockVenuePresenceParticipant = {
+  participantId: string;
+  userId: string;
+  venueId: string;
+  displayName: string;
+  age: number;
+  visibility: 'visible' | 'hidden';
+};
+
 export type MockFixtureSet = {
   users: readonly MockFixtureUser[];
   roleContexts: readonly MockFixtureRoleContext[];
@@ -355,6 +364,25 @@ export const sprint03VenueDistanceOutputs: readonly MockVenueDistanceOutput[] = 
   Object.freeze({
     venueId: 'v-luna-lounge',
     distanceKm: 1.35,
+  }),
+]);
+
+export const sprint03VenuePresenceParticipants: readonly MockVenuePresenceParticipant[] = Object.freeze([
+  Object.freeze({
+    participantId: 'vp-halo-owner-visible',
+    userId: 'u-owner-1',
+    venueId: 'v-halo-club',
+    displayName: 'Jordan',
+    age: 27,
+    visibility: 'visible',
+  }),
+  Object.freeze({
+    participantId: 'vp-halo-admin-hidden',
+    userId: 'u-admin-1',
+    venueId: 'v-halo-club',
+    displayName: 'Taylor',
+    age: 31,
+    visibility: 'hidden',
   }),
 ]);
 

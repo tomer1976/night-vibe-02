@@ -4,6 +4,7 @@ import {
   sprint02PhotoFixtures,
   sprint02ProfileFixtures,
   sprint03DiscoveryCoordinates,
+  sprint03VenuePresenceParticipants,
   sprint03VenueDistanceOutputs,
 } from '../src/mocks';
 
@@ -30,6 +31,23 @@ describe('sprint01 fixtures', () => {
       { venueId: 'v-halo-club', distanceKm: 1.06 },
       { venueId: 'v-luna-lounge', distanceKm: 1.35 },
     ]);
+  });
+
+  it('includes Sprint-03 venue presence participant fixtures with visible and hidden records', () => {
+    expect(sprint03VenuePresenceParticipants.length).toBeGreaterThanOrEqual(2);
+
+    const visibilityValues = new Set(sprint03VenuePresenceParticipants.map((participant) => participant.visibility));
+    expect(visibilityValues).toEqual(new Set(['visible', 'hidden']));
+
+    const fixtureUserIds = new Set(sprint01Fixtures.users.map((user) => user.uid));
+    const fixtureVenueIds = new Set(sprint01Fixtures.venues.map((venue) => venue.venueId));
+
+    for (const participant of sprint03VenuePresenceParticipants) {
+      expect(fixtureUserIds.has(participant.userId)).toBe(true);
+      expect(fixtureVenueIds.has(participant.venueId)).toBe(true);
+      expect(participant.displayName.length).toBeGreaterThan(0);
+      expect(participant.age).toBeGreaterThanOrEqual(18);
+    }
   });
 
   it('includes required Sprint-02 auth personas', () => {

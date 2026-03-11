@@ -16,6 +16,7 @@ export {
 export {
   sprint01Fixtures,
   sprint03DiscoveryCoordinates,
+  sprint03VenuePresenceParticipants,
   sprint03VenueDistanceOutputs,
   sprint02AuthPersonaFixtures,
   sprint02PhotoFixtures,
@@ -28,6 +29,7 @@ export {
   type MockFixtureUser,
   type MockFixtureVenue,
   type MockVenueDistanceOutput,
+  type MockVenuePresenceParticipant,
   type Sprint02AuthPersonaFixture,
   type Sprint02PhotoFixture,
   type Sprint02PersonaKey,

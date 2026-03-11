@@ -21,7 +21,7 @@
 - [x] Create mock coordinates and deterministic distance outputs.
 - [x] Create mock active session fixtures including replaced and expired sessions.
 - [x] Add scenario toggles for out-of-range, permission denied, stale location.
-- [ ] Add mock venue presence participant fixtures.
+- [x] Add mock venue presence participant fixtures.
 
 ## Navigation Tasks
 - [ ] Wire navigation flow: Nearby Venues -> Venue Details -> Check-In Confirmation.

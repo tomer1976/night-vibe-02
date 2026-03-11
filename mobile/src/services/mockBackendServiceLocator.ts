@@ -23,6 +23,7 @@ import {
   MockResponseFactory,
   sprint01Fixtures,
   sprint03DiscoveryCoordinates,
+  sprint03VenuePresenceParticipants,
   sprint03VenueDistanceOutputs,
   sprint02AuthPersonaFixtures,
   sprint02ProfileFixtures,
@@ -105,23 +106,19 @@ function buildDiscoveryCandidates(activeUserId: string): DiscoveryCandidate[] {
     return [];
   }
 
-  const coLocatedUserIds = sprint01Fixtures.sessions
-    .filter(
-      (session) =>
-        session.status === 'active' &&
-        session.venueId === activeSession.venueId &&
-        session.userId !== activeUserId
-    )
-    .map((session) => session.userId);
+  const fixtureParticipants = sprint03VenuePresenceParticipants.filter(
+    (participant) =>
+      participant.venueId === activeSession.venueId &&
+      participant.visibility === 'visible' &&
+      participant.userId !== activeUserId
+  );
 
-  return sprint01Fixtures.users
-    .filter((user) => coLocatedUserIds.includes(user.uid))
-    .map((user) => ({
-      userId: user.uid,
-      displayName: user.displayName,
-      age: 27,
-      venueId: activeSession.venueId,
-    }));
+  return fixtureParticipants.map((participant) => ({
+    userId: participant.userId,
+    displayName: participant.displayName,
+    age: participant.age,
+    venueId: participant.venueId,
+  }));
 }
 
 function resolvePersonaFixtureByHint(loginHint: string) {
