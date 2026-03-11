@@ -144,6 +144,36 @@ describe('mock service locator wiring', () => {
     });
   });
 
+  it('returns deterministic presence transitions with close and expiry reason codes', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const transitionsResponse = await locator.services.presence.getStateTransitions();
+    expect(transitionsResponse.status).toBe('SUCCESS');
+
+    if (transitionsResponse.status === 'SUCCESS') {
+      expect(transitionsResponse.data).toEqual([
+        {
+          sessionId: 's-moderator-1-closed',
+          userId: 'u-moderator-1',
+          venueId: 'v-luna-lounge',
+          fromStatus: 'active',
+          toStatus: 'closed',
+          reason: 'manual_checkout',
+          transitionedAt: '2026-03-08T18:45:00.000Z',
+        },
+        {
+          sessionId: 's-admin-1-expired',
+          userId: 'u-admin-1',
+          venueId: 'v-luna-lounge',
+          fromStatus: 'active',
+          toStatus: 'expired',
+          reason: 'timeout',
+          transitionedAt: '2026-03-08T20:00:00.000Z',
+        },
+      ]);
+    }
+  });
+
   it('returns unauthorized when refresh token is invalid or expired', async () => {
     const clock = createMockClock({
       startAt: '2026-03-08T20:00:00.000Z',

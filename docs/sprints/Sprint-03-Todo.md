@@ -10,7 +10,7 @@
 
 ## Backend Tasks (if applicable)
 - [x] Define `VenueDiscoveryService` and `PresenceService` contracts for future real conversion.
-- [ ] Define presence state transition model and reason codes for close/expiry.
+- [x] Define presence state transition model and reason codes for close/expiry.
 
 ## Firebase Tasks (if applicable)
 - [ ] Ensure Firebase adapters remain disabled in Phase 1 mode.

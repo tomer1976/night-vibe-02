@@ -16,6 +16,7 @@ import {
   VenueSummary,
 } from '../contracts';
 import {
+  MockFixtureSession,
   createMockClock,
   createMockResponseFactory,
   MockClock,
@@ -132,6 +133,32 @@ function resolvePersonaFixtureByHint(loginHint: string) {
   }
 
   return sprint02AuthPersonaFixtures.find((persona) => persona.personaKey === 'active_returning_user') ?? null;
+}
+
+function buildPresenceStateTransitions(sessions: readonly MockFixtureSession[]): PresenceStateTransition[] {
+  return sessions
+    .filter((session) => session.status === 'closed' || session.status === 'expired')
+    .map((session) => {
+      const reason: PresenceStateTransition['reason'] =
+        session.status === 'expired'
+          ? 'timeout'
+          : session.sessionId.includes('replaced')
+            ? 'auto_replaced'
+            : 'manual_checkout';
+
+      const transition: PresenceStateTransition = {
+        sessionId: session.sessionId,
+        userId: session.userId,
+        venueId: session.venueId,
+        fromStatus: 'active',
+        toStatus: session.status,
+        reason,
+        transitionedAt: session.checkoutAt ?? session.checkinAt,
+      };
+
+      return transition;
+    })
+    .sort((left, right) => left.transitionedAt.localeCompare(right.transitionedAt));
 }
 
 export function createMockBackendServiceLocator(options?: MockServiceLocatorOptions): MockServiceLocator {
@@ -529,7 +556,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
         return responseFactory.build({ key: 'presence.checkOutActiveSession', data: response });
       },
       getStateTransitions: async () => {
-        const transitions: PresenceStateTransition[] = [];
+        const transitions = buildPresenceStateTransitions(sprint01Fixtures.sessions);
         return responseFactory.build({ key: 'presence.getStateTransitions', data: transitions });
       },
       getActiveSession: async () => {
