@@ -1,5 +1,5 @@
 import { ReactNode, useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, Card, TopBar } from '../components';
@@ -42,18 +42,29 @@ export function OnboardingStepLayout({
         <TopBar title="Night Vibe" subtitle="Onboarding" />
       </View>
 
-      <View style={[styles.content, { paddingHorizontal: theme.spacing.lg }]}> 
-        <Card subtitle={subtitle} title={title}>
-          <View style={{ gap: theme.spacing.md }}>
-            <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.meta }}>{`Step ${step} of ${totalSteps}`}</Text>
-            {children}
-            <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
-              {onBack ? <Button label="Back" onPress={onBack} variant="secondary" /> : null}
-              <Button disabled={disableNext} label={nextLabel} onPress={onNext} />
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.content}>
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: 'center',
+            paddingHorizontal: theme.spacing.lg,
+            paddingBottom: theme.spacing.lg,
+          }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <Card subtitle={subtitle} title={title}>
+            <View style={{ gap: theme.spacing.md }}>
+              <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.meta }}>{`Step ${step} of ${totalSteps}`}</Text>
+              {children}
+              <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
+                {onBack ? <Button label="Back" onPress={onBack} variant="secondary" /> : null}
+                <Button disabled={disableNext} label={nextLabel} onPress={onNext} />
+              </View>
             </View>
-          </View>
-        </Card>
-      </View>
+          </Card>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -67,6 +78,5 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
   },
 });

@@ -2,9 +2,10 @@ import { StackActions, useNavigation } from '@react-navigation/native';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { BottomNavShell, Card, ListItem, TopBar } from '../components';
+import { BottomNavShell, Button, Card, ListItem, TopBar } from '../components';
 import { shouldReplaceRoute } from '../navigation/replaceRouteGuard';
 import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
+import { useAuthState } from '../state';
 import { useRouteAccessSelectors } from '../state/routeSelectors';
 import { useTheme } from '../theme';
 import { DEFAULT_PROFILE_DRAFT } from './profileDraft';
@@ -20,6 +21,7 @@ const navItems = [
 export function UserEntryScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
+  const { resetAuthState } = useAuthState();
   const { resolve } = useRouteAccessSelectors();
 
   const routeNameFromNavKey = (key: string): AppRouteName | null => {
@@ -93,6 +95,16 @@ export function UserEntryScreen() {
             title="User Profile Screen"
             trailingText="Open"
           />
+          <View style={{ marginTop: theme.spacing.md }}>
+            <Button
+              label="Reset to Login"
+              variant="secondary"
+              onPress={() => {
+                resetAuthState('active', false);
+                navigation.dispatch(StackActions.replace(ROUTE_NAMES.Welcome));
+              }}
+            />
+          </View>
         </Card>
       </View>
 

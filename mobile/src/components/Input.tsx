@@ -13,6 +13,7 @@ export function Input({ label, errorText, helperText, ...props }: InputProps) {
   const theme = useTheme();
   const hasError = Boolean(errorText);
   const accessibilityLabel = label ?? props.placeholder ?? 'Input field';
+  const { style: customStyle, ...textInputProps } = props;
 
   return (
     <View style={[styles.container, { gap: theme.spacing.xs }]}>
@@ -50,8 +51,9 @@ export function Input({ label, errorText, helperText, ...props }: InputProps) {
                 textAlignVertical: 'top',
               }
             : null,
+          customStyle,
         ]}
-        {...props}
+        {...textInputProps}
       />
       {helperText && !hasError ? (
         <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>{helperText}</Text>

@@ -18,10 +18,11 @@
 ## Edge Cases
 - User closes app during onboarding and resumes correctly.
 - User navigates backward across onboarding steps with retained data.
-- DOB set below minimum legal age threshold and corrected.
+- DOB picker selection below minimum legal age threshold and corrected.
 - Preference age range min/max boundary handling.
 - Photo moderation state changes between screen visits.
 - Deletion request followed by immediate recovery action.
+- Terms modal opens, content is readable/scrollable, and acceptance state persists.
 
 ## Negative Cases
 - Invalid login payload and simulated auth failure.
@@ -37,7 +38,7 @@
 - Account status gating supersedes role context in routing decisions.
 
 ## Device/Platform Cases
-- Android emulator: auth forms, onboarding keyboard handling, profile edit interactions.
+- Android emulator: auth forms, onboarding keyboard handling, profile edit interactions, date picker/slider/modal behavior.
 - iOS simulator: safe-area and scroll behavior on onboarding/profile screens.
 - Portrait layout checks across all Sprint 02 screens.
 

@@ -39,6 +39,16 @@ function OnboardingTestNavigator() {
 }
 
 describe('onboarding stepper flow screens', () => {
+  const selectDob = (getByLabelText: (label: string) => any, getByTestId: (testId: string) => any, value: Date) => {
+    fireEvent.press(getByLabelText('Select Date'));
+    fireEvent(
+      getByTestId('onboarding-dob-picker'),
+      'onChange',
+      { type: 'set', nativeEvent: { timestamp: value.getTime() } },
+      value
+    );
+  };
+
   it('navigates through all onboarding steps to completion-required screen', () => {
     const { getByLabelText, getByTestId, getByText } = render(<OnboardingTestNavigator />);
 
@@ -47,7 +57,7 @@ describe('onboarding stepper flow screens', () => {
     fireEvent.press(getByLabelText('Next'));
 
     expect(getByText('Onboarding Step 2: Date of Birth')).toBeTruthy();
-    fireEvent.changeText(getByTestId('onboarding-dob-input'), '1998-12-31');
+    selectDob(getByLabelText, getByTestId, new Date(1998, 11, 31));
     fireEvent.press(getByLabelText('Next'));
 
     expect(getByText('Onboarding Step 3: Gender')).toBeTruthy();
@@ -63,7 +73,10 @@ describe('onboarding stepper flow screens', () => {
     fireEvent.press(getByLabelText('Next'));
 
     expect(getByText('Onboarding Step 6: Preferences')).toBeTruthy();
-    fireEvent.changeText(getByTestId('onboarding-pref-genders'), 'female, male');
+    fireEvent.press(getByLabelText('Select Preferred Genders'));
+    fireEvent.press(getByTestId('onboarding-pref-gender-option-female'));
+    fireEvent.press(getByTestId('onboarding-pref-gender-option-male'));
+    fireEvent.press(getByLabelText('Done'));
     fireEvent.press(getByLabelText('Next'));
 
     expect(getByText('Onboarding Step 7: Terms Acceptance')).toBeTruthy();
@@ -102,7 +115,7 @@ describe('onboarding stepper flow screens', () => {
     fireEvent.press(getByLabelText('Next'));
     expect(getByText('Onboarding Step 2: Date of Birth')).toBeTruthy();
 
-    fireEvent.changeText(getByTestId('onboarding-dob-input'), '2012-01-01');
+    selectDob(getByLabelText, getByTestId, new Date(2012, 0, 1));
     fireEvent.press(getByLabelText('Next'));
 
     expect(getByText('Onboarding Step 2: Date of Birth')).toBeTruthy();
@@ -114,7 +127,7 @@ describe('onboarding stepper flow screens', () => {
 
     fireEvent.changeText(getByTestId('onboarding-name-input'), 'Alex Doe');
     fireEvent.press(getByLabelText('Next'));
-    fireEvent.changeText(getByTestId('onboarding-dob-input'), '1998-12-31');
+    selectDob(getByLabelText, getByTestId, new Date(1998, 11, 31));
     fireEvent.press(getByLabelText('Next'));
     fireEvent.press(getByLabelText('female'));
     fireEvent.press(getByLabelText('Next'));
@@ -131,9 +144,6 @@ describe('onboarding stepper flow screens', () => {
     fireEvent.press(getByLabelText('Next'));
 
     expect(getByText('Onboarding Step 6: Preferences')).toBeTruthy();
-    fireEvent.changeText(getByTestId('onboarding-pref-min'), '17');
-    fireEvent.changeText(getByTestId('onboarding-pref-max'), '16');
-    fireEvent.changeText(getByTestId('onboarding-pref-genders'), '');
     fireEvent.press(getByLabelText('Next'));
 
     expect(getByText('Set valid age boundaries and at least one preferred gender.')).toBeTruthy();
@@ -145,7 +155,7 @@ describe('onboarding stepper flow screens', () => {
 
     fireEvent.changeText(getByTestId('onboarding-name-input'), 'Alex Doe');
     fireEvent.press(getByLabelText('Next'));
-    fireEvent.changeText(getByTestId('onboarding-dob-input'), '1998-12-31');
+    selectDob(getByLabelText, getByTestId, new Date(1998, 11, 31));
     fireEvent.press(getByLabelText('Next'));
 
     const genderNextButton = getByLabelText('Next');
@@ -166,7 +176,9 @@ describe('onboarding stepper flow screens', () => {
     fireEvent.press(getByLabelText('Next'));
     fireEvent.changeText(getByTestId('onboarding-bio-input'), 'I like live music and good conversations.');
     fireEvent.press(getByLabelText('Next'));
-    fireEvent.changeText(getByTestId('onboarding-pref-genders'), 'female, male');
+    fireEvent.press(getByLabelText('Select Preferred Genders'));
+    fireEvent.press(getByTestId('onboarding-pref-gender-option-female'));
+    fireEvent.press(getByLabelText('Done'));
     fireEvent.press(getByLabelText('Next'));
 
     expect(getByText('Onboarding Step 7: Terms Acceptance')).toBeTruthy();
@@ -181,7 +193,7 @@ describe('onboarding stepper flow screens', () => {
 
     fireEvent.changeText(getByTestId('onboarding-name-input'), 'Alex Doe');
     fireEvent.press(getByLabelText('Next'));
-    fireEvent.changeText(getByTestId('onboarding-dob-input'), '1998-12-31');
+    selectDob(getByLabelText, getByTestId, new Date(1998, 11, 31));
     fireEvent.press(getByLabelText('Next'));
     fireEvent.press(getByLabelText('female'));
     fireEvent.press(getByLabelText('Next'));

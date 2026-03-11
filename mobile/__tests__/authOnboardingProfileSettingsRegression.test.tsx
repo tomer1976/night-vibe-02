@@ -53,6 +53,7 @@ function RegressionFlowNavigator() {
 describe('regression flow: login to settings', () => {
   it('completes login -> onboarding -> profile -> settings path', async () => {
     const { getByLabelText, getByTestId, getByText } = render(<RegressionFlowNavigator />);
+    const selectedDob = new Date(1998, 11, 31);
 
     expect(getByText('Login Screen')).toBeTruthy();
     fireEvent.changeText(getByTestId('login-identity-input'), 'new-user@example.com');
@@ -65,7 +66,13 @@ describe('regression flow: login to settings', () => {
     fireEvent.changeText(getByTestId('onboarding-name-input'), 'Alex Doe');
     fireEvent.press(getByLabelText('Next'));
 
-    fireEvent.changeText(getByTestId('onboarding-dob-input'), '1998-12-31');
+    fireEvent.press(getByLabelText('Select Date'));
+    fireEvent(
+      getByTestId('onboarding-dob-picker'),
+      'onChange',
+      { type: 'set', nativeEvent: { timestamp: selectedDob.getTime() } },
+      selectedDob
+    );
     fireEvent.press(getByLabelText('Next'));
 
     fireEvent.press(getByLabelText('female'));
@@ -77,7 +84,10 @@ describe('regression flow: login to settings', () => {
     fireEvent.changeText(getByTestId('onboarding-bio-input'), 'I like live music and rooftop nights.');
     fireEvent.press(getByLabelText('Next'));
 
-    fireEvent.changeText(getByTestId('onboarding-pref-genders'), 'female, male');
+    fireEvent.press(getByLabelText('Select Preferred Genders'));
+    fireEvent.press(getByTestId('onboarding-pref-gender-option-female'));
+    fireEvent.press(getByTestId('onboarding-pref-gender-option-male'));
+    fireEvent.press(getByLabelText('Done'));
     fireEvent.press(getByLabelText('Next'));
 
     fireEvent.press(getByLabelText('Accept Terms'));
