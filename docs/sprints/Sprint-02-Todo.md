@@ -70,7 +70,7 @@
 - [x] Capture carry-over items with owner and target sprint.
 
 ## Sprint Exit Checklist
-- [ ] Sprint-02 PRD functional and UX scope completed or formally deferred.
+- [x] Sprint-02 PRD functional and UX scope completed or formally deferred.
 - [ ] Sprint-02 TestPlan executed with pass/fail status.
 - [ ] No unresolved blocker defects in auth/onboarding/profile/settings paths.
 - [ ] Sprint review approval obtained from PM, Engineering, and QA.
