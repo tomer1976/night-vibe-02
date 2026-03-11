@@ -49,7 +49,7 @@
 - [x] Add onboarding step validation tests.
 - [x] Add profile completion gate tests.
 - [x] Add photo workflow tests for upload/retry/remove constraints.
-- [ ] Add delete/recovery flow tests.
+- [x] Add delete/recovery flow tests.
 - [ ] Add regression tests for login -> onboarding -> profile -> settings path.
 
 ## Bugfix/Stabilization Tasks

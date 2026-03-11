@@ -51,6 +51,17 @@ describe('account/settings screens', () => {
     expect(getByText('Type DELETE to confirm account deletion request.')).toBeTruthy();
   });
 
+  it('accepts case-insensitive deletion confirmation token and enters pending deletion', () => {
+    const { getByText, getByTestId } = render(<AccountSettingsTestNavigator />);
+
+    fireEvent.press(getByText('Delete Account Screen'));
+    fireEvent.changeText(getByTestId('delete-account-confirmation-token'), 'delete');
+    fireEvent.press(getByText('Request Deletion'));
+
+    expect(getByText('Account Deletion Recovery Screen')).toBeTruthy();
+    expect(getByText('PENDING DELETION')).toBeTruthy();
+  });
+
   it('supports pending deletion recovery to active status', () => {
     const { getByText, getByTestId } = render(<AccountSettingsTestNavigator />);
 
@@ -64,6 +75,27 @@ describe('account/settings screens', () => {
     fireEvent.press(getByText('Recover Account'));
 
     expect(getByText('active')).toBeTruthy();
+  });
+
+  it('returns to account settings when deletion request is canceled', () => {
+    const { getByText } = render(<AccountSettingsTestNavigator />);
+
+    fireEvent.press(getByText('Delete Account Screen'));
+    fireEvent.press(getByText('Cancel'));
+
+    expect(getByText('Account Settings Screen')).toBeTruthy();
+    expect(getByText('active')).toBeTruthy();
+  });
+
+  it('hides recover action when account is not pending deletion', () => {
+    const { getByText, queryByText } = render(<AccountSettingsTestNavigator />);
+
+    fireEvent.press(getByText('Account Deletion Recovery Screen'));
+
+    expect(getByText('Account Deletion Recovery Screen')).toBeTruthy();
+    expect(getByText('ACTIVE')).toBeTruthy();
+    expect(queryByText('Recover Account')).toBeNull();
+    expect(getByText('Back to Account Settings')).toBeTruthy();
   });
 
   it('discards unsaved linked account edits when cancel is pressed', () => {
