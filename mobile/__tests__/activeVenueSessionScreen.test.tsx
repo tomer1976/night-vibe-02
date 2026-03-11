@@ -30,7 +30,7 @@ function ActiveVenueSessionTestNavigator() {
 
 describe('active venue session screen', () => {
   it('renders active session metadata and recent transition indicators', async () => {
-    const { findByText, getByText } = render(<ActiveVenueSessionTestNavigator />);
+    const { findAllByText, findByText, getByText } = render(<ActiveVenueSessionTestNavigator />);
 
     expect(await findByText('Active Venue Session Screen')).toBeTruthy();
     expect(await findByText('Venue Session Status')).toBeTruthy();
@@ -49,5 +49,13 @@ describe('active venue session screen', () => {
 
     fireEvent.press(getByText('Back to Active Session'));
     expect(await findByText('Active Venue Session Screen')).toBeTruthy();
+
+    fireEvent.press(getByText('Proceed to Checkout'));
+    expect(await findByText('Venue Checkout Confirmation Screen')).toBeTruthy();
+    const confirmCheckoutButtons = await findAllByText('Confirm Checkout');
+    fireEvent.press(confirmCheckoutButtons[confirmCheckoutButtons.length - 1]);
+    expect(await findByText('Checkout Completed')).toBeTruthy();
+    fireEvent.press(getByText('Return to Nearby Venues'));
+    expect(await findByText('Nearby Venues Screen')).toBeTruthy();
   });
 });
