@@ -1,4 +1,11 @@
-import { sprint01Fixtures, sprint02AuthPersonaFixtures, sprint02PhotoFixtures, sprint02ProfileFixtures } from '../src/mocks';
+import {
+  sprint01Fixtures,
+  sprint02AuthPersonaFixtures,
+  sprint02PhotoFixtures,
+  sprint02ProfileFixtures,
+  sprint03DiscoveryCoordinates,
+  sprint03VenueDistanceOutputs,
+} from '../src/mocks';
 
 describe('sprint01 fixtures', () => {
   it('provides deterministic fixture counts', () => {
@@ -13,6 +20,16 @@ describe('sprint01 fixtures', () => {
     const venueStatuses = new Set(sprint01Fixtures.venues.map((venue) => venue.status));
 
     expect(venueStatuses).toEqual(new Set(['active', 'pending', 'rejected', 'suspended']));
+  });
+
+  it('includes Sprint-03 mock discovery coordinates and deterministic distance outputs', () => {
+    expect(Number.isFinite(sprint03DiscoveryCoordinates.defaultNearbyOrigin.latitude)).toBe(true);
+    expect(Number.isFinite(sprint03DiscoveryCoordinates.defaultNearbyOrigin.longitude)).toBe(true);
+
+    expect(sprint03VenueDistanceOutputs).toEqual([
+      { venueId: 'v-halo-club', distanceKm: 1.06 },
+      { venueId: 'v-luna-lounge', distanceKm: 1.35 },
+    ]);
   });
 
   it('includes required Sprint-02 auth personas', () => {

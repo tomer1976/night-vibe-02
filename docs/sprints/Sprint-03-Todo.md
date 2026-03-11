@@ -18,7 +18,7 @@
 
 ## Mock-Data Tasks
 - [x] Create venue fixture catalog (active/pending/rejected/suspended examples).
-- [ ] Create mock coordinates and deterministic distance outputs.
+- [x] Create mock coordinates and deterministic distance outputs.
 - [ ] Create mock active session fixtures including replaced and expired sessions.
 - [ ] Add scenario toggles for out-of-range, permission denied, stale location.
 - [ ] Add mock venue presence participant fixtures.

@@ -37,8 +37,8 @@ describe('nearby venues screen', () => {
     expect(await findByText('Nearby Venues Screen')).toBeTruthy();
     expect(await findByText('Halo Club')).toBeTruthy();
     expect(await findByText('Luna Lounge')).toBeTruthy();
-    expect(await findByText('1.20 km • club • active • 2 active • Busy now')).toBeTruthy();
-    expect(await findByText('1.90 km • lounge • active • 0 active • Steady now')).toBeTruthy();
+    expect(await findByText('1.06 km • club • active • 2 active • Busy now')).toBeTruthy();
+    expect(await findByText('1.35 km • lounge • active • 0 active • Calm now')).toBeTruthy();
 
     fireEvent.press(getByText('Halo Club'));
 

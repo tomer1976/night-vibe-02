@@ -22,6 +22,8 @@ import {
   MockClock,
   MockResponseFactory,
   sprint01Fixtures,
+  sprint03DiscoveryCoordinates,
+  sprint03VenueDistanceOutputs,
   sprint02AuthPersonaFixtures,
   sprint02ProfileFixtures,
 } from '../mocks';
@@ -523,22 +525,74 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
         }),
     },
     venues: {
-      getNearbyVenues: async () => {
+      getNearbyVenues: async (request) => {
+        const hasRequestCoordinates =
+          Number.isFinite(request?.latitude) &&
+          Number.isFinite(request?.longitude);
+
+        const discoveryCoordinates = hasRequestCoordinates
+          ? {
+              latitude: request?.latitude ?? sprint03DiscoveryCoordinates.defaultNearbyOrigin.latitude,
+              longitude: request?.longitude ?? sprint03DiscoveryCoordinates.defaultNearbyOrigin.longitude,
+            }
+          : sprint03DiscoveryCoordinates.defaultNearbyOrigin;
+
+        const deterministicDistanceByVenueId = new Map(
+          sprint03VenueDistanceOutputs.map((entry) => [entry.venueId, entry.distanceKm])
+        );
+
         const venues: VenueSummary[] = sprint01Fixtures.venues
           .filter((venue) => venue.status === 'active')
-          .map((venue, index) => ({
-            venueId: venue.venueId,
-            name: venue.name,
-            distanceKm: Number((1.2 + index * 0.7).toFixed(2)),
-            category: venue.category,
-            status: venue.status,
-            activitySnapshot: {
-              checkinCount: localSessions.filter(
-                (session) => session.status === 'active' && session.venueId === venue.venueId
-              ).length,
-              liveStatus: index === 0 ? 'busy' : 'steady',
-            },
-          }));
+          .map((venue) => {
+            const checkinCount = localSessions.filter(
+              (session) => session.status === 'active' && session.venueId === venue.venueId
+            ).length;
+
+            const computedDistanceKm = Number(
+              (
+                calculateMockDistanceMeters(
+                  {
+                    latitude: discoveryCoordinates.latitude,
+                    longitude: discoveryCoordinates.longitude,
+                  },
+                  {
+                    latitude: venue.latitude,
+                    longitude: venue.longitude,
+                  }
+                ) / 1000
+              ).toFixed(2)
+            );
+
+            const distanceKm = hasRequestCoordinates
+              ? computedDistanceKm
+              : deterministicDistanceByVenueId.get(venue.venueId) ?? computedDistanceKm;
+
+            const liveStatus: VenueSummary['activitySnapshot']['liveStatus'] =
+              checkinCount >= 2 ? 'busy' : checkinCount >= 1 ? 'steady' : 'calm';
+
+            return {
+              venueId: venue.venueId,
+              name: venue.name,
+              distanceKm,
+              category: venue.category,
+              status: venue.status,
+              activitySnapshot: {
+                checkinCount,
+                liveStatus,
+              },
+            };
+          })
+          .sort((left, right) => {
+            if (left.distanceKm !== right.distanceKm) {
+              return left.distanceKm - right.distanceKm;
+            }
+
+            if (left.activitySnapshot.checkinCount !== right.activitySnapshot.checkinCount) {
+              return right.activitySnapshot.checkinCount - left.activitySnapshot.checkinCount;
+            }
+
+            return left.venueId.localeCompare(right.venueId);
+          });
 
         return responseFactory.build({ key: 'venues.getNearbyVenues', data: venues });
       },

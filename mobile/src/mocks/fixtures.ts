@@ -67,6 +67,16 @@ export type MockFixtureInteraction = {
   createdAt: string;
 };
 
+export type MockDiscoveryCoordinates = {
+  latitude: number;
+  longitude: number;
+};
+
+export type MockVenueDistanceOutput = {
+  venueId: string;
+  distanceKm: number;
+};
+
 export type MockFixtureSet = {
   users: readonly MockFixtureUser[];
   roleContexts: readonly MockFixtureRoleContext[];
@@ -321,6 +331,24 @@ export const sprint01Fixtures: MockFixtureSet = Object.freeze({
   sessions,
   interactions,
 });
+
+export const sprint03DiscoveryCoordinates = Object.freeze({
+  defaultNearbyOrigin: Object.freeze({
+    latitude: 32.0865,
+    longitude: 34.793,
+  }),
+});
+
+export const sprint03VenueDistanceOutputs: readonly MockVenueDistanceOutput[] = Object.freeze([
+  Object.freeze({
+    venueId: 'v-halo-club',
+    distanceKm: 1.06,
+  }),
+  Object.freeze({
+    venueId: 'v-luna-lounge',
+    distanceKm: 1.35,
+  }),
+]);
 
 export const sprint02AuthPersonaFixtures: readonly Sprint02AuthPersonaFixture[] = Object.freeze([
   Object.freeze({
