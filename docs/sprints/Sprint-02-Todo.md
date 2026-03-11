@@ -50,7 +50,7 @@
 - [x] Add profile completion gate tests.
 - [x] Add photo workflow tests for upload/retry/remove constraints.
 - [x] Add delete/recovery flow tests.
-- [ ] Add regression tests for login -> onboarding -> profile -> settings path.
+- [x] Add regression tests for login -> onboarding -> profile -> settings path.
 
 ## Bugfix/Stabilization Tasks
 - [ ] Fix navigation loops or stale route-state issues.
