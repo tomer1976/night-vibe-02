@@ -4,9 +4,15 @@ describe('sprint01 fixtures', () => {
   it('provides deterministic fixture counts', () => {
     expect(sprint01Fixtures.users).toHaveLength(9);
     expect(sprint01Fixtures.roleContexts).toHaveLength(9);
-    expect(sprint01Fixtures.venues).toHaveLength(3);
+    expect(sprint01Fixtures.venues).toHaveLength(5);
     expect(sprint01Fixtures.sessions).toHaveLength(4);
     expect(sprint01Fixtures.interactions).toHaveLength(3);
+  });
+
+  it('includes Sprint-03 venue catalog statuses for discovery and eligibility scenarios', () => {
+    const venueStatuses = new Set(sprint01Fixtures.venues.map((venue) => venue.status));
+
+    expect(venueStatuses).toEqual(new Set(['active', 'pending', 'rejected', 'suspended']));
   });
 
   it('includes required Sprint-02 auth personas', () => {

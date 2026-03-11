@@ -17,7 +17,7 @@
 - [x] Add placeholder interfaces for future check-in/check-out callable operations.
 
 ## Mock-Data Tasks
-- [ ] Create venue fixture catalog (active/pending/rejected/suspended examples).
+- [x] Create venue fixture catalog (active/pending/rejected/suspended examples).
 - [ ] Create mock coordinates and deterministic distance outputs.
 - [ ] Create mock active session fixtures including replaced and expired sessions.
 - [ ] Add scenario toggles for out-of-range, permission denied, stale location.

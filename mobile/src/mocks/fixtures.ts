@@ -228,6 +228,22 @@ const venues: readonly MockFixtureVenue[] = Object.freeze([
     latitude: 32.074,
     longitude: 34.7921,
   }),
+  Object.freeze({
+    venueId: 'v-rejected-cellar',
+    name: 'Cellar Rejected',
+    category: 'club',
+    status: 'rejected',
+    latitude: 32.0712,
+    longitude: 34.7899,
+  }),
+  Object.freeze({
+    venueId: 'v-suspended-plaza',
+    name: 'Plaza Suspended',
+    category: 'event_space',
+    status: 'suspended',
+    latitude: 32.0791,
+    longitude: 34.7965,
+  }),
 ]);
 
 const sessions: readonly MockFixtureSession[] = Object.freeze([
