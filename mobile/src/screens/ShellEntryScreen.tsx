@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BottomNavShell, Card, EmptyStateTemplate, ErrorStateTemplate, LoadingStateTemplate, TopBar } from '../components';
+import { shouldReplaceRoute } from '../navigation/replaceRouteGuard';
 import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
 import { useRouteAccessSelectors } from '../state/routeSelectors';
 import { useTheme } from '../theme';
@@ -15,6 +16,8 @@ type ShellEntryScreenProps = {
   subtitle: string;
   routeContext?: ShellRouteContext;
   stateTemplate?: ShellStateTemplate;
+  currentRouteName?: AppRouteName;
+  currentRouteParams?: Record<string, unknown>;
 };
 
 const navItems = [
@@ -25,7 +28,38 @@ const navItems = [
   { key: 'admin', label: 'Admin' },
 ];
 
-export function ShellEntryScreen({ title, subtitle, routeContext = 'none', stateTemplate = 'none' }: ShellEntryScreenProps) {
+function resolveCurrentRouteNameFromContext(routeContext: ShellRouteContext): AppRouteName | undefined {
+  if (routeContext === 'auth') {
+    return ROUTE_NAMES.AuthGroup;
+  }
+
+  if (routeContext === 'user') {
+    return ROUTE_NAMES.UserGroup;
+  }
+
+  if (routeContext === 'owner') {
+    return ROUTE_NAMES.OwnerGroup;
+  }
+
+  if (routeContext === 'moderator') {
+    return ROUTE_NAMES.ModeratorGroup;
+  }
+
+  if (routeContext === 'admin') {
+    return ROUTE_NAMES.AdminGroup;
+  }
+
+  return undefined;
+}
+
+export function ShellEntryScreen({
+  title,
+  subtitle,
+  routeContext = 'none',
+  stateTemplate = 'none',
+  currentRouteName,
+  currentRouteParams,
+}: ShellEntryScreenProps) {
   const theme = useTheme();
   const navigation = useNavigation();
   const { resolve } = useRouteAccessSelectors();
@@ -62,14 +96,28 @@ export function ShellEntryScreen({ title, subtitle, routeContext = 'none', state
     }
 
     const safeRoute = resolve(requestedRoute);
+    const effectiveCurrentRouteName = currentRouteName ?? resolveCurrentRouteNameFromContext(routeContext);
 
     if (safeRoute === ROUTE_NAMES.UnknownRouteFallback) {
+      const targetParams = { requestedRouteName: requestedRoute };
+
+      if (
+        effectiveCurrentRouteName &&
+        !shouldReplaceRoute(effectiveCurrentRouteName, ROUTE_NAMES.UnknownRouteFallback, currentRouteParams, targetParams)
+      ) {
+        return;
+      }
+
       navigation.dispatch(
         StackActions.replace(ROUTE_NAMES.UnknownRouteFallback, {
           requestedRouteName: requestedRoute,
         })
       );
 
+      return;
+    }
+
+    if (effectiveCurrentRouteName && !shouldReplaceRoute(effectiveCurrentRouteName, safeRoute, currentRouteParams, undefined)) {
       return;
     }
 

@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BottomNavShell, Card, ListItem, TopBar } from '../components';
+import { shouldReplaceRoute } from '../navigation/replaceRouteGuard';
 import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
 import { useRouteAccessSelectors } from '../state/routeSelectors';
 import { useTheme } from '../theme';
@@ -53,14 +54,25 @@ export function UserEntryScreen() {
     }
 
     const safeRoute = resolve(requestedRoute);
+    const currentRouteName = ROUTE_NAMES.UserGroup;
 
     if (safeRoute === ROUTE_NAMES.UnknownRouteFallback) {
+      const targetParams = { requestedRouteName: requestedRoute };
+
+      if (!shouldReplaceRoute(currentRouteName, ROUTE_NAMES.UnknownRouteFallback, undefined, targetParams)) {
+        return;
+      }
+
       navigation.dispatch(
         StackActions.replace(ROUTE_NAMES.UnknownRouteFallback, {
           requestedRouteName: requestedRoute,
         })
       );
 
+      return;
+    }
+
+    if (!shouldReplaceRoute(currentRouteName, safeRoute, undefined, undefined)) {
       return;
     }
 

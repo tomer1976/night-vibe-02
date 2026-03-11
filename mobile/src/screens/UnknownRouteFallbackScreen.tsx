@@ -44,6 +44,8 @@ export function UnknownRouteFallbackScreen({ subtitle, requestedRouteName }: Unk
 
   return (
     <ShellEntryScreen
+      currentRouteName={ROUTE_NAMES.UnknownRouteFallback}
+      currentRouteParams={effectiveRequestedRouteName ? { requestedRouteName: effectiveRequestedRouteName } : undefined}
       routeContext={mapRouteNameToContext(effectiveRequestedRouteName)}
       stateTemplate="error"
       subtitle={subtitle ?? 'Fallback route for invalid navigation context.'}

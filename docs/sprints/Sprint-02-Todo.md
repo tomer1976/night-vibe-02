@@ -53,7 +53,7 @@
 - [x] Add regression tests for login -> onboarding -> profile -> settings path.
 
 ## Bugfix/Stabilization Tasks
-- [ ] Fix navigation loops or stale route-state issues.
+- [x] Fix navigation loops or stale route-state issues.
 - [ ] Resolve form input edge-case crashes and validation race conditions.
 - [ ] Resolve photo state synchronization bugs.
 - [ ] Ensure consistent behavior after app relaunch in mock mode.
