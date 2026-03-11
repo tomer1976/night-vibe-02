@@ -65,7 +65,7 @@
 - [x] Update sprint execution notes with unresolved risks for Sprint 03.
 
 ## Release/Readiness Tasks (if applicable)
-- [ ] Prepare sprint demo script for all account status personas.
+- [x] Prepare sprint demo script for all account status personas.
 - [ ] Publish QA execution summary and defect list.
 - [ ] Capture carry-over items with owner and target sprint.
 
