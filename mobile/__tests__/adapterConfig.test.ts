@@ -13,6 +13,8 @@ describe('adapter placeholder config', () => {
     process.env = { ...originalEnv };
     delete process.env.EXPO_PUBLIC_AUTH_ADAPTER;
     delete process.env.EXPO_PUBLIC_PROFILE_ADAPTER;
+    delete process.env.EXPO_PUBLIC_VENUES_ADAPTER;
+    delete process.env.EXPO_PUBLIC_PRESENCE_ADAPTER;
   });
 
   afterAll(() => {
@@ -27,16 +29,22 @@ describe('adapter placeholder config', () => {
     expect(readAdapterPlaceholderConfig()).toEqual({
       authAdapterMode: 'mock',
       profileAdapterMode: 'mock',
+      venuesAdapterMode: 'mock',
+      presenceAdapterMode: 'mock',
     });
   });
 
   it('reads firebase adapter placeholders from env when explicitly set', () => {
     process.env.EXPO_PUBLIC_AUTH_ADAPTER = 'firebase';
     process.env.EXPO_PUBLIC_PROFILE_ADAPTER = 'firebase';
+    process.env.EXPO_PUBLIC_VENUES_ADAPTER = 'firebase';
+    process.env.EXPO_PUBLIC_PRESENCE_ADAPTER = 'firebase';
 
     expect(readAdapterPlaceholderConfig()).toEqual({
       authAdapterMode: 'firebase',
       profileAdapterMode: 'firebase',
+      venuesAdapterMode: 'firebase',
+      presenceAdapterMode: 'firebase',
     });
   });
 
@@ -45,8 +53,19 @@ describe('adapter placeholder config', () => {
       assertPhase1AdapterSafety('phase1-mock', {
         authAdapterMode: 'firebase',
         profileAdapterMode: 'mock',
+        venuesAdapterMode: 'mock',
+        presenceAdapterMode: 'mock',
       })
-    ).toThrow('Phase 1 mock mode requires mock auth/profile adapters.');
+    ).toThrow('Phase 1 mock mode requires mock auth/profile/venues/presence adapters.');
+
+    expect(() =>
+      assertPhase1AdapterSafety('phase1-mock', {
+        authAdapterMode: 'mock',
+        profileAdapterMode: 'mock',
+        venuesAdapterMode: 'firebase',
+        presenceAdapterMode: 'mock',
+      })
+    ).toThrow('Phase 1 mock mode requires mock auth/profile/venues/presence adapters.');
   });
 
   it('allows firebase placeholders outside phase1 mock mode', () => {
@@ -54,6 +73,8 @@ describe('adapter placeholder config', () => {
       assertPhase1AdapterSafety('phase2-real', {
         authAdapterMode: 'firebase',
         profileAdapterMode: 'firebase',
+        venuesAdapterMode: 'firebase',
+        presenceAdapterMode: 'firebase',
       })
     ).not.toThrow();
   });

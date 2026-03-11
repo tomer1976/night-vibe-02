@@ -13,7 +13,7 @@
 - [x] Define presence state transition model and reason codes for close/expiry.
 
 ## Firebase Tasks (if applicable)
-- [ ] Ensure Firebase adapters remain disabled in Phase 1 mode.
+- [x] Ensure Firebase adapters remain disabled in Phase 1 mode.
 - [ ] Add placeholder interfaces for future check-in/check-out callable operations.
 
 ## Mock-Data Tasks

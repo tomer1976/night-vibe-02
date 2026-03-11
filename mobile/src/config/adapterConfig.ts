@@ -5,6 +5,8 @@ export type AdapterMode = 'mock' | 'firebase';
 export type AdapterPlaceholderConfig = {
   authAdapterMode: AdapterMode;
   profileAdapterMode: AdapterMode;
+  venuesAdapterMode: AdapterMode;
+  presenceAdapterMode: AdapterMode;
 };
 
 function readEnvVariable(variableName: string): string {
@@ -27,11 +29,23 @@ export function readAdapterPlaceholderConfig(): AdapterPlaceholderConfig {
   return {
     authAdapterMode: readAuthAdapterMode(),
     profileAdapterMode: readProfileAdapterMode(),
+    venuesAdapterMode: resolveAdapterMode(readEnvVariable('EXPO_PUBLIC_VENUES_ADAPTER')),
+    presenceAdapterMode: resolveAdapterMode(readEnvVariable('EXPO_PUBLIC_PRESENCE_ADAPTER')),
   };
 }
 
 export function assertPhase1AdapterSafety(runtimeMode: RuntimeMode, adapterConfig: AdapterPlaceholderConfig): void {
-  if (runtimeMode === 'phase1-mock' && (adapterConfig.authAdapterMode !== 'mock' || adapterConfig.profileAdapterMode !== 'mock')) {
-    throw new Error('Phase 1 mock mode requires mock auth/profile adapters. Set EXPO_PUBLIC_AUTH_ADAPTER and EXPO_PUBLIC_PROFILE_ADAPTER to mock.');
+  if (
+    runtimeMode === 'phase1-mock' &&
+    (
+      adapterConfig.authAdapterMode !== 'mock' ||
+      adapterConfig.profileAdapterMode !== 'mock' ||
+      adapterConfig.venuesAdapterMode !== 'mock' ||
+      adapterConfig.presenceAdapterMode !== 'mock'
+    )
+  ) {
+    throw new Error(
+      'Phase 1 mock mode requires mock auth/profile/venues/presence adapters. Set EXPO_PUBLIC_AUTH_ADAPTER, EXPO_PUBLIC_PROFILE_ADAPTER, EXPO_PUBLIC_VENUES_ADAPTER, and EXPO_PUBLIC_PRESENCE_ADAPTER to mock.'
+    );
   }
 }
