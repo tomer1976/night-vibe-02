@@ -9,7 +9,7 @@
 - [ ] Implement Venue Presence screen with mock active attendee summaries.
 
 ## Backend Tasks (if applicable)
-- [ ] Define `VenueDiscoveryService` and `PresenceService` contracts for future real conversion.
+- [x] Define `VenueDiscoveryService` and `PresenceService` contracts for future real conversion.
 - [ ] Define presence state transition model and reason codes for close/expiry.
 
 ## Firebase Tasks (if applicable)

@@ -5,6 +5,9 @@ import {
   DiscoveryCandidate,
   MatchRecord,
   NotificationRecord,
+  PresenceCheckInResult,
+  PresenceCheckOutResult,
+  PresenceStateTransition,
   Role,
   SafetyReport,
   UserProfile,
@@ -492,6 +495,43 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       },
     },
     presence: {
+      getMyActiveSession: async () => {
+        const session = sprint01Fixtures.sessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
+
+        const mappedSession: VenueSession | null = session
+          ? {
+              sessionId: session.sessionId,
+              userId: session.userId,
+              venueId: session.venueId,
+              status: session.status,
+            }
+          : null;
+
+        return responseFactory.build({ key: 'presence.getMyActiveSession', data: mappedSession });
+      },
+      checkInWithContext: async (request) => {
+        const response: PresenceCheckInResult = {
+          status: 'SUCCESS',
+          venueId: request.venueId,
+          sessionId: `s-${currentUser.uid}-${clock.now()}`,
+          checkinTimestamp: clock.peek(),
+          previousVenueCheckout: true,
+        };
+
+        return responseFactory.build({ key: 'presence.checkInWithContext', data: response });
+      },
+      checkOutActiveSession: async () => {
+        const response: PresenceCheckOutResult = {
+          status: 'SUCCESS',
+          checkoutTime: clock.now(),
+        };
+
+        return responseFactory.build({ key: 'presence.checkOutActiveSession', data: response });
+      },
+      getStateTransitions: async () => {
+        const transitions: PresenceStateTransition[] = [];
+        return responseFactory.build({ key: 'presence.getStateTransitions', data: transitions });
+      },
       getActiveSession: async () => {
         const session = sprint01Fixtures.sessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
 

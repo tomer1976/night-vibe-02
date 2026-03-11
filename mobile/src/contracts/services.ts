@@ -54,6 +54,44 @@ export type ProfilePhotoRecord = {
   moderationStatus: 'pending' | 'approved' | 'rejected';
 };
 
+export type VenueDiscoveryRequest = {
+  latitude: number;
+  longitude: number;
+  radiusKm?: number;
+};
+
+export type PresenceCloseReason = 'manual_checkout' | 'auto_replaced' | 'timeout' | 'venue_invalidated';
+
+export type PresenceStateTransition = {
+  sessionId: string;
+  userId: string;
+  venueId: string;
+  fromStatus: VenueSession['status'];
+  toStatus: VenueSession['status'];
+  reason?: PresenceCloseReason;
+  transitionedAt: string;
+};
+
+export type PresenceCheckInRequest = {
+  venueId: string;
+  latitude: number;
+  longitude: number;
+  idempotencyKey?: string;
+};
+
+export type PresenceCheckInResult = {
+  status: 'SUCCESS';
+  venueId: string;
+  sessionId: string;
+  checkinTimestamp: string;
+  previousVenueCheckout: boolean;
+};
+
+export type PresenceCheckOutResult = {
+  status: 'SUCCESS';
+  checkoutTime: string;
+};
+
 export interface AuthService {
   getSession(): Promise<ApiResponse<AuthSession>>;
   login(request: AuthLoginRequest): Promise<ApiResponse<AuthLoginResult>>;
@@ -88,15 +126,25 @@ export interface RolesService {
   setActiveRoleContext(role: Role): Promise<ApiResponse<{ activeRoleContext: Role }>>;
 }
 
-export interface VenuesService {
-  getNearbyVenues(): Promise<ApiResponse<VenueSummary[]>>;
+export interface VenueDiscoveryService {
+  getNearbyVenues(request?: VenueDiscoveryRequest): Promise<ApiResponse<VenueSummary[]>>;
 }
 
 export interface PresenceService {
+  getMyActiveSession(): Promise<ApiResponse<VenueSession | null>>;
+  checkInWithContext(request: PresenceCheckInRequest): Promise<ApiResponse<PresenceCheckInResult>>;
+  checkOutActiveSession(): Promise<ApiResponse<PresenceCheckOutResult>>;
+
+  // Sprint-03 state transition contract for deterministic mock clock and timeout simulation.
+  getStateTransitions(): Promise<ApiResponse<PresenceStateTransition[]>>;
+
+  // Legacy Sprint-01/02 compatibility shims
   getActiveSession(): Promise<ApiResponse<VenueSession | null>>;
   checkIn(venueId: string): Promise<ApiResponse<VenueSession>>;
   checkOut(sessionId: string): Promise<ApiResponse<{ sessionClosed: true }>>;
 }
+
+export type VenuesService = VenueDiscoveryService;
 
 export interface DiscoveryService {
   getCandidates(cursor?: string): Promise<ApiResponse<{ items: DiscoveryCandidate[]; nextCursor?: string }>>;
@@ -135,7 +183,7 @@ export type BackendServiceContracts = {
   profile: ProfileService;
   accountLifecycle: AccountLifecycleService;
   roles: RolesService;
-  venues: VenuesService;
+  venues: VenueDiscoveryService;
   presence: PresenceService;
   discovery: DiscoveryService;
   interactions: InteractionsService;

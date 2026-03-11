@@ -22,7 +22,7 @@ The `BackendServiceContracts` aggregate defines mobile-facing domain modules:
 - `profile`
 - `accountLifecycle`
 - `roles`
-- `venues`
+- `venues` (implemented via `VenueDiscoveryService` contract)
 - `presence`
 - `discovery`
 - `interactions`
@@ -67,6 +67,13 @@ Sprint-02 extends contract-first auth/profile readiness with explicit lifecycle-
 - `auth.login`, `auth.refreshSession`, `auth.linkProvider`
 - `profile.upsertMyProfile`, `profile.uploadMyPhoto`, `profile.deleteMyPhoto`
 - `accountLifecycle.getAccountStatus`, `accountLifecycle.requestAccountDeletion`, `accountLifecycle.recoverAccount`, `accountLifecycle.getLinkedProviders`
+
+Sprint-03 extends venue/presence readiness with conversion-safe contracts:
+- `venues.getNearbyVenues(request?)` where request carries `latitude`, `longitude`, and optional `radiusKm`
+- `presence.getMyActiveSession`
+- `presence.checkInWithContext` (`venueId`, coordinates, optional idempotency key)
+- `presence.checkOutActiveSession`
+- `presence.getStateTransitions` for deterministic close/expiry reason timelines
 
 Legacy Sprint-01 method names remain available as compatibility shims (`auth.signInWithProvider`, `profile.updateMyProfile`) to avoid route/screen churn while migration proceeds.
 

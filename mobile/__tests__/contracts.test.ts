@@ -44,6 +44,27 @@ describe('backend service contracts', () => {
         getNearbyVenues: async () => ({ status: 'SUCCESS', request_id: 'req-8', data: [] }),
       },
       presence: {
+        getMyActiveSession: async () => ({ status: 'SUCCESS', request_id: 'req-8a', data: null }),
+        checkInWithContext: async () => ({
+          status: 'SUCCESS',
+          request_id: 'req-8b',
+          data: {
+            status: 'SUCCESS',
+            venueId: 'v1',
+            sessionId: 's1',
+            checkinTimestamp: '2026-03-11T00:00:00Z',
+            previousVenueCheckout: false,
+          },
+        }),
+        checkOutActiveSession: async () => ({
+          status: 'SUCCESS',
+          request_id: 'req-8c',
+          data: {
+            status: 'SUCCESS',
+            checkoutTime: '2026-03-11T00:10:00Z',
+          },
+        }),
+        getStateTransitions: async () => ({ status: 'SUCCESS', request_id: 'req-8d', data: [] }),
         getActiveSession: async () => ({ status: 'SUCCESS', request_id: 'req-9', data: null }),
         checkIn: async () => ({ status: 'SUCCESS', request_id: 'req-10', data: { sessionId: 's1', userId: 'u1', venueId: 'v1', status: 'active' } }),
         checkOut: async () => ({ status: 'SUCCESS', request_id: 'req-11', data: { sessionClosed: true } }),
