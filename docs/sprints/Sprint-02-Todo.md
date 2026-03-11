@@ -59,7 +59,7 @@
 - [x] Ensure consistent behavior after app relaunch in mock mode.
 
 ## Documentation Tasks
-- [ ] Document auth/onboarding state machine transitions.
+- [x] Document auth/onboarding state machine transitions.
 - [ ] Document persona fixture catalog and usage instructions.
 - [ ] Document mocked-vs-real boundaries for Sprint 02 modules.
 - [ ] Update sprint execution notes with unresolved risks for Sprint 03.
