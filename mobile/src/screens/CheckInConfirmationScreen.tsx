@@ -154,6 +154,13 @@ export function CheckInConfirmationScreen() {
 
             {resultText ? <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>{resultText}</Text> : null}
 
+            {resultTone === 'success' ? (
+              <Button
+                label="Open Active Session"
+                onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.ActiveVenueSession))}
+              />
+            ) : null}
+
             <Button label="Back to Venue Details" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.VenueDetails, { venueId }))} variant="secondary" />
           </View>
         </Card>

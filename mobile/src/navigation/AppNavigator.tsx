@@ -5,6 +5,7 @@ import { ComponentType, useMemo } from 'react';
 import { AccessDeniedScreen } from '../screens/AccessDeniedScreen';
 import { AccountDeletionRecoveryScreen } from '../screens/AccountDeletionRecoveryScreen';
 import { AccountSettingsScreen } from '../screens/AccountSettingsScreen';
+import { ActiveVenueSessionScreen } from '../screens/ActiveVenueSessionScreen';
 import { AdminEntryScreen } from '../screens/AdminEntryScreen';
 import { AuthEntryScreen } from '../screens/AuthEntryScreen';
 import { CheckInConfirmationScreen } from '../screens/CheckInConfirmationScreen';
@@ -150,6 +151,7 @@ export function AppNavigator() {
         <Stack.Screen name={ROUTE_NAMES.NearbyVenues}>{() => renderProtectedRoute('NearbyVenues', NearbyVenuesScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.VenueDetails}>{() => renderProtectedRoute('VenueDetails', VenueDetailsScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.CheckInConfirmation}>{() => renderProtectedRoute('CheckInConfirmation', CheckInConfirmationScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.ActiveVenueSession}>{() => renderProtectedRoute('ActiveVenueSession', ActiveVenueSessionScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.UserProfile}>{() => renderProtectedRoute('UserProfile', UserProfileScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.EditProfile}>{() => renderProtectedRoute('EditProfile', EditProfileScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.ProfilePhotosManagement}>

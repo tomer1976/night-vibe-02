@@ -4,6 +4,7 @@ export { AccountSettingsScreen } from './AccountSettingsScreen';
 export { AdminEntryScreen } from './AdminEntryScreen';
 export { AuthEntryScreen } from './AuthEntryScreen';
 export { CheckInConfirmationScreen } from './CheckInConfirmationScreen';
+export { ActiveVenueSessionScreen } from './ActiveVenueSessionScreen';
 export { DeleteAccountScreen } from './DeleteAccountScreen';
 export { EditProfileScreen } from './EditProfileScreen';
 export { LinkedAccountsScreen } from './LinkedAccountsScreen';

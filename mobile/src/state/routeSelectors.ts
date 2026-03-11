@@ -36,6 +36,7 @@ export function useRouteAccessSelectors() {
         routeName === ROUTE_NAMES.NearbyVenues ||
         routeName === ROUTE_NAMES.VenueDetails ||
         routeName === ROUTE_NAMES.CheckInConfirmation ||
+        routeName === ROUTE_NAMES.ActiveVenueSession ||
         routeName === ROUTE_NAMES.UserProfile ||
         routeName === ROUTE_NAMES.EditProfile ||
         routeName === ROUTE_NAMES.ProfilePhotosManagement ||
