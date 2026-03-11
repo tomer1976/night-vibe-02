@@ -66,7 +66,7 @@
 
 ## Release/Readiness Tasks (if applicable)
 - [x] Prepare sprint demo script for all account status personas.
-- [ ] Publish QA execution summary and defect list.
+- [x] Publish QA execution summary and defect list.
 - [ ] Capture carry-over items with owner and target sprint.
 
 ## Sprint Exit Checklist
