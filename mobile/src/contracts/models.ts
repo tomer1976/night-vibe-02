@@ -32,6 +32,8 @@ export type VenueSession = {
   userId: string;
   venueId: string;
   status: 'active' | 'closed' | 'expired';
+  checkinAt?: string;
+  checkoutAt?: string | null;
 };
 
 export type DiscoveryCandidate = {

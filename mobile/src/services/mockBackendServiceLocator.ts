@@ -179,6 +179,8 @@ function mapFixtureSessionToVenueSession(session: MockFixtureSession): VenueSess
     userId: session.userId,
     venueId: session.venueId,
     status: session.status,
+    checkinAt: session.checkinAt,
+    checkoutAt: session.checkoutAt,
   };
 }
 

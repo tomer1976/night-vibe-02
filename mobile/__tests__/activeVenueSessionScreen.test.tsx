@@ -33,11 +33,16 @@ describe('active venue session screen', () => {
     const { findAllByText, findByText, getByText } = render(<ActiveVenueSessionTestNavigator />);
 
     expect(await findByText('Active Venue Session Screen')).toBeTruthy();
+    expect(await findByText('Session Status Card')).toBeTruthy();
+    expect(await findByText('Session Timer Card')).toBeTruthy();
     expect(await findByText('Venue Session Status')).toBeTruthy();
     expect(await findByText('Venue: v-halo-club')).toBeTruthy();
     expect(await findByText('User: u-regular-1')).toBeTruthy();
     expect(await findByText('Status: active')).toBeTruthy();
     expect(await findByText('Transitions: 3')).toBeTruthy();
+    expect(await findByText(/Started at:/)).toBeTruthy();
+    expect(await findByText(/Elapsed:/)).toBeTruthy();
+    expect(await findByText(/Timeout remaining:/)).toBeTruthy();
 
     fireEvent.press(getByText('Open Venue Presence'));
     expect(await findByText('Venue Presence Screen')).toBeTruthy();

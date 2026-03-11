@@ -34,6 +34,14 @@ const formatTransitionMoment = (isoTimestamp: string) => {
   });
 };
 
+const formatDurationMinutes = (durationMinutes: number) => {
+  const safeMinutes = Math.max(0, durationMinutes);
+  const hours = Math.floor(safeMinutes / 60);
+  const minutes = safeMinutes % 60;
+
+  return `${hours}h ${minutes}m`;
+};
+
 export function ActiveVenueSessionScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
@@ -87,6 +95,36 @@ export function ActiveVenueSessionScreen() {
 
   const statusTone = activeSession?.status === 'active' ? 'success' : 'warning';
   const lastTransitions = useMemo(() => transitions.slice(-3).reverse(), [transitions]);
+  const sessionTimingView = useMemo(() => {
+    if (!activeSession?.checkinAt) {
+      return {
+        elapsedLabel: 'Unavailable',
+        remainingLabel: 'Unavailable',
+        startedAtLabel: 'Unavailable',
+      };
+    }
+
+    const startedAt = new Date(activeSession.checkinAt);
+    const referenceInstant = new Date(lastUpdatedAt ?? new Date().toISOString());
+
+    if (Number.isNaN(startedAt.getTime()) || Number.isNaN(referenceInstant.getTime())) {
+      return {
+        elapsedLabel: 'Unavailable',
+        remainingLabel: 'Unavailable',
+        startedAtLabel: activeSession.checkinAt,
+      };
+    }
+
+    const elapsedMinutes = Math.max(0, Math.floor((referenceInstant.getTime() - startedAt.getTime()) / 60000));
+    const timeoutWindowMinutes = 4 * 60;
+    const remainingMinutes = Math.max(0, timeoutWindowMinutes - elapsedMinutes);
+
+    return {
+      elapsedLabel: formatDurationMinutes(elapsedMinutes),
+      remainingLabel: formatDurationMinutes(remainingMinutes),
+      startedAtLabel: formatTransitionMoment(activeSession.checkinAt),
+    };
+  }, [activeSession, lastUpdatedAt]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
@@ -109,14 +147,32 @@ export function ActiveVenueSessionScreen() {
         ) : (
           <Card subtitle={`Session ${activeSession.sessionId}`} title="Active Venue Session Screen">
             <View style={{ gap: theme.spacing.sm }}>
-              <Text style={{ color: theme.colors.textPrimary, fontSize: theme.typography.title }}>Venue Session Status</Text>
-              <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>Venue: {activeSession.venueId}</Text>
-              <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>User: {activeSession.userId}</Text>
+              <Card subtitle="Current session identity and lifecycle state" title="Session Status Card">
+                <View style={{ gap: theme.spacing.sm }}>
+                  <Text style={{ color: theme.colors.textPrimary, fontSize: theme.typography.title }}>Venue Session Status</Text>
+                  <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>Venue: {activeSession.venueId}</Text>
+                  <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>User: {activeSession.userId}</Text>
 
-              <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
-                <Badge label={`Status: ${activeSession.status}`} tone={statusTone} />
-                <Badge label={`Transitions: ${transitions.length}`} tone="neutral" />
-              </View>
+                  <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
+                    <Badge label={`Status: ${activeSession.status}`} tone={statusTone} />
+                    <Badge label={`Transitions: ${transitions.length}`} tone="neutral" />
+                  </View>
+                </View>
+              </Card>
+
+              <Card subtitle="Deterministic elapsed and timeout indicators" title="Session Timer Card">
+                <View style={{ gap: theme.spacing.sm }}>
+                  <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
+                    Started at: {sessionTimingView.startedAtLabel}
+                  </Text>
+                  <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
+                    Elapsed: {sessionTimingView.elapsedLabel}
+                  </Text>
+                  <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
+                    Timeout remaining: {sessionTimingView.remainingLabel}
+                  </Text>
+                </View>
+              </Card>
 
               {lastUpdatedAt ? (
                 <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.meta }}>
