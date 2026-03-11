@@ -57,7 +57,13 @@ export function OnboardingDateOfBirthScreen() {
         errorText={errorText}
         label="Date of Birth"
         maxLength={10}
-        onChangeText={setDateOfBirth}
+        onChangeText={(value) => {
+          setDateOfBirth(value);
+
+          if (errorText) {
+            setErrorText(undefined);
+          }
+        }}
         placeholder="1998-12-31"
         testID="onboarding-dob-input"
         value={dateOfBirth}

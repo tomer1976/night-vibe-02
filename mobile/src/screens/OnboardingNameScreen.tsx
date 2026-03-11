@@ -46,7 +46,13 @@ export function OnboardingNameScreen() {
         errorText={errorText}
         helperText="This is shown on your profile."
         label="Full Name"
-        onChangeText={setFullName}
+        onChangeText={(value) => {
+          setFullName(value);
+
+          if (errorText) {
+            setErrorText(undefined);
+          }
+        }}
         placeholder="Alex"
         testID="onboarding-name-input"
         value={fullName}

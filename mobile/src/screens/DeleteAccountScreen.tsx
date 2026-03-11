@@ -45,7 +45,13 @@ export function DeleteAccountScreen() {
           <Input
             errorText={tokenError}
             label="Confirmation token"
-            onChangeText={setConfirmationToken}
+            onChangeText={(value) => {
+              setConfirmationToken(value);
+
+              if (tokenError) {
+                setTokenError(undefined);
+              }
+            }}
             placeholder="Type DELETE"
             testID="delete-account-confirmation-token"
             value={confirmationToken}

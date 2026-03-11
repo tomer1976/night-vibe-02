@@ -110,6 +110,11 @@ export function EditProfileScreen() {
               label="Display Name"
               onChangeText={(value) => {
                 setDisplayName(value);
+
+                if (nameError) {
+                  setNameError(undefined);
+                }
+
                 updateProfileEditDraft({ displayName: value });
               }}
               testID="edit-profile-display-name"
@@ -121,6 +126,11 @@ export function EditProfileScreen() {
               multiline
               onChangeText={(value) => {
                 setBio(value);
+
+                if (bioError) {
+                  setBioError(undefined);
+                }
+
                 updateProfileEditDraft({ bio: value });
               }}
               testID="edit-profile-bio"
@@ -132,6 +142,11 @@ export function EditProfileScreen() {
               label="Preferred Age Min"
               onChangeText={(value) => {
                 setPreferredAgeMin(value);
+
+                if (ageError) {
+                  setAgeError(undefined);
+                }
+
                 updateProfileEditDraft({ preferredAgeMin: value });
               }}
               testID="edit-profile-age-min"
@@ -143,6 +158,11 @@ export function EditProfileScreen() {
               label="Preferred Age Max"
               onChangeText={(value) => {
                 setPreferredAgeMax(value);
+
+                if (ageError) {
+                  setAgeError(undefined);
+                }
+
                 updateProfileEditDraft({ preferredAgeMax: value });
               }}
               testID="edit-profile-age-max"
@@ -153,6 +173,11 @@ export function EditProfileScreen() {
               label="Preferred Genders"
               onChangeText={(value) => {
                 setPreferredGenders(value);
+
+                if (genderError) {
+                  setGenderError(undefined);
+                }
+
                 updateProfileEditDraft({ preferredGenders: value });
               }}
               placeholder="female,male"

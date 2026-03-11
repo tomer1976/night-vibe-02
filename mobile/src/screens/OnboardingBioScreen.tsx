@@ -58,7 +58,13 @@ export function OnboardingBioScreen() {
         label="Bio"
         multiline
         numberOfLines={4}
-        onChangeText={setBio}
+        onChangeText={(value) => {
+          setBio(value);
+
+          if (errorText) {
+            setErrorText(undefined);
+          }
+        }}
         placeholder="Tell people what makes your night out fun..."
         style={{ textAlignVertical: 'top' }}
         testID="onboarding-bio-input"

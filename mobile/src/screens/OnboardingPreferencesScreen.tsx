@@ -71,7 +71,13 @@ export function OnboardingPreferencesScreen() {
         helperText="Minimum age must be at least 18."
         keyboardType="number-pad"
         label="Preferred Age Min"
-        onChangeText={setPreferredAgeMin}
+        onChangeText={(value) => {
+          setPreferredAgeMin(value);
+
+          if (errorText) {
+            setErrorText(undefined);
+          }
+        }}
         testID="onboarding-pref-min"
         value={preferredAgeMin}
       />
@@ -79,7 +85,13 @@ export function OnboardingPreferencesScreen() {
         helperText="Maximum age must be greater than or equal to minimum age."
         keyboardType="number-pad"
         label="Preferred Age Max"
-        onChangeText={setPreferredAgeMax}
+        onChangeText={(value) => {
+          setPreferredAgeMax(value);
+
+          if (errorText) {
+            setErrorText(undefined);
+          }
+        }}
         testID="onboarding-pref-max"
         value={preferredAgeMax}
       />
@@ -87,7 +99,13 @@ export function OnboardingPreferencesScreen() {
         errorText={errorText}
         helperText="Use comma-separated values, for example: female, male"
         label="Preferred Genders (comma-separated)"
-        onChangeText={setPreferredGenders}
+        onChangeText={(value) => {
+          setPreferredGenders(value);
+
+          if (errorText) {
+            setErrorText(undefined);
+          }
+        }}
         placeholder="female, male"
         testID="onboarding-pref-genders"
         value={preferredGenders}

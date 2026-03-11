@@ -54,7 +54,7 @@
 
 ## Bugfix/Stabilization Tasks
 - [x] Fix navigation loops or stale route-state issues.
-- [ ] Resolve form input edge-case crashes and validation race conditions.
+- [x] Resolve form input edge-case crashes and validation race conditions.
 - [ ] Resolve photo state synchronization bugs.
 - [ ] Ensure consistent behavior after app relaunch in mock mode.
 

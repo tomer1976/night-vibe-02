@@ -1,5 +1,5 @@
 import { StackActions, useNavigation } from '@react-navigation/native';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -21,10 +21,22 @@ export function LoginScreen() {
   const [errorText, setErrorText] = useState<string | undefined>();
   const [submitErrorText, setSubmitErrorText] = useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const normalizedIdentity = useMemo(() => identityInput.trim().toLowerCase(), [identityInput]);
 
   const handleLogin = async () => {
+    if (isSubmittingRef.current) {
+      return;
+    }
+
     if (normalizedIdentity.length === 0) {
       setErrorText('Enter an email or persona key to continue.');
       return;
@@ -33,6 +45,7 @@ export function LoginScreen() {
     setErrorText(undefined);
     setSubmitErrorText(undefined);
     beginAuthentication();
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
 
     try {
@@ -68,8 +81,16 @@ export function LoginScreen() {
       });
 
       navigation.dispatch(StackActions.replace(targetRoute));
+    } catch {
+      resetAuthState('active', false);
+      setProfileCompleted(false);
+      setSubmitErrorText('Unable to sign in right now. Please try again.');
     } finally {
-      setIsSubmitting(false);
+      isSubmittingRef.current = false;
+
+      if (isMountedRef.current) {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -99,7 +120,17 @@ export function LoginScreen() {
                 autoCapitalize="none"
                 errorText={errorText}
                 label="Email or Persona"
-                onChangeText={setIdentityInput}
+                onChangeText={(value) => {
+                  setIdentityInput(value);
+
+                  if (errorText) {
+                    setErrorText(undefined);
+                  }
+
+                  if (submitErrorText) {
+                    setSubmitErrorText(undefined);
+                  }
+                }}
                 placeholder="active-user@example.com"
                 testID="login-identity-input"
                 value={identityInput}
@@ -107,7 +138,7 @@ export function LoginScreen() {
               <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.meta }}>
                 Persona hints: use new, suspended, banned, pending, or deleted in the value.
               </Text>
-              <Button label="Sign In" onPress={handleLogin} />
+              <Button disabled={isSubmitting} label="Sign In" onPress={handleLogin} />
               <Button label="Back to Welcome" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.Welcome))} variant="secondary" />
             </View>
           </Card>
