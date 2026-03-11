@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 
-import { ROUTE_NAMES } from '../navigation';
-import { AppRouteName } from '../navigation/routeGroups';
+import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
 import { canAccessRoute, resolveRouteWithFallback, SimulatedRoleContext } from '../navigation/roleContextSimulation';
 import { useAuthState, useFeatureFlagsState, useOnboardingState, useRoleState } from './AppStateProvider';
 
