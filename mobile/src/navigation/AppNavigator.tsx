@@ -28,6 +28,7 @@ import { SplashScreen } from '../screens/SplashScreen';
 import { UnknownRouteFallbackScreen } from '../screens/UnknownRouteFallbackScreen';
 import { UserEntryScreen } from '../screens/UserEntryScreen';
 import { UserProfileScreen } from '../screens/UserProfileScreen';
+import { VenueDetailsScreen } from '../screens/VenueDetailsScreen';
 import { WelcomeScreen } from '../screens/WelcomeScreen';
 import { useAuthState, useFeatureFlagsState, useOnboardingState } from '../state';
 import { useRouteAccessSelectors } from '../state/routeSelectors';
@@ -146,6 +147,7 @@ export function AppNavigator() {
         <Stack.Screen name={ROUTE_NAMES.OnboardingTerms} component={OnboardingTermsScreen} />
         <Stack.Screen name={ROUTE_NAMES.ProfileCompletionRequired} component={ProfileCompletionRequiredScreen} />
         <Stack.Screen name={ROUTE_NAMES.NearbyVenues}>{() => renderProtectedRoute('NearbyVenues', NearbyVenuesScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.VenueDetails}>{() => renderProtectedRoute('VenueDetails', VenueDetailsScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.UserProfile}>{() => renderProtectedRoute('UserProfile', UserProfileScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.EditProfile}>{() => renderProtectedRoute('EditProfile', EditProfileScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.ProfilePhotosManagement}>

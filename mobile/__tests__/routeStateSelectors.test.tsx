@@ -12,6 +12,7 @@ function RouteSelectorProbe() {
 
   const ownerResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.OwnerGroup);
   const userResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.UserGroup);
+  const venueDetailsResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.VenueDetails);
   const userProfileResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.UserProfile);
   const accountSettingsResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.AccountSettings);
 
@@ -21,6 +22,8 @@ function RouteSelectorProbe() {
       <Text>{`ownerResolved:${ownerResolution.resolvedRoute}`}</Text>
       <Text>{`userAllowed:${userResolution.isAllowed}`}</Text>
       <Text>{`userResolved:${userResolution.resolvedRoute}`}</Text>
+      <Text>{`venueDetailsAllowed:${venueDetailsResolution.isAllowed}`}</Text>
+      <Text>{`venueDetailsResolved:${venueDetailsResolution.resolvedRoute}`}</Text>
       <Text>{`userProfileAllowed:${userProfileResolution.isAllowed}`}</Text>
       <Text>{`userProfileResolved:${userProfileResolution.resolvedRoute}`}</Text>
       <Text>{`accountSettingsAllowed:${accountSettingsResolution.isAllowed}`}</Text>
@@ -110,6 +113,8 @@ describe('route state selectors', () => {
 
     expect(getByText('userAllowed:true')).toBeTruthy();
     expect(getByText(`userResolved:${ROUTE_NAMES.UserGroup}`)).toBeTruthy();
+    expect(getByText('venueDetailsAllowed:true')).toBeTruthy();
+    expect(getByText(`venueDetailsResolved:${ROUTE_NAMES.VenueDetails}`)).toBeTruthy();
     expect(getByText('userProfileAllowed:true')).toBeTruthy();
     expect(getByText(`userProfileResolved:${ROUTE_NAMES.UserProfile}`)).toBeTruthy();
     expect(getByText('accountSettingsAllowed:true')).toBeTruthy();
@@ -119,6 +124,8 @@ describe('route state selectors', () => {
 
     expect(getByText('userAllowed:false')).toBeTruthy();
     expect(getByText(`userResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
+    expect(getByText('venueDetailsAllowed:false')).toBeTruthy();
+    expect(getByText(`venueDetailsResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
     expect(getByText('userProfileAllowed:false')).toBeTruthy();
     expect(getByText(`userProfileResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
     expect(getByText('accountSettingsAllowed:false')).toBeTruthy();
@@ -128,6 +135,8 @@ describe('route state selectors', () => {
 
     expect(getByText('userAllowed:true')).toBeTruthy();
     expect(getByText(`userResolved:${ROUTE_NAMES.UserGroup}`)).toBeTruthy();
+    expect(getByText('venueDetailsAllowed:true')).toBeTruthy();
+    expect(getByText(`venueDetailsResolved:${ROUTE_NAMES.VenueDetails}`)).toBeTruthy();
     expect(getByText('userProfileAllowed:true')).toBeTruthy();
     expect(getByText(`userProfileResolved:${ROUTE_NAMES.UserProfile}`)).toBeTruthy();
     expect(getByText('accountSettingsAllowed:true')).toBeTruthy();

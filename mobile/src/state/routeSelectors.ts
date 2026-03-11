@@ -34,6 +34,7 @@ export function useRouteAccessSelectors() {
       const isPostOnboardingRoute = (routeName: AppRouteName) =>
         routeName === ROUTE_NAMES.UserGroup ||
         routeName === ROUTE_NAMES.NearbyVenues ||
+        routeName === ROUTE_NAMES.VenueDetails ||
         routeName === ROUTE_NAMES.UserProfile ||
         routeName === ROUTE_NAMES.EditProfile ||
         routeName === ROUTE_NAMES.ProfilePhotosManagement ||

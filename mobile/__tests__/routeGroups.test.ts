@@ -18,6 +18,7 @@ describe('route groups', () => {
       'OnboardingTerms',
       'ProfileCompletionRequired',
       'NearbyVenues',
+      'VenueDetails',
       'UserProfile',
       'EditProfile',
       'ProfilePhotosManagement',
@@ -60,6 +61,7 @@ describe('route groups', () => {
       OnboardingTerms: 'auth',
       ProfileCompletionRequired: 'auth',
       NearbyVenues: 'user',
+      VenueDetails: 'user',
       UserProfile: 'user',
       EditProfile: 'user',
       ProfilePhotosManagement: 'user',
@@ -84,6 +86,7 @@ describe('route groups', () => {
 
     expect(canAccessRoute(ROUTE_NAMES.UserGroup, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.NearbyVenues, regularUser)).toBe(true);
+    expect(canAccessRoute(ROUTE_NAMES.VenueDetails, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.OwnerGroup, venueOwner)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.ModeratorGroup, moderator)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.AdminGroup, administrator)).toBe(true);

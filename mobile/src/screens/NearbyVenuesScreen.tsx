@@ -85,6 +85,7 @@ export function NearbyVenuesScreen() {
               {venues.map((venue) => (
                 <ListItem
                   key={venue.venueId}
+                  onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.VenueDetails, { venueId: venue.venueId }))}
                   subtitle={`${venue.distanceKm.toFixed(2)} km • ${formatCategoryLabel(venue.category)} • ${venue.status} • ${venue.activitySnapshot.checkinCount} active • ${formatLiveStatusLabel(venue.activitySnapshot.liveStatus)}`}
                   title={venue.name}
                   trailingText="Details"
