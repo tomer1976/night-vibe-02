@@ -2,10 +2,18 @@ import { fireEvent, render } from '@testing-library/react-native';
 import { Pressable, Text, View } from 'react-native';
 
 import { ROUTE_NAMES } from '../src/navigation';
-import { AppStateProvider, useFeatureFlagsState, useOnboardingState, useRouteAccessSelectors, useRoleState } from '../src/state';
+import {
+  AppStateProvider,
+  useAuthState,
+  useFeatureFlagsState,
+  useOnboardingState,
+  useRouteAccessSelectors,
+  useRoleState,
+} from '../src/state';
 
 function RouteSelectorProbe() {
   const routeAccess = useRouteAccessSelectors();
+  const { setAccountStatus } = useAuthState();
   const { setRoleSimulationEnabled } = useFeatureFlagsState();
   const { setProfileCompleted } = useOnboardingState();
   const { setActiveRoleContext, setAvailableRoles } = useRoleState();
@@ -62,6 +70,18 @@ function RouteSelectorProbe() {
 
       <Pressable onPress={() => setProfileCompleted(true)} testID="set-profile-complete">
         <Text>set-profile-complete</Text>
+      </Pressable>
+
+      <Pressable onPress={() => setAccountStatus('pending_deletion')} testID="set-status-pending-deletion">
+        <Text>set-status-pending-deletion</Text>
+      </Pressable>
+
+      <Pressable onPress={() => setAccountStatus('suspended')} testID="set-status-suspended">
+        <Text>set-status-suspended</Text>
+      </Pressable>
+
+      <Pressable onPress={() => setAccountStatus('active')} testID="set-status-active">
+        <Text>set-status-active</Text>
       </Pressable>
     </View>
   );
@@ -177,5 +197,63 @@ describe('route state selectors', () => {
     expect(getByText(`userProfileResolved:${ROUTE_NAMES.UserProfile}`)).toBeTruthy();
     expect(getByText('accountSettingsAllowed:true')).toBeTruthy();
     expect(getByText(`accountSettingsResolved:${ROUTE_NAMES.AccountSettings}`)).toBeTruthy();
+  });
+
+  it('gates venue routes by account status before onboarding checks', () => {
+    const { getByTestId, getByText } = render(
+      <AppStateProvider>
+        <RouteSelectorProbe />
+      </AppStateProvider>
+    );
+
+    expect(getByText('venueDetailsAllowed:true')).toBeTruthy();
+    expect(getByText(`venueDetailsResolved:${ROUTE_NAMES.VenueDetails}`)).toBeTruthy();
+    expect(getByText('checkInConfirmationAllowed:true')).toBeTruthy();
+    expect(getByText(`checkInConfirmationResolved:${ROUTE_NAMES.CheckInConfirmation}`)).toBeTruthy();
+    expect(getByText('activeVenueSessionAllowed:true')).toBeTruthy();
+    expect(getByText(`activeVenueSessionResolved:${ROUTE_NAMES.ActiveVenueSession}`)).toBeTruthy();
+    expect(getByText('venuePresenceAllowed:true')).toBeTruthy();
+    expect(getByText(`venuePresenceResolved:${ROUTE_NAMES.VenuePresence}`)).toBeTruthy();
+    expect(getByText('checkoutConfirmationAllowed:true')).toBeTruthy();
+    expect(getByText(`checkoutConfirmationResolved:${ROUTE_NAMES.CheckoutConfirmation}`)).toBeTruthy();
+
+    fireEvent.press(getByTestId('set-status-pending-deletion'));
+
+    expect(getByText('venueDetailsAllowed:false')).toBeTruthy();
+    expect(getByText(`venueDetailsResolved:${ROUTE_NAMES.SessionRecovery}`)).toBeTruthy();
+    expect(getByText('checkInConfirmationAllowed:false')).toBeTruthy();
+    expect(getByText(`checkInConfirmationResolved:${ROUTE_NAMES.SessionRecovery}`)).toBeTruthy();
+    expect(getByText('activeVenueSessionAllowed:false')).toBeTruthy();
+    expect(getByText(`activeVenueSessionResolved:${ROUTE_NAMES.SessionRecovery}`)).toBeTruthy();
+    expect(getByText('venuePresenceAllowed:false')).toBeTruthy();
+    expect(getByText(`venuePresenceResolved:${ROUTE_NAMES.SessionRecovery}`)).toBeTruthy();
+    expect(getByText('checkoutConfirmationAllowed:false')).toBeTruthy();
+    expect(getByText(`checkoutConfirmationResolved:${ROUTE_NAMES.SessionRecovery}`)).toBeTruthy();
+
+    fireEvent.press(getByTestId('set-status-suspended'));
+
+    expect(getByText('venueDetailsAllowed:false')).toBeTruthy();
+    expect(getByText(`venueDetailsResolved:${ROUTE_NAMES.AccessDenied}`)).toBeTruthy();
+    expect(getByText('checkInConfirmationAllowed:false')).toBeTruthy();
+    expect(getByText(`checkInConfirmationResolved:${ROUTE_NAMES.AccessDenied}`)).toBeTruthy();
+    expect(getByText('activeVenueSessionAllowed:false')).toBeTruthy();
+    expect(getByText(`activeVenueSessionResolved:${ROUTE_NAMES.AccessDenied}`)).toBeTruthy();
+    expect(getByText('venuePresenceAllowed:false')).toBeTruthy();
+    expect(getByText(`venuePresenceResolved:${ROUTE_NAMES.AccessDenied}`)).toBeTruthy();
+    expect(getByText('checkoutConfirmationAllowed:false')).toBeTruthy();
+    expect(getByText(`checkoutConfirmationResolved:${ROUTE_NAMES.AccessDenied}`)).toBeTruthy();
+
+    fireEvent.press(getByTestId('set-status-active'));
+
+    expect(getByText('venueDetailsAllowed:true')).toBeTruthy();
+    expect(getByText(`venueDetailsResolved:${ROUTE_NAMES.VenueDetails}`)).toBeTruthy();
+    expect(getByText('checkInConfirmationAllowed:true')).toBeTruthy();
+    expect(getByText(`checkInConfirmationResolved:${ROUTE_NAMES.CheckInConfirmation}`)).toBeTruthy();
+    expect(getByText('activeVenueSessionAllowed:true')).toBeTruthy();
+    expect(getByText(`activeVenueSessionResolved:${ROUTE_NAMES.ActiveVenueSession}`)).toBeTruthy();
+    expect(getByText('venuePresenceAllowed:true')).toBeTruthy();
+    expect(getByText(`venuePresenceResolved:${ROUTE_NAMES.VenuePresence}`)).toBeTruthy();
+    expect(getByText('checkoutConfirmationAllowed:true')).toBeTruthy();
+    expect(getByText(`checkoutConfirmationResolved:${ROUTE_NAMES.CheckoutConfirmation}`)).toBeTruthy();
   });
 });

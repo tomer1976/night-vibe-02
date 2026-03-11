@@ -27,10 +27,19 @@ export function useSimulatedRoleContextSelector(): SimulatedRoleContext {
 
 export function useRouteAccessSelectors() {
   const simulatedRoleContext = useSimulatedRoleContextSelector();
+  const { accountStatus } = useAuthState();
   const { profileCompleted } = useOnboardingState();
 
   return useMemo(
     () => {
+      const isVenueRoute = (routeName: AppRouteName) =>
+        routeName === ROUTE_NAMES.NearbyVenues ||
+        routeName === ROUTE_NAMES.VenueDetails ||
+        routeName === ROUTE_NAMES.CheckInConfirmation ||
+        routeName === ROUTE_NAMES.ActiveVenueSession ||
+        routeName === ROUTE_NAMES.VenuePresence ||
+        routeName === ROUTE_NAMES.CheckoutConfirmation;
+
       const isPostOnboardingRoute = (routeName: AppRouteName) =>
         routeName === ROUTE_NAMES.UserGroup ||
         routeName === ROUTE_NAMES.NearbyVenues ||
@@ -52,6 +61,16 @@ export function useRouteAccessSelectors() {
 
         if (roleResolvedRoute !== routeName) {
           return roleResolvedRoute;
+        }
+
+        if (isVenueRoute(routeName)) {
+          if (accountStatus === 'pending_deletion') {
+            return ROUTE_NAMES.SessionRecovery;
+          }
+
+          if (accountStatus === 'suspended' || accountStatus === 'banned' || accountStatus === 'deleted') {
+            return ROUTE_NAMES.AccessDenied;
+          }
         }
 
         if (isPostOnboardingRoute(routeName) && !profileCompleted) {
@@ -76,6 +95,6 @@ export function useRouteAccessSelectors() {
         },
       };
     },
-    [profileCompleted, simulatedRoleContext]
+    [accountStatus, profileCompleted, simulatedRoleContext]
   );
 }

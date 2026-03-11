@@ -26,7 +26,7 @@
 ## Navigation Tasks
 - [x] Wire navigation flow: Nearby Venues -> Venue Details -> Check-In Confirmation.
 - [x] Wire Active Session -> Checkout Confirmation -> Nearby Venues return path.
-- [ ] Add guards for profile completion/account status before venue routes.
+- [x] Add guards for profile completion/account status before venue routes.
 
 ## UI Tasks
 - [ ] Build venue list cards with distance, category, and activity indicators.
