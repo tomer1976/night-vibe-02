@@ -13,12 +13,18 @@ type CheckInConfirmationRouteParams = {
   venueName?: string;
 };
 
-type CheckInScenario = 'in_range_success' | 'out_of_range' | 'location_permission_denied' | 'venue_ineligible';
+type CheckInScenario =
+  | 'in_range_success'
+  | 'out_of_range'
+  | 'location_permission_denied'
+  | 'stale_location'
+  | 'venue_ineligible';
 
 const scenarioLabels: Record<CheckInScenario, string> = {
   in_range_success: 'In Range Success',
   out_of_range: 'Out of Range',
   location_permission_denied: 'Location Permission Denied',
+  stale_location: 'Stale Location',
   venue_ineligible: 'Venue Ineligible',
 };
 
@@ -26,6 +32,7 @@ const scenarioDescription: Record<CheckInScenario, string> = {
   in_range_success: 'Simulates an eligible in-range check-in attempt.',
   out_of_range: 'Simulates distance validation denial.',
   location_permission_denied: 'Simulates unavailable or denied location permission.',
+  stale_location: 'Simulates stale location payload validation denial.',
   venue_ineligible: 'Simulates target venue not active/not eligible.',
 };
 
@@ -70,6 +77,15 @@ export function CheckInConfirmationScreen() {
         venueId,
         latitude: Number.NaN,
         longitude: Number.NaN,
+      };
+    }
+
+    if (selectedScenario === 'stale_location') {
+      return {
+        venueId,
+        latitude: 32.0853,
+        longitude: 34.7818,
+        locationCapturedAt: '2026-03-08T10:00:00.000Z',
       };
     }
 
@@ -127,7 +143,9 @@ export function CheckInConfirmationScreen() {
               Select a deterministic mock scenario for this confirmation attempt.
             </Text>
 
-            {(['in_range_success', 'out_of_range', 'location_permission_denied', 'venue_ineligible'] as CheckInScenario[]).map((scenario) => (
+            {(
+              ['in_range_success', 'out_of_range', 'location_permission_denied', 'stale_location', 'venue_ineligible'] as CheckInScenario[]
+            ).map((scenario) => (
               <Button
                 key={scenario}
                 label={scenarioLabels[scenario]}

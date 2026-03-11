@@ -212,6 +212,24 @@ describe('mock service locator wiring', () => {
     }
   });
 
+  it('denies check-in with stale location payload using validation error', async () => {
+    const locator = createMockBackendServiceLocator({
+      activeUserId: 'u-regular-1',
+    });
+
+    const staleResponse = await locator.services.presence.checkInWithContext({
+      venueId: 'v-halo-club',
+      latitude: 32.0853,
+      longitude: 34.7818,
+      locationCapturedAt: '2026-03-08T10:00:00.000Z',
+    });
+
+    expect(staleResponse.status).toBe('FAIL');
+    if (staleResponse.status === 'FAIL') {
+      expect(staleResponse.error.code).toBe('VALIDATION_ERROR');
+    }
+  });
+
   it('returns unauthorized when refresh token is invalid or expired', async () => {
     const clock = createMockClock({
       startAt: '2026-03-08T20:00:00.000Z',

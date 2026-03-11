@@ -50,6 +50,7 @@ const DEFAULT_REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const DELETION_RECOVERY_WINDOW_DAYS = 30;
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const CHECKIN_RADIUS_METERS = 75;
+const STALE_LOCATION_THRESHOLD_MS = 5 * 60 * 1000;
 
 function calculateMockDistanceMeters(
   left: { latitude: number; longitude: number },
@@ -636,6 +637,26 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
             scenario: 'PERMISSION_DENIED',
             errorMessage: 'Mock location is unavailable or permission was denied.',
           });
+        }
+
+        if (request.locationCapturedAt) {
+          const locationCapturedAtMs = new Date(request.locationCapturedAt).getTime();
+          const nowMs = new Date(clock.peek()).getTime();
+
+          if (!Number.isFinite(locationCapturedAtMs) || nowMs - locationCapturedAtMs > STALE_LOCATION_THRESHOLD_MS) {
+            return responseFactory.build({
+              key: 'presence.checkInWithContext',
+              data: {
+                status: 'SUCCESS',
+                venueId: request.venueId,
+                sessionId: '',
+                checkinTimestamp: clock.peek(),
+                previousVenueCheckout: false,
+              },
+              scenario: 'VALIDATION_ERROR',
+              errorMessage: 'Mock location payload is stale and must be refreshed before check-in.',
+            });
+          }
         }
 
         const distanceMeters = calculateMockDistanceMeters(

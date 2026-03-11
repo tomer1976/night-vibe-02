@@ -76,6 +76,7 @@ export type PresenceCheckInRequest = {
   venueId: string;
   latitude: number;
   longitude: number;
+  locationCapturedAt?: string;
   idempotencyKey?: string;
 };
 

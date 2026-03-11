@@ -20,7 +20,7 @@
 - [x] Create venue fixture catalog (active/pending/rejected/suspended examples).
 - [x] Create mock coordinates and deterministic distance outputs.
 - [x] Create mock active session fixtures including replaced and expired sessions.
-- [ ] Add scenario toggles for out-of-range, permission denied, stale location.
+- [x] Add scenario toggles for out-of-range, permission denied, stale location.
 - [ ] Add mock venue presence participant fixtures.
 
 ## Navigation Tasks

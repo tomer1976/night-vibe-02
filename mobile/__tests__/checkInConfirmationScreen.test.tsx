@@ -46,6 +46,10 @@ describe('check-in confirmation screen', () => {
     fireEvent.press(getByText('Confirm Check-In'));
     expect(await findByText(/Check-in denied: PERMISSION_DENIED\./)).toBeTruthy();
 
+    fireEvent.press(getByText('Stale Location'));
+    fireEvent.press(getByText('Confirm Check-In'));
+    expect(await findByText(/Check-in denied: VALIDATION_ERROR\./)).toBeTruthy();
+
     fireEvent.press(getByText('Venue Ineligible'));
     fireEvent.press(getByText('Confirm Check-In'));
     expect(await findByText(/Check-in denied: NOT_FOUND\./)).toBeTruthy();
