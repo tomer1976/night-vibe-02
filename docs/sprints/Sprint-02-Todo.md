@@ -67,7 +67,7 @@
 ## Release/Readiness Tasks (if applicable)
 - [x] Prepare sprint demo script for all account status personas.
 - [x] Publish QA execution summary and defect list.
-- [ ] Capture carry-over items with owner and target sprint.
+- [x] Capture carry-over items with owner and target sprint.
 
 ## Sprint Exit Checklist
 - [ ] Sprint-02 PRD functional and UX scope completed or formally deferred.
