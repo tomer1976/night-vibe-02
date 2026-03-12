@@ -52,6 +52,7 @@ const DELETION_RECOVERY_WINDOW_DAYS = 30;
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const CHECKIN_RADIUS_METERS = 75;
 const STALE_LOCATION_THRESHOLD_MS = 5 * 60 * 1000;
+const SESSION_TIMEOUT_MS = 4 * 60 * 60 * 1000;
 
 function calculateMockDistanceMeters(
   left: { latitude: number; longitude: number },
@@ -228,6 +229,29 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
   let refreshTokenExpiresAtMs = 0;
 
   const asMillis = (instant: string) => new Date(instant).getTime();
+  const applyDeterministicSessionTimeouts = () => {
+    const nowMs = asMillis(clock.peek());
+
+    for (const session of localSessions) {
+      if (session.status !== 'active') {
+        continue;
+      }
+
+      const checkinAtMs = asMillis(session.checkinAt);
+      if (!Number.isFinite(checkinAtMs)) {
+        continue;
+      }
+
+      const expiresAtMs = checkinAtMs + SESSION_TIMEOUT_MS;
+      if (nowMs < expiresAtMs) {
+        continue;
+      }
+
+      session.status = 'expired';
+      session.checkoutAt = new Date(expiresAtMs).toISOString();
+    }
+  };
+
   const issueSessionTokens = () => {
     const issuedAt = clock.now();
     const issuedAtMs = asMillis(issuedAt);
@@ -526,6 +550,8 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
     },
     venues: {
       getNearbyVenues: async (request) => {
+        applyDeterministicSessionTimeouts();
+
         const hasRequestCoordinates =
           Number.isFinite(request?.latitude) &&
           Number.isFinite(request?.longitude);
@@ -599,6 +625,8 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
     },
     presence: {
       getMyActiveSession: async () => {
+        applyDeterministicSessionTimeouts();
+
         const session = localSessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
 
         const mappedSession: VenueSession | null = session ? mapFixtureSessionToVenueSession(session) : null;
@@ -606,6 +634,8 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
         return responseFactory.build({ key: 'presence.getMyActiveSession', data: mappedSession });
       },
       checkInWithContext: async (request) => {
+        applyDeterministicSessionTimeouts();
+
         const targetVenue = sprint01Fixtures.venues.find((venue) => venue.venueId === request.venueId);
 
         if (!targetVenue || targetVenue.status !== 'active') {
@@ -724,6 +754,8 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
         return responseFactory.build({ key: 'presence.checkInWithContext', data: response });
       },
       checkOutActiveSession: async () => {
+        applyDeterministicSessionTimeouts();
+
         const currentActiveSession = localSessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
 
         if (!currentActiveSession) {
@@ -750,10 +782,14 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
         return responseFactory.build({ key: 'presence.checkOutActiveSession', data: response });
       },
       getStateTransitions: async () => {
+        applyDeterministicSessionTimeouts();
+
         const transitions = buildPresenceStateTransitions(localSessions);
         return responseFactory.build({ key: 'presence.getStateTransitions', data: transitions });
       },
       getActiveSession: async () => {
+        applyDeterministicSessionTimeouts();
+
         const session = localSessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
 
         const mappedSession: VenueSession | null = session ? mapFixtureSessionToVenueSession(session) : null;
@@ -761,6 +797,8 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
         return responseFactory.build({ key: 'presence.getActiveSession', data: mappedSession });
       },
       checkIn: async (venueId) => {
+        applyDeterministicSessionTimeouts();
+
         const currentActiveSession = localSessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
         if (currentActiveSession) {
           currentActiveSession.status = 'closed';
@@ -794,6 +832,8 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
     },
     discovery: {
       getCandidates: async () => {
+        applyDeterministicSessionTimeouts();
+
         const items = buildDiscoveryCandidates(currentUser.uid);
         return responseFactory.build({ key: 'discovery.getCandidates', data: { items } });
       },
@@ -848,6 +888,8 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
     },
     analytics: {
       getVenueAnalytics: async (venueId) => {
+        applyDeterministicSessionTimeouts();
+
         const population = localSessions.filter((session) => session.status === 'active' && session.venueId === venueId).length;
         const snapshot: VenueAnalyticsSnapshot = {
           venueId,

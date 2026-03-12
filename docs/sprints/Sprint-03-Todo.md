@@ -37,7 +37,7 @@
 ## State-Management Tasks
 - [x] Implement venue discovery state store (filters/sort/cached list).
 - [x] Implement presence/session store for active session lifecycle.
-- [ ] Implement deterministic mock clock integration for timeout simulation.
+- [x] Implement deterministic mock clock integration for timeout simulation.
 - [ ] Implement derived selectors for check-in eligibility display states.
 
 ## Testing Tasks

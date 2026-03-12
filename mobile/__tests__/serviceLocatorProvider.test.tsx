@@ -212,6 +212,48 @@ describe('mock service locator wiring', () => {
     }
   });
 
+  it('expires active session deterministically when mock clock reaches timeout window', async () => {
+    const clock = createMockClock({
+      startAt: '2026-03-08T20:00:00.000Z',
+      stepMs: 1_000,
+    });
+
+    const locator = createMockBackendServiceLocator({
+      activeUserId: 'u-regular-1',
+      clock,
+    });
+
+    const beforeTimeout = await locator.services.presence.getMyActiveSession();
+    expect(beforeTimeout.status).toBe('SUCCESS');
+    if (beforeTimeout.status === 'SUCCESS') {
+      expect(beforeTimeout.data?.sessionId).toBe('s-regular-1-active');
+      expect(beforeTimeout.data?.status).toBe('active');
+    }
+
+    clock.advanceBy(3 * 60 * 60 * 1000);
+
+    const afterTimeout = await locator.services.presence.getMyActiveSession();
+    expect(afterTimeout.status).toBe('SUCCESS');
+    if (afterTimeout.status === 'SUCCESS') {
+      expect(afterTimeout.data).toBeNull();
+    }
+
+    const transitionsResponse = await locator.services.presence.getStateTransitions();
+    expect(transitionsResponse.status).toBe('SUCCESS');
+    if (transitionsResponse.status === 'SUCCESS') {
+      const timeoutTransition = transitionsResponse.data.find((entry) => entry.sessionId === 's-regular-1-active');
+      expect(timeoutTransition).toEqual({
+        sessionId: 's-regular-1-active',
+        userId: 'u-regular-1',
+        venueId: 'v-halo-club',
+        fromStatus: 'active',
+        toStatus: 'expired',
+        reason: 'timeout',
+        transitionedAt: '2026-03-08T23:00:00.000Z',
+      });
+    }
+  });
+
   it('denies check-in with stale location payload using validation error', async () => {
     const locator = createMockBackendServiceLocator({
       activeUserId: 'u-regular-1',
