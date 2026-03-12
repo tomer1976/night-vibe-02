@@ -5,6 +5,7 @@ import { ProfileDraft } from '../screens/profileDraft';
 import { AccountStatus, Role } from '../contracts';
 import { AuthLifecycle, AuthStoreState } from './authStateStore';
 import { OnboardingProgressState } from './onboardingProgressStore';
+import { createInitialPresenceSessionStoreState, PresenceSessionStoreState } from './presenceSessionStore';
 
 const MOCK_APP_STATE_STORAGE_KEY = 'night-vibe:phase1-mock-app-state:v1';
 
@@ -17,6 +18,7 @@ export type MockAppStateSnapshot = {
   profileCompleted: boolean;
   profileDraft: ProfileDraft;
   accountLifecycleDraft: AccountSettingsDraft;
+  presenceSession: PresenceSessionStoreState;
 };
 
 const allowedAccountStatuses: AccountStatus[] = ['active', 'suspended', 'banned', 'pending_deletion', 'deleted'];
@@ -98,6 +100,21 @@ function fallbackOnboardingState(onboarding: Partial<OnboardingProgressState>): 
   };
 }
 
+function fallbackPresenceSessionState(value: unknown): PresenceSessionStoreState {
+  if (!value || typeof value !== 'object') {
+    return createInitialPresenceSessionStoreState();
+  }
+
+  const candidate = value as Partial<PresenceSessionStoreState>;
+  const fallback = createInitialPresenceSessionStoreState();
+
+  return {
+    activeSession: candidate.activeSession ?? fallback.activeSession,
+    transitions: Array.isArray(candidate.transitions) ? candidate.transitions : fallback.transitions,
+    lastSyncedAt: typeof candidate.lastSyncedAt === 'string' ? candidate.lastSyncedAt : fallback.lastSyncedAt,
+  };
+}
+
 export async function readMockAppStateSnapshot(): Promise<MockAppStateSnapshot | null> {
   try {
     const serialized = await AsyncStorage.getItem(MOCK_APP_STATE_STORAGE_KEY);
@@ -134,6 +151,7 @@ export async function readMockAppStateSnapshot(): Promise<MockAppStateSnapshot |
       profileCompleted: typeof parsed.profileCompleted === 'boolean' ? parsed.profileCompleted : true,
       profileDraft: parsed.profileDraft as ProfileDraft,
       accountLifecycleDraft: parsed.accountLifecycleDraft as AccountSettingsDraft,
+      presenceSession: fallbackPresenceSessionState(parsed.presenceSession),
     };
   } catch {
     return null;

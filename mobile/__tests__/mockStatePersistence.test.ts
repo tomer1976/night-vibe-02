@@ -54,6 +54,18 @@ describe('mockStatePersistence', () => {
           { provider: 'facebook', linked: false },
         ],
       },
+      presenceSession: {
+        activeSession: {
+          sessionId: 's-persisted',
+          userId: 'u-persisted',
+          venueId: 'v-persisted',
+          status: 'active',
+          checkinAt: '2026-03-11T20:00:00.000Z',
+          checkoutAt: null,
+        },
+        transitions: [],
+        lastSyncedAt: '2026-03-11T20:00:00.000Z',
+      },
     };
 
     await writeMockAppStateSnapshot(snapshot);

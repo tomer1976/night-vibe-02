@@ -1,6 +1,6 @@
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 
-import { AccountStatus, Role, VenueSummary } from '../contracts';
+import { AccountStatus, PresenceCheckInResult, PresenceStateTransition, Role, VenueSession, VenueSummary } from '../contracts';
 import { readRuntimeMode } from '../config/firebaseRuntimeGuard';
 import { readSimulatedRoleContextFromEnv } from '../navigation/roleContextSimulation';
 import { AccountSettingsDraft, LinkedAccountDraft, LinkedAccountProvider } from '../screens/accountSettingsDraft';
@@ -27,6 +27,10 @@ import {
   VenueDiscoverySortMode,
   venueDiscoveryStoreReducer,
 } from './venueDiscoveryStore';
+import {
+  createInitialPresenceSessionStoreState,
+  presenceSessionStoreReducer,
+} from './presenceSessionStore';
 import { readMockAppStateSnapshot, writeMockAppStateSnapshot } from './mockStatePersistence';
 
 export type AuthState = {
@@ -109,6 +113,17 @@ export type VenueDiscoveryState = {
   clearCachedVenues: () => void;
 };
 
+export type PresenceSessionState = {
+  activeSession: VenueSession | null;
+  transitions: PresenceStateTransition[];
+  lastSyncedAt: string | null;
+  setSessionSnapshot: (session: VenueSession | null, transitions?: PresenceStateTransition[], syncedAt?: string) => void;
+  applyCheckInResult: (result: PresenceCheckInResult, userId?: string) => void;
+  applyCheckout: (checkoutTime: string) => void;
+  applyTimeout: (expiredAt: string) => void;
+  resetPresenceSession: () => void;
+};
+
 const defaultAuthState: AuthState = {
   accountStatus: 'active',
   isAuthenticated: true,
@@ -189,6 +204,17 @@ const defaultVenueDiscoveryState: VenueDiscoveryState = {
   clearCachedVenues: () => undefined,
 };
 
+const defaultPresenceSessionState: PresenceSessionState = {
+  activeSession: null,
+  transitions: [],
+  lastSyncedAt: null,
+  setSessionSnapshot: () => undefined,
+  applyCheckInResult: () => undefined,
+  applyCheckout: () => undefined,
+  applyTimeout: () => undefined,
+  resetPresenceSession: () => undefined,
+};
+
 const AuthStateContext = createContext<AuthState>(defaultAuthState);
 const RoleStateContext = createContext<RoleState>(defaultRoleState);
 const FeatureFlagsStateContext = createContext<FeatureFlagsState>(defaultFeatureFlagsState);
@@ -196,6 +222,7 @@ const OnboardingStateContext = createContext<OnboardingState>(defaultOnboardingS
 const ProfileDraftStateContext = createContext<ProfileDraftState>(defaultProfileDraftState);
 const AccountLifecycleStateContext = createContext<AccountLifecycleState>(defaultAccountLifecycleState);
 const VenueDiscoveryStateContext = createContext<VenueDiscoveryState>(defaultVenueDiscoveryState);
+const PresenceSessionStateContext = createContext<PresenceSessionState>(defaultPresenceSessionState);
 
 export function AppStateProvider({ children }: PropsWithChildren) {
   const isMockModeEnabled = readRuntimeMode() === 'phase1-mock';
@@ -229,6 +256,10 @@ export function AppStateProvider({ children }: PropsWithChildren) {
   const [venueDiscoveryStoreState, dispatchVenueDiscoveryStore] = useReducer(
     venueDiscoveryStoreReducer,
     createInitialVenueDiscoveryStoreState()
+  );
+  const [presenceSessionStoreState, dispatchPresenceSessionStore] = useReducer(
+    presenceSessionStoreReducer,
+    createInitialPresenceSessionStoreState()
   );
   const [profileCompleted, setProfileCompleted] = useState(true);
   const [isStateHydrated, setIsStateHydrated] = useState(!isMockModeEnabled || shouldSkipAsyncHydrationForTests);
@@ -337,6 +368,44 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     dispatchVenueDiscoveryStore({ type: 'CLEAR_CACHE' });
   }, []);
 
+  const setSessionSnapshot = useCallback(
+    (session: VenueSession | null, transitions?: PresenceStateTransition[], syncedAt?: string) => {
+      dispatchPresenceSessionStore({
+        type: 'SET_SESSION_SNAPSHOT',
+        session,
+        transitions,
+        syncedAt,
+      });
+    },
+    []
+  );
+
+  const applyCheckInResult = useCallback((result: PresenceCheckInResult, userId?: string) => {
+    dispatchPresenceSessionStore({
+      type: 'APPLY_CHECKIN_RESULT',
+      result,
+      userId,
+    });
+  }, []);
+
+  const applyCheckout = useCallback((checkoutTime: string) => {
+    dispatchPresenceSessionStore({
+      type: 'APPLY_CHECKOUT',
+      checkoutTime,
+    });
+  }, []);
+
+  const applyTimeout = useCallback((expiredAt: string) => {
+    dispatchPresenceSessionStore({
+      type: 'APPLY_TIMEOUT',
+      expiredAt,
+    });
+  }, []);
+
+  const resetPresenceSession = useCallback(() => {
+    dispatchPresenceSessionStore({ type: 'RESET_STATE' });
+  }, []);
+
   useEffect(() => {
     if (shouldSkipAsyncHydrationForTests) {
       return;
@@ -377,6 +446,11 @@ export function AppStateProvider({ children }: PropsWithChildren) {
           draft: snapshot.accountLifecycleDraft,
         });
 
+        dispatchPresenceSessionStore({
+          type: 'HYDRATE_STATE',
+          state: snapshot.presenceSession,
+        });
+
         setActiveRoleContext(snapshot.activeRoleContext);
         setAvailableRoles(snapshot.availableRoles);
         setRoleSimulationEnabled(snapshot.isRoleSimulationEnabled);
@@ -407,6 +481,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
       profileCompleted,
       profileDraft: profileDraftStoreState.savedDraft,
       accountLifecycleDraft: accountLifecycleStoreState.savedDraft,
+      presenceSession: presenceSessionStoreState,
     });
   }, [
     accountLifecycleStoreState.savedDraft,
@@ -417,6 +492,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     isRoleSimulationEnabled,
     isStateHydrated,
     onboardingStateStore,
+    presenceSessionStoreState,
     profileCompleted,
     profileDraftStoreState.savedDraft,
   ]);
@@ -598,6 +674,27 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     ]
   );
 
+  const presenceSessionState = useMemo<PresenceSessionState>(
+    () => ({
+      activeSession: presenceSessionStoreState.activeSession,
+      transitions: presenceSessionStoreState.transitions,
+      lastSyncedAt: presenceSessionStoreState.lastSyncedAt,
+      setSessionSnapshot,
+      applyCheckInResult,
+      applyCheckout,
+      applyTimeout,
+      resetPresenceSession,
+    }),
+    [
+      applyCheckInResult,
+      applyCheckout,
+      applyTimeout,
+      presenceSessionStoreState,
+      resetPresenceSession,
+      setSessionSnapshot,
+    ]
+  );
+
   return (
     <FeatureFlagsStateContext.Provider value={featureFlagsState}>
       <AuthStateContext.Provider value={authState}>
@@ -605,7 +702,9 @@ export function AppStateProvider({ children }: PropsWithChildren) {
           <OnboardingStateContext.Provider value={onboardingState}>
             <ProfileDraftStateContext.Provider value={profileDraftState}>
               <AccountLifecycleStateContext.Provider value={accountLifecycleState}>
-                <VenueDiscoveryStateContext.Provider value={venueDiscoveryState}>{children}</VenueDiscoveryStateContext.Provider>
+                <VenueDiscoveryStateContext.Provider value={venueDiscoveryState}>
+                  <PresenceSessionStateContext.Provider value={presenceSessionState}>{children}</PresenceSessionStateContext.Provider>
+                </VenueDiscoveryStateContext.Provider>
               </AccountLifecycleStateContext.Provider>
             </ProfileDraftStateContext.Provider>
           </OnboardingStateContext.Provider>
@@ -641,4 +740,8 @@ export function useAccountLifecycleState(): AccountLifecycleState {
 
 export function useVenueDiscoveryState(): VenueDiscoveryState {
   return useContext(VenueDiscoveryStateContext);
+}
+
+export function usePresenceSessionState(): PresenceSessionState {
+  return useContext(PresenceSessionStateContext);
 }
