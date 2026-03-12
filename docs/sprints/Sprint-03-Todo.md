@@ -31,7 +31,7 @@
 ## UI Tasks
 - [x] Build venue list cards with distance, category, and activity indicators.
 - [x] Build session status cards and timer/elapsed indicators.
-- [ ] Add clear messaging states for denied check-in reasons.
+- [x] Add clear messaging states for denied check-in reasons.
 - [ ] Add empty-state and retry-state components for venue/presence views.
 
 ## State-Management Tasks

@@ -37,21 +37,26 @@ describe('check-in confirmation screen', () => {
 
     fireEvent.press(getByText('Confirm Check-In'));
     expect(await findByText(/Check-in succeeded\. Session/)).toBeTruthy();
+    expect(await findByText('Check-in confirmed')).toBeTruthy();
 
     fireEvent.press(getByText('Out of Range'));
     fireEvent.press(getByText('Confirm Check-In'));
-    expect(await findByText(/Check-in denied: OUT_OF_RANGE\./)).toBeTruthy();
+    expect(await findByText('Check-in blocked: you are out of range')).toBeTruthy();
+    expect(await findByText(/Move closer to this venue and retry once you are within the check-in radius\./)).toBeTruthy();
 
     fireEvent.press(getByText('Location Permission Denied'));
     fireEvent.press(getByText('Confirm Check-In'));
-    expect(await findByText(/Check-in denied: PERMISSION_DENIED\./)).toBeTruthy();
+    expect(await findByText('Check-in blocked: location permission is required')).toBeTruthy();
+    expect(await findByText(/Enable location permission to verify venue proximity before check-in\./)).toBeTruthy();
 
     fireEvent.press(getByText('Stale Location'));
     fireEvent.press(getByText('Confirm Check-In'));
-    expect(await findByText(/Check-in denied: VALIDATION_ERROR\./)).toBeTruthy();
+    expect(await findByText('Check-in blocked: refresh your location')).toBeTruthy();
+    expect(await findByText(/Your location reading is stale\. Refresh location and confirm check-in again\./)).toBeTruthy();
 
     fireEvent.press(getByText('Venue Ineligible'));
     fireEvent.press(getByText('Confirm Check-In'));
-    expect(await findByText(/Check-in denied: NOT_FOUND\./)).toBeTruthy();
+    expect(await findByText('Check-in blocked: venue is not eligible')).toBeTruthy();
+    expect(await findByText(/This venue is unavailable for check-in in the current mock scenario\./)).toBeTruthy();
   });
 });

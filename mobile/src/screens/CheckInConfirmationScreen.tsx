@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ApiErrorCode } from '../contracts';
 import { Badge, Button, Card, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
@@ -36,6 +37,57 @@ const scenarioDescription: Record<CheckInScenario, string> = {
   venue_ineligible: 'Simulates target venue not active/not eligible.',
 };
 
+const deniedMessagingByCode: Record<ApiErrorCode, { title: string; message: string }> = {
+  VALIDATION_ERROR: {
+    title: 'Check-in blocked: refresh your location',
+    message: 'Your location reading is stale. Refresh location and confirm check-in again.',
+  },
+  UNAUTHORIZED: {
+    title: 'Check-in blocked: session expired',
+    message: 'Your auth session is no longer valid. Sign in again and retry check-in.',
+  },
+  PERMISSION_DENIED: {
+    title: 'Check-in blocked: location permission is required',
+    message: 'Enable location permission to verify venue proximity before check-in.',
+  },
+  NOT_CHECKED_IN: {
+    title: 'Check-in blocked: session state mismatch',
+    message: 'Your current session state could not be validated. Refresh and retry.',
+  },
+  OUT_OF_RANGE: {
+    title: 'Check-in blocked: you are out of range',
+    message: 'Move closer to this venue and retry once you are within the check-in radius.',
+  },
+  DUPLICATE_INTERACTION: {
+    title: 'Check-in blocked: duplicate request',
+    message: 'A similar request was already processed. Wait briefly and refresh session state.',
+  },
+  CHAT_EXPIRED: {
+    title: 'Check-in blocked: session expired',
+    message: 'Your active session has expired. Start a fresh check-in attempt.',
+  },
+  RATE_LIMIT_EXCEEDED: {
+    title: 'Check-in blocked: too many attempts',
+    message: 'You reached the retry limit. Wait a moment before trying again.',
+  },
+  ACCESS_DENIED: {
+    title: 'Check-in blocked: access denied',
+    message: 'Your account does not currently have access to this action.',
+  },
+  NOT_FOUND: {
+    title: 'Check-in blocked: venue is not eligible',
+    message: 'This venue is unavailable for check-in in the current mock scenario.',
+  },
+  CONFLICT: {
+    title: 'Check-in blocked: conflicting session state',
+    message: 'Your session changed during check-in. Refresh active session state and retry.',
+  },
+  INTERNAL_ERROR: {
+    title: 'Check-in blocked: temporary error',
+    message: 'A temporary issue occurred. Retry check-in in a moment.',
+  },
+};
+
 export function CheckInConfirmationScreen() {
   const navigation = useNavigation();
   const route = useRoute();
@@ -48,6 +100,7 @@ export function CheckInConfirmationScreen() {
 
   const [selectedScenario, setSelectedScenario] = useState<CheckInScenario>('in_range_success');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [resultTitle, setResultTitle] = useState<string | undefined>();
   const [resultText, setResultText] = useState<string | undefined>();
   const [resultTone, setResultTone] = useState<'neutral' | 'success' | 'warning' | 'danger'>('neutral');
 
@@ -102,6 +155,7 @@ export function CheckInConfirmationScreen() {
     }
 
     setIsSubmitting(true);
+    setResultTitle(undefined);
     setResultText(undefined);
     setResultTone('neutral');
 
@@ -109,16 +163,20 @@ export function CheckInConfirmationScreen() {
       const response = await services.presence.checkInWithContext(scenarioRequestPayload);
 
       if (response.status === 'FAIL') {
+        const deniedMessage = deniedMessagingByCode[response.error.code];
         setResultTone('danger');
-        setResultText(`Check-in denied: ${response.error.code}. ${response.error.message}`);
+        setResultTitle(deniedMessage.title);
+        setResultText(`${deniedMessage.message} (Reason: ${response.error.code})`);
         return;
       }
 
       setResultTone('success');
+      setResultTitle('Check-in confirmed');
       setResultText(`Check-in succeeded. Session ${response.data.sessionId} opened at ${response.data.checkinTimestamp}.`);
     } catch {
       setResultTone('danger');
-      setResultText('Check-in denied: INTERNAL_ERROR.');
+      setResultTitle(deniedMessagingByCode.INTERNAL_ERROR.title);
+      setResultText(`${deniedMessagingByCode.INTERNAL_ERROR.message} (Reason: INTERNAL_ERROR)`);
     } finally {
       setIsSubmitting(false);
     }
@@ -169,6 +227,8 @@ export function CheckInConfirmationScreen() {
                 <Badge label={resultTone === 'success' ? 'Result: Success' : 'Result: Denied'} tone={resultTone === 'success' ? 'success' : 'danger'} />
               </View>
             ) : null}
+
+            {resultTitle ? <Text style={{ color: theme.colors.textPrimary, fontSize: theme.typography.body }}>{resultTitle}</Text> : null}
 
             {resultText ? <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>{resultText}</Text> : null}
 
