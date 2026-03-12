@@ -45,7 +45,7 @@
 - [x] Add edge tests for out-of-range and permission-denied scenarios.
 - [x] Add one-active-session enforcement tests (replacement behavior).
 - [x] Add timeout simulation tests and UI transition checks.
-- [ ] Add regression tests for Sprint 01/02 route guard compatibility.
+- [x] Add regression tests for Sprint 01/02 route guard compatibility.
 
 ## Bugfix/Stabilization Tasks
 - [ ] Fix stale session UI after replacement or timeout events.
