@@ -272,6 +272,43 @@ describe('mock service locator wiring', () => {
     }
   });
 
+  it('denies check-in with permission denied when location coordinates are unavailable', async () => {
+    const locator = createMockBackendServiceLocator({
+      activeUserId: 'u-regular-1',
+    });
+
+    const response = await locator.services.presence.checkInWithContext({
+      venueId: 'v-halo-club',
+      latitude: Number.NaN,
+      longitude: Number.NaN,
+    });
+
+    expect(response.status).toBe('FAIL');
+    if (response.status === 'FAIL') {
+      expect(response.error.code).toBe('PERMISSION_DENIED');
+    }
+  });
+
+  it('denies check-in with out-of-range when distance exceeds check-in radius', async () => {
+    const locator = createMockBackendServiceLocator({
+      activeUserId: 'u-regular-1',
+    });
+
+    const response = await locator.services.presence.checkInWithContext({
+      venueId: 'v-halo-club',
+      latitude: 32.1501,
+      longitude: 34.9201,
+    });
+
+    expect(response.status).toBe('FAIL');
+    if (response.status === 'FAIL') {
+      expect(response.error.code).toBe('OUT_OF_RANGE');
+      expect(response.error.details).toMatchObject({
+        max_allowed_meters: 75,
+      });
+    }
+  });
+
   it('returns unauthorized when refresh token is invalid or expired', async () => {
     const clock = createMockClock({
       startAt: '2026-03-08T20:00:00.000Z',

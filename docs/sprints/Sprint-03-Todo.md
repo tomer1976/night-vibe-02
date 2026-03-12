@@ -42,7 +42,7 @@
 
 ## Testing Tasks
 - [x] Add happy-path tests for venue browse -> check-in -> active session -> checkout.
-- [ ] Add edge tests for out-of-range and permission-denied scenarios.
+- [x] Add edge tests for out-of-range and permission-denied scenarios.
 - [ ] Add one-active-session enforcement tests (replacement behavior).
 - [ ] Add timeout simulation tests and UI transition checks.
 - [ ] Add regression tests for Sprint 01/02 route guard compatibility.
