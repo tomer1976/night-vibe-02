@@ -2,18 +2,20 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fireEvent, render } from '@testing-library/react-native';
 
+import { BackendServiceContracts } from '../src/contracts';
+import { createMockClock } from '../src/mocks';
 import { ActiveVenueSessionScreen, CheckoutConfirmationScreen, NearbyVenuesScreen, VenuePresenceScreen } from '../src/screens';
-import { ServiceLocatorProvider } from '../src/services';
+import { createMockBackendServiceLocator, ServiceLocatorProvider } from '../src/services';
 import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
 
 const Stack = createNativeStackNavigator();
 
-function ActiveVenueSessionTestNavigator() {
+function ActiveVenueSessionTestNavigator({ servicesOverride }: { servicesOverride?: BackendServiceContracts }) {
   return (
     <ThemeProvider>
       <AppStateProvider>
-        <ServiceLocatorProvider isMockModeEnabled>
+        <ServiceLocatorProvider isMockModeEnabled servicesOverride={servicesOverride}>
           <NavigationContainer>
             <Stack.Navigator initialRouteName="ActiveVenueSession" screenOptions={{ headerShown: false }}>
               <Stack.Screen component={ActiveVenueSessionScreen} name="ActiveVenueSession" />
@@ -62,5 +64,31 @@ describe('active venue session screen', () => {
     expect(await findByText('Checkout Completed')).toBeTruthy();
     fireEvent.press(getByText('Return to Nearby Venues'));
     expect(await findByText('Nearby Venues Screen')).toBeTruthy();
+  });
+
+  it('renders no-active-session state after deterministic timeout and refresh', async () => {
+    const clock = createMockClock({
+      startAt: '2026-03-08T22:59:00.000Z',
+      stepMs: 1_000,
+    });
+
+    const mockLocator = createMockBackendServiceLocator({
+      activeUserId: 'u-regular-1',
+      clock,
+    });
+
+    const { findByText, getByText } = render(
+      <ActiveVenueSessionTestNavigator servicesOverride={mockLocator.services} />,
+    );
+
+    expect(await findByText('Active Venue Session Screen')).toBeTruthy();
+    expect(await findByText('Status: active')).toBeTruthy();
+
+    clock.advanceBy(2 * 60 * 1000);
+    fireEvent.press(getByText('Refresh Session State'));
+
+    expect(await findByText('No Active Session')).toBeTruthy();
+    expect(await findByText('No active venue session exists in the current mock state.')).toBeTruthy();
+    expect(await findByText('Browse Nearby Venues')).toBeTruthy();
   });
 });
