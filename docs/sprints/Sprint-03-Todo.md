@@ -41,7 +41,7 @@
 - [x] Implement derived selectors for check-in eligibility display states.
 
 ## Testing Tasks
-- [ ] Add happy-path tests for venue browse -> check-in -> active session -> checkout.
+- [x] Add happy-path tests for venue browse -> check-in -> active session -> checkout.
 - [ ] Add edge tests for out-of-range and permission-denied scenarios.
 - [ ] Add one-active-session enforcement tests (replacement behavior).
 - [ ] Add timeout simulation tests and UI transition checks.
