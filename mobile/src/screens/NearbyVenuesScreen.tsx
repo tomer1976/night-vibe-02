@@ -7,6 +7,7 @@ import { VenueSummary } from '../contracts';
 import { Badge, Button, Card, EmptyStateTemplate, ErrorStateTemplate, LoadingStateTemplate, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
+import { useVenueDiscoveryState } from '../state';
 import { useTheme } from '../theme';
 
 const formatCategoryLabel = (category: VenueSummary['category']) => category.replace('_', ' ');
@@ -51,10 +52,10 @@ export function NearbyVenuesScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
   const services = useServiceLocator();
+  const { clearCachedVenues, setCachedVenues, visibleVenues } = useVenueDiscoveryState();
 
   const [isLoading, setIsLoading] = useState(true);
   const [errorText, setErrorText] = useState<string | undefined>();
-  const [venues, setVenues] = useState<VenueSummary[]>([]);
 
   const fetchNearbyVenues = useCallback(async () => {
     setIsLoading(true);
@@ -65,30 +66,30 @@ export function NearbyVenuesScreen() {
 
       if (response.status === 'FAIL') {
         setErrorText(response.error.message);
-        setVenues([]);
+        clearCachedVenues();
         return;
       }
 
-      setVenues(response.data);
+      setCachedVenues(response.data);
     } catch {
       setErrorText('Unable to load nearby venues right now. Please try again.');
-      setVenues([]);
+      clearCachedVenues();
     } finally {
       setIsLoading(false);
     }
-  }, [services.venues]);
+  }, [clearCachedVenues, services.venues, setCachedVenues]);
 
   useEffect(() => {
     void fetchNearbyVenues();
   }, [fetchNearbyVenues]);
 
   const summaryText = useMemo(() => {
-    if (venues.length === 0) {
+    if (visibleVenues.length === 0) {
       return 'No nearby active venues in this mock scenario.';
     }
 
-    return `${venues.length} active venues available for check-in.`;
-  }, [venues.length]);
+    return `${visibleVenues.length} active venues available for check-in.`;
+  }, [visibleVenues.length]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
@@ -101,12 +102,12 @@ export function NearbyVenuesScreen() {
           <LoadingStateTemplate message="Loading venue distance and activity snapshot metadata." title="Fetching Nearby Venues" />
         ) : errorText ? (
           <ErrorStateTemplate actionLabel="Retry" message={errorText} onAction={() => void fetchNearbyVenues()} title="Venue Discovery Failed" />
-        ) : venues.length === 0 ? (
+        ) : visibleVenues.length === 0 ? (
           <EmptyStateTemplate actionLabel="Refresh" message="Try refreshing to rerun deterministic mock discovery." onAction={() => void fetchNearbyVenues()} title="No Nearby Venues" />
         ) : (
           <Card subtitle={summaryText} title="Nearby Venues Screen">
             <View style={{ gap: theme.spacing.md }}>
-              {venues.map((venue) => (
+              {visibleVenues.map((venue) => (
                 <Card key={venue.venueId} subtitle={`Category: ${formatCategoryLabel(venue.category)}`} title={venue.name}>
                   <View style={{ gap: theme.spacing.sm }}>
                     <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>

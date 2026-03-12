@@ -35,7 +35,7 @@
 - [x] Add empty-state and retry-state components for venue/presence views.
 
 ## State-Management Tasks
-- [ ] Implement venue discovery state store (filters/sort/cached list).
+- [x] Implement venue discovery state store (filters/sort/cached list).
 - [ ] Implement presence/session store for active session lifecycle.
 - [ ] Implement deterministic mock clock integration for timeout simulation.
 - [ ] Implement derived selectors for check-in eligibility display states.

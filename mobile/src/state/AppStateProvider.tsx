@@ -1,6 +1,6 @@
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 
-import { AccountStatus, Role } from '../contracts';
+import { AccountStatus, Role, VenueSummary } from '../contracts';
 import { readRuntimeMode } from '../config/firebaseRuntimeGuard';
 import { readSimulatedRoleContextFromEnv } from '../navigation/roleContextSimulation';
 import { AccountSettingsDraft, LinkedAccountDraft, LinkedAccountProvider } from '../screens/accountSettingsDraft';
@@ -19,6 +19,14 @@ import {
   createInitialProfileDraftStoreState,
   profileDraftStoreReducer,
 } from './profileDraftStore';
+import {
+  createInitialVenueDiscoveryFilters,
+  createInitialVenueDiscoveryStoreState,
+  selectVisibleVenues,
+  VenueDiscoveryFilters,
+  VenueDiscoverySortMode,
+  venueDiscoveryStoreReducer,
+} from './venueDiscoveryStore';
 import { readMockAppStateSnapshot, writeMockAppStateSnapshot } from './mockStatePersistence';
 
 export type AuthState = {
@@ -88,6 +96,19 @@ export type AccountLifecycleState = {
   resetAccountLifecycle: () => void;
 };
 
+export type VenueDiscoveryState = {
+  cachedVenues: VenueSummary[];
+  visibleVenues: VenueSummary[];
+  filters: VenueDiscoveryFilters;
+  sortMode: VenueDiscoverySortMode;
+  lastFetchedAt: string | null;
+  setCachedVenues: (venues: VenueSummary[], fetchedAt?: string) => void;
+  setFilters: (filters: Partial<VenueDiscoveryFilters>) => void;
+  resetFilters: () => void;
+  setSortMode: (sortMode: VenueDiscoverySortMode) => void;
+  clearCachedVenues: () => void;
+};
+
 const defaultAuthState: AuthState = {
   accountStatus: 'active',
   isAuthenticated: true,
@@ -155,12 +176,26 @@ const defaultAccountLifecycleState: AccountLifecycleState = {
   resetAccountLifecycle: () => undefined,
 };
 
+const defaultVenueDiscoveryState: VenueDiscoveryState = {
+  cachedVenues: [],
+  visibleVenues: [],
+  filters: createInitialVenueDiscoveryFilters(),
+  sortMode: 'distance_then_activity',
+  lastFetchedAt: null,
+  setCachedVenues: () => undefined,
+  setFilters: () => undefined,
+  resetFilters: () => undefined,
+  setSortMode: () => undefined,
+  clearCachedVenues: () => undefined,
+};
+
 const AuthStateContext = createContext<AuthState>(defaultAuthState);
 const RoleStateContext = createContext<RoleState>(defaultRoleState);
 const FeatureFlagsStateContext = createContext<FeatureFlagsState>(defaultFeatureFlagsState);
 const OnboardingStateContext = createContext<OnboardingState>(defaultOnboardingState);
 const ProfileDraftStateContext = createContext<ProfileDraftState>(defaultProfileDraftState);
 const AccountLifecycleStateContext = createContext<AccountLifecycleState>(defaultAccountLifecycleState);
+const VenueDiscoveryStateContext = createContext<VenueDiscoveryState>(defaultVenueDiscoveryState);
 
 export function AppStateProvider({ children }: PropsWithChildren) {
   const isMockModeEnabled = readRuntimeMode() === 'phase1-mock';
@@ -190,6 +225,10 @@ export function AppStateProvider({ children }: PropsWithChildren) {
   const [accountLifecycleStoreState, dispatchAccountLifecycleStore] = useReducer(
     accountLifecycleStoreReducer,
     createInitialAccountLifecycleStoreState()
+  );
+  const [venueDiscoveryStoreState, dispatchVenueDiscoveryStore] = useReducer(
+    venueDiscoveryStoreReducer,
+    createInitialVenueDiscoveryStoreState()
   );
   const [profileCompleted, setProfileCompleted] = useState(true);
   const [isStateHydrated, setIsStateHydrated] = useState(!isMockModeEnabled || shouldSkipAsyncHydrationForTests);
@@ -266,6 +305,36 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 
   const resetAccountLifecycle = useCallback(() => {
     dispatchAccountLifecycleStore({ type: 'RESET_ACCOUNT_LIFECYCLE' });
+  }, []);
+
+  const setCachedVenues = useCallback((venues: VenueSummary[], fetchedAt?: string) => {
+    dispatchVenueDiscoveryStore({
+      type: 'SET_CACHED_VENUES',
+      venues,
+      fetchedAt,
+    });
+  }, []);
+
+  const setVenueDiscoveryFilters = useCallback((filters: Partial<VenueDiscoveryFilters>) => {
+    dispatchVenueDiscoveryStore({
+      type: 'SET_FILTERS',
+      filters,
+    });
+  }, []);
+
+  const resetVenueDiscoveryFilters = useCallback(() => {
+    dispatchVenueDiscoveryStore({ type: 'RESET_FILTERS' });
+  }, []);
+
+  const setVenueDiscoverySortMode = useCallback((sortMode: VenueDiscoverySortMode) => {
+    dispatchVenueDiscoveryStore({
+      type: 'SET_SORT_MODE',
+      sortMode,
+    });
+  }, []);
+
+  const clearCachedVenues = useCallback(() => {
+    dispatchVenueDiscoveryStore({ type: 'CLEAR_CACHE' });
   }, []);
 
   useEffect(() => {
@@ -506,13 +575,38 @@ export function AppStateProvider({ children }: PropsWithChildren) {
     ]
   );
 
+  const venueDiscoveryState = useMemo<VenueDiscoveryState>(
+    () => ({
+      cachedVenues: venueDiscoveryStoreState.cachedVenues,
+      visibleVenues: selectVisibleVenues(venueDiscoveryStoreState),
+      filters: venueDiscoveryStoreState.filters,
+      sortMode: venueDiscoveryStoreState.sortMode,
+      lastFetchedAt: venueDiscoveryStoreState.lastFetchedAt,
+      setCachedVenues,
+      setFilters: setVenueDiscoveryFilters,
+      resetFilters: resetVenueDiscoveryFilters,
+      setSortMode: setVenueDiscoverySortMode,
+      clearCachedVenues,
+    }),
+    [
+      clearCachedVenues,
+      resetVenueDiscoveryFilters,
+      setCachedVenues,
+      setVenueDiscoveryFilters,
+      setVenueDiscoverySortMode,
+      venueDiscoveryStoreState,
+    ]
+  );
+
   return (
     <FeatureFlagsStateContext.Provider value={featureFlagsState}>
       <AuthStateContext.Provider value={authState}>
         <RoleStateContext.Provider value={roleState}>
           <OnboardingStateContext.Provider value={onboardingState}>
             <ProfileDraftStateContext.Provider value={profileDraftState}>
-              <AccountLifecycleStateContext.Provider value={accountLifecycleState}>{children}</AccountLifecycleStateContext.Provider>
+              <AccountLifecycleStateContext.Provider value={accountLifecycleState}>
+                <VenueDiscoveryStateContext.Provider value={venueDiscoveryState}>{children}</VenueDiscoveryStateContext.Provider>
+              </AccountLifecycleStateContext.Provider>
             </ProfileDraftStateContext.Provider>
           </OnboardingStateContext.Provider>
         </RoleStateContext.Provider>
@@ -543,4 +637,8 @@ export function useProfileDraftState(): ProfileDraftState {
 
 export function useAccountLifecycleState(): AccountLifecycleState {
   return useContext(AccountLifecycleStateContext);
+}
+
+export function useVenueDiscoveryState(): VenueDiscoveryState {
+  return useContext(VenueDiscoveryStateContext);
 }
