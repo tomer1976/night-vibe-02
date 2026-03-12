@@ -54,6 +54,7 @@ export type MockFixtureSession = {
   status: 'active' | 'closed' | 'expired';
   checkinAt: string;
   checkoutAt: string | null;
+  closeReason?: 'manual_checkout' | 'auto_replaced' | 'timeout' | 'venue_invalidated';
 };
 
 export type MockFixtureInteraction = {
@@ -273,6 +274,7 @@ const sessions: readonly MockFixtureSession[] = Object.freeze([
     status: 'closed',
     checkinAt: '2026-03-08T18:35:00.000Z',
     checkoutAt: '2026-03-08T18:59:00.000Z',
+    closeReason: 'auto_replaced',
   }),
   Object.freeze({
     sessionId: 's-regular-1-active',
@@ -297,6 +299,7 @@ const sessions: readonly MockFixtureSession[] = Object.freeze([
     status: 'closed',
     checkinAt: '2026-03-08T18:00:00.000Z',
     checkoutAt: '2026-03-08T18:45:00.000Z',
+    closeReason: 'manual_checkout',
   }),
   Object.freeze({
     sessionId: 's-admin-1-expired',
@@ -305,6 +308,7 @@ const sessions: readonly MockFixtureSession[] = Object.freeze([
     status: 'expired',
     checkinAt: '2026-03-08T16:00:00.000Z',
     checkoutAt: '2026-03-08T20:00:00.000Z',
+    closeReason: 'timeout',
   }),
 ]);
 

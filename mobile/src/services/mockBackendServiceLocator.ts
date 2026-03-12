@@ -153,11 +153,12 @@ function buildPresenceStateTransitions(sessions: readonly MockFixtureSession[]):
     .filter((session) => session.status === 'closed' || session.status === 'expired')
     .map((session) => {
       const reason: PresenceStateTransition['reason'] =
-        session.status === 'expired'
+        session.closeReason ??
+        (session.status === 'expired'
           ? 'timeout'
           : session.sessionId.includes('replaced')
             ? 'auto_replaced'
-            : 'manual_checkout';
+            : 'manual_checkout');
 
       const transition: PresenceStateTransition = {
         sessionId: session.sessionId,
@@ -249,6 +250,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
 
       session.status = 'expired';
       session.checkoutAt = new Date(expiresAtMs).toISOString();
+      session.closeReason = 'timeout';
     }
   };
 
@@ -717,6 +719,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
         if (currentActiveSession && currentActiveSession.venueId !== request.venueId) {
           currentActiveSession.status = 'closed';
           currentActiveSession.checkoutAt = clock.now();
+          currentActiveSession.closeReason = 'auto_replaced';
         }
 
         if (currentActiveSession && currentActiveSession.venueId === request.venueId) {
@@ -773,6 +776,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
         const checkoutTime = clock.now();
         currentActiveSession.status = 'closed';
         currentActiveSession.checkoutAt = checkoutTime;
+        currentActiveSession.closeReason = 'manual_checkout';
 
         const response: PresenceCheckOutResult = {
           status: 'SUCCESS',
@@ -803,6 +807,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
         if (currentActiveSession) {
           currentActiveSession.status = 'closed';
           currentActiveSession.checkoutAt = clock.now();
+          currentActiveSession.closeReason = 'auto_replaced';
         }
 
         const createdAt = clock.now();
@@ -825,6 +830,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
         if (existingSession && existingSession.status === 'active') {
           existingSession.status = 'closed';
           existingSession.checkoutAt = clock.now();
+          existingSession.closeReason = 'manual_checkout';
         }
 
         return responseFactory.build({ key: 'presence.checkOut', data: { sessionClosed: true } });

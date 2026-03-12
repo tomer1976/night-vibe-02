@@ -272,6 +272,66 @@ describe('mock service locator wiring', () => {
     }
   });
 
+  it('enforces one active session by auto-replacing an existing active session on new venue check-in', async () => {
+    const locator = createMockBackendServiceLocator({
+      activeUserId: 'u-regular-1',
+    });
+
+    const beforeCheckIn = await locator.services.presence.getMyActiveSession();
+    expect(beforeCheckIn.status).toBe('SUCCESS');
+    if (beforeCheckIn.status === 'FAIL' || !beforeCheckIn.data) {
+      throw new Error('Expected an existing active session before replacement check-in.');
+    }
+
+    expect(beforeCheckIn.data.sessionId).toBe('s-regular-1-active');
+    expect(beforeCheckIn.data.venueId).toBe('v-halo-club');
+
+    const checkInResponse = await locator.services.presence.checkInWithContext({
+      venueId: 'v-luna-lounge',
+      latitude: 32.0806,
+      longitude: 34.7805,
+      locationCapturedAt: '2026-03-08T20:00:00.000Z',
+    });
+
+    expect(checkInResponse.status).toBe('SUCCESS');
+    if (checkInResponse.status === 'FAIL') {
+      throw new Error('Expected successful replacement check-in.');
+    }
+
+    expect(checkInResponse.data.previousVenueCheckout).toBe(true);
+
+    const afterCheckIn = await locator.services.presence.getMyActiveSession();
+    expect(afterCheckIn.status).toBe('SUCCESS');
+    if (afterCheckIn.status === 'FAIL' || !afterCheckIn.data) {
+      throw new Error('Expected active session after replacement check-in.');
+    }
+
+    expect(afterCheckIn.data.sessionId).toBe(checkInResponse.data.sessionId);
+    expect(afterCheckIn.data.venueId).toBe('v-luna-lounge');
+    expect(afterCheckIn.data.status).toBe('active');
+
+    const transitionsResponse = await locator.services.presence.getStateTransitions();
+    expect(transitionsResponse.status).toBe('SUCCESS');
+    if (transitionsResponse.status === 'FAIL') {
+      throw new Error('Expected transitions response after replacement check-in.');
+    }
+
+    const replacedTransition = transitionsResponse.data.find((transition) => transition.sessionId === 's-regular-1-active');
+
+    expect(replacedTransition).toMatchObject({
+      sessionId: 's-regular-1-active',
+      userId: 'u-regular-1',
+      venueId: 'v-halo-club',
+      fromStatus: 'active',
+      toStatus: 'closed',
+      reason: 'auto_replaced',
+    });
+
+    expect(new Date(replacedTransition?.transitionedAt ?? '').getTime()).toBeLessThanOrEqual(
+      new Date(checkInResponse.data.checkinTimestamp).getTime(),
+    );
+  });
+
   it('denies check-in with permission denied when location coordinates are unavailable', async () => {
     const locator = createMockBackendServiceLocator({
       activeUserId: 'u-regular-1',
