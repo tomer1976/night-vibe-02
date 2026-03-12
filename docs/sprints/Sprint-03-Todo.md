@@ -32,7 +32,7 @@
 - [x] Build venue list cards with distance, category, and activity indicators.
 - [x] Build session status cards and timer/elapsed indicators.
 - [x] Add clear messaging states for denied check-in reasons.
-- [ ] Add empty-state and retry-state components for venue/presence views.
+- [x] Add empty-state and retry-state components for venue/presence views.
 
 ## State-Management Tasks
 - [ ] Implement venue discovery state store (filters/sort/cached list).

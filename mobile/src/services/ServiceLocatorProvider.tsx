@@ -9,16 +9,21 @@ const ServiceLocatorContext = createContext<BackendServiceContracts>(mockLocator
 
 type ServiceLocatorProviderProps = PropsWithChildren<{
   isMockModeEnabled: boolean;
+  servicesOverride?: BackendServiceContracts;
 }>;
 
-export function ServiceLocatorProvider({ children, isMockModeEnabled }: ServiceLocatorProviderProps) {
+export function ServiceLocatorProvider({ children, isMockModeEnabled, servicesOverride }: ServiceLocatorProviderProps) {
   const services = useMemo<BackendServiceContracts>(() => {
+    if (servicesOverride) {
+      return servicesOverride;
+    }
+
     if (!isMockModeEnabled) {
       throw new Error('Real service locator wiring is not available in Phase 1. Enable phase1 mock mode.');
     }
 
     return mockLocator.services;
-  }, [isMockModeEnabled]);
+  }, [isMockModeEnabled, servicesOverride]);
 
   return <ServiceLocatorContext.Provider value={services}>{children}</ServiceLocatorContext.Provider>;
 }

@@ -2,18 +2,19 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fireEvent, render } from '@testing-library/react-native';
 
+import { BackendServiceContracts } from '../src/contracts';
 import { CheckInConfirmationScreen, NearbyVenuesScreen, UserEntryScreen, VenueDetailsScreen } from '../src/screens';
-import { ServiceLocatorProvider } from '../src/services';
+import { createMockBackendServiceLocator, ServiceLocatorProvider } from '../src/services';
 import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
 
 const Stack = createNativeStackNavigator();
 
-function NearbyVenuesTestNavigator() {
+function NearbyVenuesTestNavigator({ servicesOverride }: { servicesOverride?: BackendServiceContracts }) {
   return (
     <ThemeProvider>
       <AppStateProvider>
-        <ServiceLocatorProvider isMockModeEnabled>
+        <ServiceLocatorProvider isMockModeEnabled servicesOverride={servicesOverride}>
           <NavigationContainer>
             <Stack.Navigator initialRouteName="UserGroup" screenOptions={{ headerShown: false }}>
               <Stack.Screen component={UserEntryScreen} name="UserGroup" />
@@ -54,5 +55,79 @@ describe('nearby venues screen', () => {
     fireEvent.press(getByText('Start Check-In'));
     expect(await findByText('Venue Check-In Confirmation Screen')).toBeTruthy();
     expect(await findByText('Venue: Halo Club')).toBeTruthy();
+  });
+
+  it('renders nearby venues empty state when no active venues are returned', async () => {
+    const mockLocator = createMockBackendServiceLocator();
+
+    const servicesOverride: BackendServiceContracts = {
+      ...mockLocator.services,
+      venues: {
+        ...mockLocator.services.venues,
+        getNearbyVenues: async () => ({
+          status: 'SUCCESS',
+          data: [],
+          request_id: 'req-empty-nearby',
+        }),
+      },
+    };
+
+    const { findByText, getByText } = render(<NearbyVenuesTestNavigator servicesOverride={servicesOverride} />);
+
+    fireEvent.press(getByText('Nearby Venues Screen'));
+
+    expect(await findByText('No Nearby Venues')).toBeTruthy();
+    expect(await findByText('Try refreshing to rerun deterministic mock discovery.')).toBeTruthy();
+    expect(await findByText('Refresh')).toBeTruthy();
+  });
+
+  it('renders retry state and recovers to list after retry', async () => {
+    const mockLocator = createMockBackendServiceLocator();
+
+    const getNearbyVenues = jest
+      .fn()
+      .mockResolvedValueOnce({
+        status: 'FAIL',
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: 'Simulated venue discovery failure.',
+        },
+        request_id: 'req-nearby-fail',
+      })
+      .mockResolvedValueOnce({
+        status: 'SUCCESS',
+        data: [
+          {
+            venueId: 'v-halo-club',
+            name: 'Halo Club',
+            distanceKm: 1.06,
+            category: 'club',
+            status: 'active',
+            activitySnapshot: {
+              checkinCount: 2,
+              liveStatus: 'busy',
+            },
+          },
+        ],
+        request_id: 'req-nearby-recovered',
+      });
+
+    const servicesOverride: BackendServiceContracts = {
+      ...mockLocator.services,
+      venues: {
+        ...mockLocator.services.venues,
+        getNearbyVenues,
+      },
+    };
+
+    const { findByText, getByText } = render(<NearbyVenuesTestNavigator servicesOverride={servicesOverride} />);
+
+    fireEvent.press(getByText('Nearby Venues Screen'));
+
+    expect(await findByText('Venue Discovery Failed')).toBeTruthy();
+    expect(await findByText('Simulated venue discovery failure.')).toBeTruthy();
+    fireEvent.press(getByText('Retry'));
+    expect(await findByText('Nearby Venues Screen')).toBeTruthy();
+    expect(await findByText('Halo Club')).toBeTruthy();
   });
 });
