@@ -7,6 +7,7 @@ import { Badge, Button, Card, ErrorStateTemplate, LoadingStateTemplate, TopBar }
 import { VenueSummary } from '../contracts';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
+import { selectCheckInEligibilityDisplayState, usePresenceSessionState } from '../state';
 import { useTheme } from '../theme';
 
 type VenueDetailsRouteParams = {
@@ -44,6 +45,7 @@ export function VenueDetailsScreen() {
   const route = useRoute();
   const theme = useTheme();
   const services = useServiceLocator();
+  const { activeSession } = usePresenceSessionState();
 
   const typedParams = route.params as VenueDetailsRouteParams | undefined;
   const venueId = typedParams?.venueId;
@@ -93,22 +95,13 @@ export function VenueDetailsScreen() {
     void loadVenueDetails();
   }, [loadVenueDetails]);
 
-  const canAttemptCheckIn = venue?.status === 'active';
-
-  const checkInButtonLabel = useMemo(() => {
-    if (!venue) {
-      return 'Start Check-In';
-    }
-
-    if (venue.status !== 'active') {
-      return 'Check-In Unavailable';
-    }
-
-    return 'Start Check-In';
-  }, [venue]);
+  const checkInEligibilityDisplay = useMemo(
+    () => selectCheckInEligibilityDisplayState(venue, activeSession),
+    [activeSession, venue]
+  );
 
   const handleCheckInEntry = useCallback(() => {
-    if (!venue || !canAttemptCheckIn) {
+    if (!venue || !checkInEligibilityDisplay.canAttemptCheckIn) {
       return;
     }
 
@@ -118,7 +111,7 @@ export function VenueDetailsScreen() {
         venueName: venue.name,
       })
     );
-  }, [canAttemptCheckIn, navigation, venue]);
+  }, [checkInEligibilityDisplay.canAttemptCheckIn, navigation, venue]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
@@ -144,15 +137,15 @@ export function VenueDetailsScreen() {
                 <Badge label={`Status: ${venue.status}`} tone={toStatusTone(venue.status)} />
               </View>
 
-              {!canAttemptCheckIn ? (
+              {checkInEligibilityDisplay.helperMessage ? (
                 <Text style={{ color: theme.colors.warning, fontSize: theme.typography.bodySmall }}>
-                  Check-in is disabled because this venue is not currently active.
+                  {checkInEligibilityDisplay.helperMessage}
                 </Text>
               ) : null}
 
               <Button
-                disabled={!canAttemptCheckIn}
-                label={checkInButtonLabel}
+                disabled={!checkInEligibilityDisplay.canAttemptCheckIn}
+                label={checkInEligibilityDisplay.buttonLabel}
                 onPress={() => void handleCheckInEntry()}
               />
 

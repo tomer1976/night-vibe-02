@@ -38,7 +38,7 @@
 - [x] Implement venue discovery state store (filters/sort/cached list).
 - [x] Implement presence/session store for active session lifecycle.
 - [x] Implement deterministic mock clock integration for timeout simulation.
-- [ ] Implement derived selectors for check-in eligibility display states.
+- [x] Implement derived selectors for check-in eligibility display states.
 
 ## Testing Tasks
 - [ ] Add happy-path tests for venue browse -> check-in -> active session -> checkout.

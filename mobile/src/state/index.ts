@@ -17,4 +17,9 @@ export {
   type RoleState,
   type VenueDiscoveryState,
 } from './AppStateProvider';
+export {
+  selectCheckInEligibilityDisplayState,
+  type CheckInEligibilityDisplayState,
+  type CheckInEligibilityDisplayStateCode,
+} from './checkInEligibilitySelectors';
 export { useRouteAccessSelectors, useSimulatedRoleContextSelector, type RouteResolution } from './routeSelectors';
