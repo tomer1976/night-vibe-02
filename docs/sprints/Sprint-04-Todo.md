@@ -5,7 +5,7 @@
 - [x] Implement Discovery Profile Preview with conditional action controls (`like|unlike` for potential, `unmatch` for match).
 - [x] Implement Match Confirmation screen/overlay behavior.
 - [x] Implement empty and error discovery states with retry handling.
-- [ ] Add interaction feedback states (loading/success/duplicate/failure).
+- [x] Add interaction feedback states (loading/success/duplicate/failure).
 
 ## Backend Tasks (if applicable)
 - [x] Define `DiscoveryService`, `InteractionService`, and `MatchService` interfaces for Phase 2 parity.

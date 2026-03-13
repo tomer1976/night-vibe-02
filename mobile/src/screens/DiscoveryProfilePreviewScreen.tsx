@@ -30,6 +30,11 @@ type DiscoveryProfilePreviewRouteParams = {
   matchId?: string;
 };
 
+type InteractionFeedbackState = {
+  kind: 'loading' | 'success' | 'duplicate' | 'failure';
+  message: string;
+};
+
 const formatGenderLabel = (gender: DiscoveryCandidate['gender']) => gender.replace('_', ' ');
 
 export function DiscoveryProfilePreviewScreen() {
@@ -40,7 +45,7 @@ export function DiscoveryProfilePreviewScreen() {
 
   const params = route.params as DiscoveryProfilePreviewRouteParams;
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState<string | undefined>();
+  const [feedback, setFeedback] = useState<InteractionFeedbackState | undefined>();
   const [isPotentialLikedOverride, setIsPotentialLikedOverride] = useState<boolean | null>(null);
 
   const venueSnapshot = useMemo(
@@ -58,7 +63,7 @@ export function DiscoveryProfilePreviewScreen() {
   }, [navigation, params.venueId]);
 
   const submitPotentialLike = useCallback(async () => {
-    setFeedback(undefined);
+    setFeedback({ kind: 'loading', message: 'Processing interaction…' });
     setIsSubmitting(true);
 
     try {
@@ -69,13 +74,17 @@ export function DiscoveryProfilePreviewScreen() {
       });
 
       if (response.status === 'FAIL') {
-        setFeedback(response.error.message);
+        const isDuplicate = response.error.code === 'DUPLICATE_INTERACTION';
+        setFeedback({
+          kind: isDuplicate ? 'duplicate' : 'failure',
+          message: response.error.message,
+        });
         return;
       }
 
       markPotentialLiked(params.venueId, params.userId);
       setIsPotentialLikedOverride(true);
-      setFeedback(`Liked ${params.displayName}.`);
+      setFeedback({ kind: 'success', message: `Liked ${params.displayName}.` });
 
       if (response.data.matchCreated) {
         navigation.dispatch(
@@ -90,20 +99,20 @@ export function DiscoveryProfilePreviewScreen() {
         );
       }
     } catch {
-      setFeedback('Unable to submit like right now. Please retry.');
+      setFeedback({ kind: 'failure', message: 'Unable to submit like right now. Please retry.' });
     } finally {
       setIsSubmitting(false);
     }
   }, [navigation, params.age, params.displayName, params.gender, params.profilePhotoUrl, params.userId, params.venueId, services.interactions]);
 
   const submitPotentialUnlike = useCallback(async () => {
-    setFeedback(undefined);
+    setFeedback({ kind: 'loading', message: 'Processing interaction…' });
     setIsSubmitting(true);
 
     try {
       markPotentialUnliked(params.venueId, params.userId);
       setIsPotentialLikedOverride(false);
-      setFeedback(`Removed like for ${params.displayName}.`);
+      setFeedback({ kind: 'success', message: `Removed like for ${params.displayName}.` });
     } finally {
       setIsSubmitting(false);
     }
@@ -111,11 +120,11 @@ export function DiscoveryProfilePreviewScreen() {
 
   const submitUnmatch = useCallback(async () => {
     if (!params.matchId) {
-      setFeedback('Match reference is missing for unmatch action.');
+      setFeedback({ kind: 'failure', message: 'Match reference is missing for unmatch action.' });
       return;
     }
 
-    setFeedback(undefined);
+    setFeedback({ kind: 'loading', message: 'Processing interaction…' });
     setIsSubmitting(true);
 
     try {
@@ -129,12 +138,19 @@ export function DiscoveryProfilePreviewScreen() {
         profilePhotoUrl: params.profilePhotoUrl,
         venueId: params.venueId,
       });
-      setFeedback(`Unmatched ${params.displayName}.`);
+      setFeedback({ kind: 'success', message: `Unmatched ${params.displayName}.` });
       goBackToVenue();
     } finally {
       setIsSubmitting(false);
     }
   }, [goBackToVenue, params.age, params.displayName, params.gender, params.matchId, params.profilePhotoUrl, params.userId, params.venueId]);
+
+  const feedbackColorByKind: Record<InteractionFeedbackState['kind'], string> = {
+    loading: theme.colors.info,
+    success: theme.colors.success,
+    duplicate: theme.colors.warning,
+    failure: theme.colors.danger,
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
@@ -153,7 +169,14 @@ export function DiscoveryProfilePreviewScreen() {
               </Text>
 
               {feedback ? (
-                <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>{feedback}</Text>
+                <Text
+                  style={{
+                    color: feedbackColorByKind[feedback.kind],
+                    fontSize: theme.typography.bodySmall,
+                  }}
+                >
+                  {feedback.message}
+                </Text>
               ) : null}
 
               {params.source === 'potential' ? (
