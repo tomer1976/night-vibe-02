@@ -31,3 +31,7 @@ Capture Sprint-03 carry-over work with explicit owner and Sprint-04 dependency m
 ## Notes
 - No Severity-1/Severity-2 blocker defects are currently open from Sprint-03 automated validation.
 - Carry-over items above are closeout and readiness gates that should be tracked to avoid dependency risk during Sprint-04 execution.
+
+## Resolution Updates
+- 2026-03-13: `S3-CO-004` is closed; stakeholder Sprint-03 demo walkthrough sign-off is recorded in `docs/sprints/Sprint-03-Demo-Signoff.md`.
+- 2026-03-13: `S3-CO-005` is closed; Sprint-03 exit checklist is now fully complete in `docs/sprints/Sprint-03-Todo.md`.
