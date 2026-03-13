@@ -15,6 +15,9 @@ describe('adapter placeholder config', () => {
     delete process.env.EXPO_PUBLIC_PROFILE_ADAPTER;
     delete process.env.EXPO_PUBLIC_VENUES_ADAPTER;
     delete process.env.EXPO_PUBLIC_PRESENCE_ADAPTER;
+    delete process.env.EXPO_PUBLIC_DISCOVERY_ADAPTER;
+    delete process.env.EXPO_PUBLIC_INTERACTIONS_ADAPTER;
+    delete process.env.EXPO_PUBLIC_MATCH_ADAPTER;
   });
 
   afterAll(() => {
@@ -31,6 +34,9 @@ describe('adapter placeholder config', () => {
       profileAdapterMode: 'mock',
       venuesAdapterMode: 'mock',
       presenceAdapterMode: 'mock',
+      discoveryAdapterMode: 'mock',
+      interactionsAdapterMode: 'mock',
+      matchAdapterMode: 'mock',
     });
   });
 
@@ -39,24 +45,33 @@ describe('adapter placeholder config', () => {
     process.env.EXPO_PUBLIC_PROFILE_ADAPTER = 'firebase';
     process.env.EXPO_PUBLIC_VENUES_ADAPTER = 'firebase';
     process.env.EXPO_PUBLIC_PRESENCE_ADAPTER = 'firebase';
+    process.env.EXPO_PUBLIC_DISCOVERY_ADAPTER = 'firebase';
+    process.env.EXPO_PUBLIC_INTERACTIONS_ADAPTER = 'firebase';
+    process.env.EXPO_PUBLIC_MATCH_ADAPTER = 'firebase';
 
     expect(readAdapterPlaceholderConfig()).toEqual({
       authAdapterMode: 'firebase',
       profileAdapterMode: 'firebase',
       venuesAdapterMode: 'firebase',
       presenceAdapterMode: 'firebase',
+      discoveryAdapterMode: 'firebase',
+      interactionsAdapterMode: 'firebase',
+      matchAdapterMode: 'firebase',
     });
   });
 
-  it('blocks firebase auth/profile adapter placeholders in phase1 mock mode', () => {
+  it('blocks firebase adapter placeholders in phase1 mock mode', () => {
     expect(() =>
       assertPhase1AdapterSafety('phase1-mock', {
         authAdapterMode: 'firebase',
         profileAdapterMode: 'mock',
         venuesAdapterMode: 'mock',
         presenceAdapterMode: 'mock',
+        discoveryAdapterMode: 'mock',
+        interactionsAdapterMode: 'mock',
+        matchAdapterMode: 'mock',
       })
-    ).toThrow('Phase 1 mock mode requires mock auth/profile/venues/presence adapters.');
+    ).toThrow('Phase 1 mock mode requires mock auth/profile/venues/presence/discovery/interactions/match adapters.');
 
     expect(() =>
       assertPhase1AdapterSafety('phase1-mock', {
@@ -64,8 +79,23 @@ describe('adapter placeholder config', () => {
         profileAdapterMode: 'mock',
         venuesAdapterMode: 'firebase',
         presenceAdapterMode: 'mock',
+        discoveryAdapterMode: 'mock',
+        interactionsAdapterMode: 'mock',
+        matchAdapterMode: 'mock',
       })
-    ).toThrow('Phase 1 mock mode requires mock auth/profile/venues/presence adapters.');
+    ).toThrow('Phase 1 mock mode requires mock auth/profile/venues/presence/discovery/interactions/match adapters.');
+
+    expect(() =>
+      assertPhase1AdapterSafety('phase1-mock', {
+        authAdapterMode: 'mock',
+        profileAdapterMode: 'mock',
+        venuesAdapterMode: 'mock',
+        presenceAdapterMode: 'mock',
+        discoveryAdapterMode: 'firebase',
+        interactionsAdapterMode: 'mock',
+        matchAdapterMode: 'mock',
+      })
+    ).toThrow('Phase 1 mock mode requires mock auth/profile/venues/presence/discovery/interactions/match adapters.');
   });
 
   it('allows firebase placeholders outside phase1 mock mode', () => {
@@ -75,6 +105,9 @@ describe('adapter placeholder config', () => {
         profileAdapterMode: 'firebase',
         venuesAdapterMode: 'firebase',
         presenceAdapterMode: 'firebase',
+        discoveryAdapterMode: 'firebase',
+        interactionsAdapterMode: 'firebase',
+        matchAdapterMode: 'firebase',
       })
     ).not.toThrow();
   });

@@ -12,7 +12,7 @@
 - [x] Define idempotency and duplicate-detection behavior contract for interactions.
 
 ## Firebase Tasks (if applicable)
-- [ ] Keep Firebase adapters disabled in Phase 1 mode.
+- [x] Keep Firebase adapters disabled in Phase 1 mode.
 - [ ] Add placeholder client contract mappers for future `/api/v1` discovery/interaction endpoints.
 
 ## Mock-Data Tasks
