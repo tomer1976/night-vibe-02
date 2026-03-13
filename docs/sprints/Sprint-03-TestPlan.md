@@ -46,18 +46,18 @@
 - No external API/Firebase requests are made.
 
 ## Regression Checklist
-- [ ] Sprint 01 navigation and design-system components remain stable.
-- [ ] Sprint 02 auth/profile gating remains intact for venue routes.
-- [ ] Global error/retry components remain consistent.
-- [ ] Theme and typography consistency maintained across new screens.
+- [x] Sprint 01 navigation and design-system components remain stable.
+- [x] Sprint 02 auth/profile gating remains intact for venue routes.
+- [x] Global error/retry components remain consistent.
+- [x] Theme and typography consistency maintained across new screens.
 
 ## Acceptance Checklist
-- [ ] All Sprint 03 in-scope screens implemented and reachable.
-- [ ] Check-in scenarios pass for success and denial paths.
-- [ ] One-active-session enforcement validated across replacement cases.
-- [ ] Checkout and timeout transitions behave correctly.
-- [ ] Lint/typecheck/tests pass for changed modules.
-- [ ] No Severity-1/Severity-2 defects in Sprint 03 scope.
+- [x] All Sprint 03 in-scope screens implemented and reachable.
+- [x] Check-in scenarios pass for success and denial paths.
+- [x] One-active-session enforcement validated across replacement cases.
+- [x] Checkout and timeout transitions behave correctly.
+- [x] Lint/typecheck/tests pass for changed modules.
+- [x] No Severity-1/Severity-2 defects in Sprint 03 scope.
 
 ## Test Data and Environment Notes
 - Environment: local mock mode only.

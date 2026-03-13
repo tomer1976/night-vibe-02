@@ -65,6 +65,6 @@
 
 ## Sprint Exit Checklist
 - [x] Sprint-03 PRD commitments delivered or formally deferred.
-- [ ] Sprint-03 TestPlan executed and signed off.
+- [x] Sprint-03 TestPlan executed and signed off.
 - [ ] No blocker defects in venue discovery and presence lifecycle paths.
 - [ ] Stakeholder sprint demo completed successfully.
