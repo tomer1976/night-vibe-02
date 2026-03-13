@@ -5,6 +5,7 @@ import {
   DiscoveryCandidate,
   MatchRecord,
   NotificationRecord,
+  InteractionResult,
   PresenceCheckInResult,
   PresenceCheckOutResult,
   PresenceStateTransition,
@@ -53,6 +54,26 @@ const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const CHECKIN_RADIUS_METERS = 75;
 const STALE_LOCATION_THRESHOLD_MS = 5 * 60 * 1000;
 const SESSION_TIMEOUT_MS = 4 * 60 * 60 * 1000;
+
+type MockInteractionRecord = {
+  interactionId: string;
+  actorUserId: string;
+  targetUserId: string;
+  venueId: string;
+  actorSessionId: string;
+  action: 'LIKE' | 'PASS';
+  idempotencyKey?: string;
+};
+
+const INTERACTION_IDEMPOTENCY_CONTRACT = {
+  duplicateScope: 'actor_target_venue_session',
+  duplicateErrorCode: 'DUPLICATE_INTERACTION',
+  idempotentReplayBehavior: 'return_original_success',
+  idempotencyKey: {
+    required: false,
+    maxLength: 128,
+  },
+} as const;
 
 function calculateMockDistanceMeters(
   left: { latitude: number; longitude: number },
@@ -228,6 +249,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
   const accessTokenTtlMs = options?.sessionSimulation?.accessTokenTtlMs ?? DEFAULT_ACCESS_TOKEN_TTL_MS;
   const refreshTokenTtlMs = options?.sessionSimulation?.refreshTokenTtlMs ?? DEFAULT_REFRESH_TOKEN_TTL_MS;
   const localSessions: MockFixtureSession[] = sprint01Fixtures.sessions.map((session) => ({ ...session }));
+  const interactionRecords: MockInteractionRecord[] = [];
 
   if (!Number.isInteger(accessTokenTtlMs) || accessTokenTtlMs <= 0) {
     throw new Error('Invalid accessTokenTtlMs. Use a positive integer milliseconds value.');
@@ -337,6 +359,123 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
   const scheduleDeletionTimeline = (requestedAtIso: string) => {
     deletionRequestedAtMs = asMillis(requestedAtIso);
     deletionFinalizesAtMs = deletionRequestedAtMs + DELETION_RECOVERY_WINDOW_DAYS * DAY_IN_MS;
+  };
+
+  const buildInteractionResult = (input: {
+    action: 'LIKE' | 'PASS';
+    interactionId: string;
+    targetUserId: string;
+    venueId: string;
+    idempotencyKey?: string;
+    decision: 'created' | 'idempotent_replay';
+  }): InteractionResult => ({
+    status: 'SUCCESS',
+    interaction: input.action,
+    interactionId: input.interactionId,
+    targetUserId: input.targetUserId,
+    venueId: input.venueId,
+    idempotencyKey: input.idempotencyKey,
+    decision: input.decision,
+    duplicateScope: INTERACTION_IDEMPOTENCY_CONTRACT.duplicateScope,
+    matchCreated: false,
+  });
+
+  const submitInteraction = (action: 'LIKE' | 'PASS', request: { targetUserId: string; venueId: string; idempotencyKey?: string }) => {
+    applyDeterministicSessionTimeouts();
+
+    const actorSession = localSessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
+
+    if (!actorSession) {
+      return responseFactory.build({
+        key: `interactions.${action.toLowerCase()}User`,
+        data: buildInteractionResult({
+          action,
+          interactionId: '',
+          targetUserId: request.targetUserId,
+          venueId: request.venueId,
+          decision: 'created',
+        }),
+        scenario: 'NOT_CHECKED_IN',
+        errorMessage: 'Active venue session is required before interactions are allowed.',
+      });
+    }
+
+    if (actorSession.venueId !== request.venueId) {
+      return responseFactory.build({
+        key: `interactions.${action.toLowerCase()}User`,
+        data: buildInteractionResult({
+          action,
+          interactionId: '',
+          targetUserId: request.targetUserId,
+          venueId: request.venueId,
+          decision: 'created',
+        }),
+        scenario: 'ACCESS_DENIED',
+        errorMessage: 'Interaction venue must match active session venue context.',
+      });
+    }
+
+    const duplicate = interactionRecords.find(
+      (record) =>
+        record.actorUserId === currentUser.uid &&
+        record.targetUserId === request.targetUserId &&
+        record.venueId === request.venueId &&
+        record.actorSessionId === actorSession.sessionId
+    );
+
+    if (duplicate) {
+      if (request.idempotencyKey && duplicate.idempotencyKey === request.idempotencyKey) {
+        return responseFactory.build({
+          key: `interactions.${action.toLowerCase()}User`,
+          data: buildInteractionResult({
+            action: duplicate.action,
+            interactionId: duplicate.interactionId,
+            targetUserId: duplicate.targetUserId,
+            venueId: duplicate.venueId,
+            idempotencyKey: duplicate.idempotencyKey,
+            decision: 'idempotent_replay',
+          }),
+        });
+      }
+
+      return responseFactory.build({
+        key: `interactions.${action.toLowerCase()}User`,
+        data: buildInteractionResult({
+          action: duplicate.action,
+          interactionId: duplicate.interactionId,
+          targetUserId: duplicate.targetUserId,
+          venueId: duplicate.venueId,
+          idempotencyKey: duplicate.idempotencyKey,
+          decision: 'idempotent_replay',
+        }),
+        scenario: 'DUPLICATE_INTERACTION',
+        errorMessage: 'Duplicate interaction detected for actor-target-venue-session scope.',
+      });
+    }
+
+    const createdRecord: MockInteractionRecord = {
+      interactionId: `interaction-${currentUser.uid}-${request.targetUserId}-${actorSession.sessionId}`,
+      actorUserId: currentUser.uid,
+      targetUserId: request.targetUserId,
+      venueId: request.venueId,
+      actorSessionId: actorSession.sessionId,
+      action,
+      idempotencyKey: request.idempotencyKey,
+    };
+
+    interactionRecords.push(createdRecord);
+
+    return responseFactory.build({
+      key: `interactions.${action.toLowerCase()}User`,
+      data: buildInteractionResult({
+        action: createdRecord.action,
+        interactionId: createdRecord.interactionId,
+        targetUserId: createdRecord.targetUserId,
+        venueId: createdRecord.venueId,
+        idempotencyKey: createdRecord.idempotencyKey,
+        decision: 'created',
+      }),
+    });
   };
 
   const applyDeletionTimeline = () => {
@@ -900,28 +1039,71 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       },
     },
     interactions: {
-      likeUser: async (request) =>
-        responseFactory.build({
-          key: 'interactions.likeUser',
-          data: {
-            status: 'SUCCESS',
-            interaction: 'LIKE',
-            targetUserId: request.targetUserId,
-            matchCreated: false,
-          },
-        }),
-      passUser: async (request) =>
-        responseFactory.build({
-          key: 'interactions.passUser',
-          data: {
-            status: 'SUCCESS',
-            interaction: 'PASS',
-            targetUserId: request.targetUserId,
-            matchCreated: false,
-          },
-        }),
-      like: async (targetUserId) => responseFactory.build({ key: 'interactions.like', data: { action: 'like', targetUserId } }),
-      pass: async (targetUserId) => responseFactory.build({ key: 'interactions.pass', data: { action: 'pass', targetUserId } }),
+      getIdempotencyContract: async () => responseFactory.build({ key: 'interactions.getIdempotencyContract', data: INTERACTION_IDEMPOTENCY_CONTRACT }),
+      likeUser: async (request) => submitInteraction('LIKE', request),
+      passUser: async (request) => submitInteraction('PASS', request),
+      like: async (targetUserId) => {
+        applyDeterministicSessionTimeouts();
+
+        const actorSession = localSessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
+
+        if (!actorSession) {
+          return responseFactory.build({
+            key: 'interactions.like',
+            data: { action: 'like', targetUserId },
+            scenario: 'NOT_CHECKED_IN',
+            errorMessage: 'Active venue session is required before interactions are allowed.',
+          });
+        }
+
+        const result = submitInteraction('LIKE', {
+          targetUserId,
+          venueId: actorSession.venueId,
+        });
+
+        if (result.status === 'FAIL') {
+          return responseFactory.build({
+            key: 'interactions.like',
+            data: { action: 'like', targetUserId },
+            scenario: result.error.code,
+            errorMessage: result.error.message,
+            details: result.error.details,
+          });
+        }
+
+        return responseFactory.build({ key: 'interactions.like', data: { action: 'like', targetUserId } });
+      },
+      pass: async (targetUserId) => {
+        applyDeterministicSessionTimeouts();
+
+        const actorSession = localSessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
+
+        if (!actorSession) {
+          return responseFactory.build({
+            key: 'interactions.pass',
+            data: { action: 'pass', targetUserId },
+            scenario: 'NOT_CHECKED_IN',
+            errorMessage: 'Active venue session is required before interactions are allowed.',
+          });
+        }
+
+        const result = submitInteraction('PASS', {
+          targetUserId,
+          venueId: actorSession.venueId,
+        });
+
+        if (result.status === 'FAIL') {
+          return responseFactory.build({
+            key: 'interactions.pass',
+            data: { action: 'pass', targetUserId },
+            scenario: result.error.code,
+            errorMessage: result.error.message,
+            details: result.error.details,
+          });
+        }
+
+        return responseFactory.build({ key: 'interactions.pass', data: { action: 'pass', targetUserId } });
+      },
     },
     match: {
       listMatches: async (request) => {

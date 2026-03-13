@@ -9,7 +9,7 @@
 
 ## Backend Tasks (if applicable)
 - [x] Define `DiscoveryService`, `InteractionService`, and `MatchService` interfaces for Phase 2 parity.
-- [ ] Define idempotency and duplicate-detection behavior contract for interactions.
+- [x] Define idempotency and duplicate-detection behavior contract for interactions.
 
 ## Firebase Tasks (if applicable)
 - [ ] Keep Firebase adapters disabled in Phase 1 mode.

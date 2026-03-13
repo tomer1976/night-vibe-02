@@ -105,13 +105,30 @@ describe('backend service contracts', () => {
         getCandidates: async () => ({ status: 'SUCCESS', request_id: 'req-12', data: { items: [] } }),
       },
       interactions: {
+        getIdempotencyContract: async () => ({
+          status: 'SUCCESS',
+          request_id: 'req-12-contract',
+          data: {
+            duplicateScope: 'actor_target_venue_session',
+            duplicateErrorCode: 'DUPLICATE_INTERACTION',
+            idempotentReplayBehavior: 'return_original_success',
+            idempotencyKey: {
+              required: false,
+              maxLength: 128,
+            },
+          },
+        }),
         likeUser: async () => ({
           status: 'SUCCESS',
           request_id: 'req-12a',
           data: {
             status: 'SUCCESS',
             interaction: 'LIKE',
+            interactionId: 'int-like-1',
             targetUserId: 'u2',
+            venueId: 'v1',
+            decision: 'created',
+            duplicateScope: 'actor_target_venue_session',
             matchCreated: false,
           },
         }),
@@ -121,7 +138,11 @@ describe('backend service contracts', () => {
           data: {
             status: 'SUCCESS',
             interaction: 'PASS',
+            interactionId: 'int-pass-1',
             targetUserId: 'u2',
+            venueId: 'v1',
+            decision: 'created',
+            duplicateScope: 'actor_target_venue_session',
             matchCreated: false,
           },
         }),

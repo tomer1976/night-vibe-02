@@ -182,15 +182,35 @@ export type InteractionRequest = {
   idempotencyKey?: string;
 };
 
+export type InteractionDuplicateScope = 'actor_target_venue_session';
+
+export type InteractionDecision = 'created' | 'idempotent_replay';
+
+export type InteractionIdempotencyContract = {
+  duplicateScope: InteractionDuplicateScope;
+  duplicateErrorCode: 'DUPLICATE_INTERACTION';
+  idempotentReplayBehavior: 'return_original_success';
+  idempotencyKey: {
+    required: false;
+    maxLength: 128;
+  };
+};
+
 export type InteractionResult = {
   status: 'SUCCESS';
   interaction: 'LIKE' | 'PASS';
+  interactionId: string;
   targetUserId: string;
+  venueId: string;
+  idempotencyKey?: string;
+  decision: InteractionDecision;
+  duplicateScope: InteractionDuplicateScope;
   matchCreated: boolean;
   matchId?: string;
 };
 
 export interface InteractionService {
+  getIdempotencyContract(): Promise<ApiResponse<InteractionIdempotencyContract>>;
   likeUser(request: InteractionRequest): Promise<ApiResponse<InteractionResult>>;
   passUser(request: InteractionRequest): Promise<ApiResponse<InteractionResult>>;
 }
