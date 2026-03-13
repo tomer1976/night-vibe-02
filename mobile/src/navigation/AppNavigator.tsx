@@ -29,6 +29,7 @@ import { SessionRecoveryScreen } from '../screens/SessionRecoveryScreen';
 import { SplashScreen } from '../screens/SplashScreen';
 import { UnknownRouteFallbackScreen } from '../screens/UnknownRouteFallbackScreen';
 import { UserEntryScreen } from '../screens/UserEntryScreen';
+import { UserDiscoveryFeedScreen } from '../screens/UserDiscoveryFeedScreen';
 import { UserProfileScreen } from '../screens/UserProfileScreen';
 import { VenueDetailsScreen } from '../screens/VenueDetailsScreen';
 import { WelcomeScreen } from '../screens/WelcomeScreen';
@@ -149,6 +150,7 @@ export function AppNavigator() {
         <Stack.Screen name={ROUTE_NAMES.OnboardingTerms} component={OnboardingTermsScreen} />
         <Stack.Screen name={ROUTE_NAMES.ProfileCompletionRequired} component={ProfileCompletionRequiredScreen} />
         <Stack.Screen name={ROUTE_NAMES.NearbyVenues}>{() => renderProtectedRoute('NearbyVenues', NearbyVenuesScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.UserDiscoveryFeed}>{() => renderProtectedRoute('UserDiscoveryFeed', UserDiscoveryFeedScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.VenueDetails}>{() => renderProtectedRoute('VenueDetails', VenueDetailsScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.CheckInConfirmation}>{() => renderProtectedRoute('CheckInConfirmation', CheckInConfirmationScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.CheckoutConfirmation}>{() => renderProtectedRoute('CheckoutConfirmation', CheckoutConfirmationScreen)}</Stack.Screen>

@@ -18,6 +18,7 @@ describe('deep link routing', () => {
     expect(resolveRouteFromDeepLinkPath('/onboarding/name')).toBe(ROUTE_NAMES.OnboardingName);
     expect(resolveRouteFromDeepLinkPath('profile/photos')).toBe(ROUTE_NAMES.ProfilePhotosManagement);
     expect(resolveRouteFromDeepLinkPath('/settings/account?ref=qa')).toBe(ROUTE_NAMES.AccountSettings);
+    expect(resolveRouteFromDeepLinkPath('/discovery/feed')).toBe(ROUTE_NAMES.UserDiscoveryFeed);
     expect(resolveRouteFromDeepLinkPath('/venues/details')).toBe(ROUTE_NAMES.VenueDetails);
     expect(resolveRouteFromDeepLinkPath('/venues/check-in-confirmation')).toBe(ROUTE_NAMES.CheckInConfirmation);
     expect(resolveRouteFromDeepLinkPath('/venues/checkout-confirmation')).toBe(ROUTE_NAMES.CheckoutConfirmation);
@@ -74,6 +75,7 @@ describe('deep link routing', () => {
   it('applies onboarding gate for all protected post-onboarding deep links', () => {
     const postOnboardingPaths = [
       '/user',
+      '/discovery/feed',
       '/venues/details',
       '/venues/check-in-confirmation',
       '/venues/checkout-confirmation',

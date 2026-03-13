@@ -28,6 +28,7 @@ const DEEP_LINK_PATH_TO_ROUTE: Record<string, AppRouteName> = {
   'onboarding/terms': ROUTE_NAMES.OnboardingTerms,
   'profile-completion-required': ROUTE_NAMES.ProfileCompletionRequired,
   user: ROUTE_NAMES.UserGroup,
+  'discovery/feed': ROUTE_NAMES.UserDiscoveryFeed,
   'venues/details': ROUTE_NAMES.VenueDetails,
   'venues/check-in-confirmation': ROUTE_NAMES.CheckInConfirmation,
   'venues/checkout-confirmation': ROUTE_NAMES.CheckoutConfirmation,
@@ -54,6 +55,7 @@ function normalizeDeepLinkPath(path: string): string {
 function isPostOnboardingRoute(routeName: AppRouteName) {
   return (
     routeName === ROUTE_NAMES.UserGroup ||
+    routeName === ROUTE_NAMES.UserDiscoveryFeed ||
     routeName === ROUTE_NAMES.VenueDetails ||
     routeName === ROUTE_NAMES.CheckInConfirmation ||
     routeName === ROUTE_NAMES.CheckoutConfirmation ||

@@ -1,7 +1,7 @@
 # Sprint-04 Todo - Mock Discovery, Interactions, and Match Lifecycle
 
 ## Frontend Tasks
-- [ ] Implement User Discovery Feed UI with deterministic candidate progression.
+- [x] Implement User Discovery Feed UI with deterministic candidate progression.
 - [ ] Implement Discovery Profile Preview with action controls (like/pass).
 - [ ] Implement Match Confirmation screen/overlay behavior.
 - [ ] Implement empty and error discovery states with retry handling.

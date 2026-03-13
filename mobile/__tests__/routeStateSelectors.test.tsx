@@ -21,6 +21,7 @@ function RouteSelectorProbe() {
   const ownerResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.OwnerGroup);
   const userResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.UserGroup);
   const nearbyVenuesResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.NearbyVenues);
+  const userDiscoveryFeedResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.UserDiscoveryFeed);
   const venueDetailsResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.VenueDetails);
   const checkInConfirmationResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.CheckInConfirmation);
   const checkoutConfirmationResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.CheckoutConfirmation);
@@ -35,6 +36,8 @@ function RouteSelectorProbe() {
       <Text>{`userResolved:${userResolution.resolvedRoute}`}</Text>
       <Text>{`nearbyVenuesAllowed:${nearbyVenuesResolution.isAllowed}`}</Text>
       <Text>{`nearbyVenuesResolved:${nearbyVenuesResolution.resolvedRoute}`}</Text>
+      <Text>{`userDiscoveryFeedAllowed:${userDiscoveryFeedResolution.isAllowed}`}</Text>
+      <Text>{`userDiscoveryFeedResolved:${userDiscoveryFeedResolution.resolvedRoute}`}</Text>
       <Text>{`venueDetailsAllowed:${venueDetailsResolution.isAllowed}`}</Text>
       <Text>{`venueDetailsResolved:${venueDetailsResolution.resolvedRoute}`}</Text>
       <Text>{`checkInConfirmationAllowed:${checkInConfirmationResolution.isAllowed}`}</Text>
@@ -152,6 +155,8 @@ describe('route state selectors', () => {
     expect(getByText(`userResolved:${ROUTE_NAMES.UserGroup}`)).toBeTruthy();
     expect(getByText('nearbyVenuesAllowed:true')).toBeTruthy();
     expect(getByText(`nearbyVenuesResolved:${ROUTE_NAMES.NearbyVenues}`)).toBeTruthy();
+    expect(getByText('userDiscoveryFeedAllowed:true')).toBeTruthy();
+    expect(getByText(`userDiscoveryFeedResolved:${ROUTE_NAMES.UserDiscoveryFeed}`)).toBeTruthy();
     expect(getByText('venueDetailsAllowed:true')).toBeTruthy();
     expect(getByText(`venueDetailsResolved:${ROUTE_NAMES.VenueDetails}`)).toBeTruthy();
     expect(getByText('checkInConfirmationAllowed:true')).toBeTruthy();
@@ -169,6 +174,8 @@ describe('route state selectors', () => {
     expect(getByText(`userResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
     expect(getByText('nearbyVenuesAllowed:false')).toBeTruthy();
     expect(getByText(`nearbyVenuesResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
+    expect(getByText('userDiscoveryFeedAllowed:false')).toBeTruthy();
+    expect(getByText(`userDiscoveryFeedResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
     expect(getByText('venueDetailsAllowed:false')).toBeTruthy();
     expect(getByText(`venueDetailsResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
     expect(getByText('checkInConfirmationAllowed:false')).toBeTruthy();
@@ -186,6 +193,8 @@ describe('route state selectors', () => {
     expect(getByText(`userResolved:${ROUTE_NAMES.UserGroup}`)).toBeTruthy();
     expect(getByText('nearbyVenuesAllowed:true')).toBeTruthy();
     expect(getByText(`nearbyVenuesResolved:${ROUTE_NAMES.NearbyVenues}`)).toBeTruthy();
+    expect(getByText('userDiscoveryFeedAllowed:true')).toBeTruthy();
+    expect(getByText(`userDiscoveryFeedResolved:${ROUTE_NAMES.UserDiscoveryFeed}`)).toBeTruthy();
     expect(getByText('venueDetailsAllowed:true')).toBeTruthy();
     expect(getByText(`venueDetailsResolved:${ROUTE_NAMES.VenueDetails}`)).toBeTruthy();
     expect(getByText('checkInConfirmationAllowed:true')).toBeTruthy();
@@ -207,6 +216,8 @@ describe('route state selectors', () => {
 
     expect(getByText('nearbyVenuesAllowed:true')).toBeTruthy();
     expect(getByText(`nearbyVenuesResolved:${ROUTE_NAMES.NearbyVenues}`)).toBeTruthy();
+    expect(getByText('userDiscoveryFeedAllowed:true')).toBeTruthy();
+    expect(getByText(`userDiscoveryFeedResolved:${ROUTE_NAMES.UserDiscoveryFeed}`)).toBeTruthy();
     expect(getByText('venueDetailsAllowed:true')).toBeTruthy();
     expect(getByText(`venueDetailsResolved:${ROUTE_NAMES.VenueDetails}`)).toBeTruthy();
     expect(getByText('checkInConfirmationAllowed:true')).toBeTruthy();
@@ -218,6 +229,8 @@ describe('route state selectors', () => {
 
     expect(getByText('nearbyVenuesAllowed:false')).toBeTruthy();
     expect(getByText(`nearbyVenuesResolved:${ROUTE_NAMES.SessionRecovery}`)).toBeTruthy();
+    expect(getByText('userDiscoveryFeedAllowed:false')).toBeTruthy();
+    expect(getByText(`userDiscoveryFeedResolved:${ROUTE_NAMES.SessionRecovery}`)).toBeTruthy();
     expect(getByText('venueDetailsAllowed:false')).toBeTruthy();
     expect(getByText(`venueDetailsResolved:${ROUTE_NAMES.SessionRecovery}`)).toBeTruthy();
     expect(getByText('checkInConfirmationAllowed:false')).toBeTruthy();
@@ -229,6 +242,8 @@ describe('route state selectors', () => {
 
     expect(getByText('nearbyVenuesAllowed:false')).toBeTruthy();
     expect(getByText(`nearbyVenuesResolved:${ROUTE_NAMES.AccessDenied}`)).toBeTruthy();
+    expect(getByText('userDiscoveryFeedAllowed:false')).toBeTruthy();
+    expect(getByText(`userDiscoveryFeedResolved:${ROUTE_NAMES.AccessDenied}`)).toBeTruthy();
     expect(getByText('venueDetailsAllowed:false')).toBeTruthy();
     expect(getByText(`venueDetailsResolved:${ROUTE_NAMES.AccessDenied}`)).toBeTruthy();
     expect(getByText('checkInConfirmationAllowed:false')).toBeTruthy();
@@ -240,6 +255,8 @@ describe('route state selectors', () => {
 
     expect(getByText('nearbyVenuesAllowed:false')).toBeTruthy();
     expect(getByText(`nearbyVenuesResolved:${ROUTE_NAMES.AccessDenied}`)).toBeTruthy();
+    expect(getByText('userDiscoveryFeedAllowed:false')).toBeTruthy();
+    expect(getByText(`userDiscoveryFeedResolved:${ROUTE_NAMES.AccessDenied}`)).toBeTruthy();
     expect(getByText('venueDetailsAllowed:false')).toBeTruthy();
     expect(getByText(`venueDetailsResolved:${ROUTE_NAMES.AccessDenied}`)).toBeTruthy();
     expect(getByText('checkInConfirmationAllowed:false')).toBeTruthy();
@@ -251,6 +268,8 @@ describe('route state selectors', () => {
 
     expect(getByText('nearbyVenuesAllowed:false')).toBeTruthy();
     expect(getByText(`nearbyVenuesResolved:${ROUTE_NAMES.AccessDenied}`)).toBeTruthy();
+    expect(getByText('userDiscoveryFeedAllowed:false')).toBeTruthy();
+    expect(getByText(`userDiscoveryFeedResolved:${ROUTE_NAMES.AccessDenied}`)).toBeTruthy();
     expect(getByText('venueDetailsAllowed:false')).toBeTruthy();
     expect(getByText(`venueDetailsResolved:${ROUTE_NAMES.AccessDenied}`)).toBeTruthy();
     expect(getByText('checkInConfirmationAllowed:false')).toBeTruthy();
@@ -262,6 +281,8 @@ describe('route state selectors', () => {
 
     expect(getByText('nearbyVenuesAllowed:true')).toBeTruthy();
     expect(getByText(`nearbyVenuesResolved:${ROUTE_NAMES.NearbyVenues}`)).toBeTruthy();
+    expect(getByText('userDiscoveryFeedAllowed:true')).toBeTruthy();
+    expect(getByText(`userDiscoveryFeedResolved:${ROUTE_NAMES.UserDiscoveryFeed}`)).toBeTruthy();
     expect(getByText('venueDetailsAllowed:true')).toBeTruthy();
     expect(getByText(`venueDetailsResolved:${ROUTE_NAMES.VenueDetails}`)).toBeTruthy();
     expect(getByText('checkInConfirmationAllowed:true')).toBeTruthy();
