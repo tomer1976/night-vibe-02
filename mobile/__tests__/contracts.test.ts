@@ -100,13 +100,36 @@ describe('backend service contracts', () => {
         checkOut: async () => ({ status: 'SUCCESS', request_id: 'req-11', data: { sessionClosed: true } }),
       },
       discovery: {
+        getFeed: async () => ({ status: 'SUCCESS', request_id: 'req-11a', data: { candidates: [] } }),
+        skipCandidate: async () => ({ status: 'SUCCESS', request_id: 'req-11b', data: { skipped: true, targetUserId: 'u2' } }),
         getCandidates: async () => ({ status: 'SUCCESS', request_id: 'req-12', data: { items: [] } }),
       },
       interactions: {
+        likeUser: async () => ({
+          status: 'SUCCESS',
+          request_id: 'req-12a',
+          data: {
+            status: 'SUCCESS',
+            interaction: 'LIKE',
+            targetUserId: 'u2',
+            matchCreated: false,
+          },
+        }),
+        passUser: async () => ({
+          status: 'SUCCESS',
+          request_id: 'req-12b',
+          data: {
+            status: 'SUCCESS',
+            interaction: 'PASS',
+            targetUserId: 'u2',
+            matchCreated: false,
+          },
+        }),
         like: async () => ({ status: 'SUCCESS', request_id: 'req-13', data: { action: 'like', targetUserId: 'u2' } }),
         pass: async () => ({ status: 'SUCCESS', request_id: 'req-14', data: { action: 'pass', targetUserId: 'u2' } }),
       },
       match: {
+        listMatches: async () => ({ status: 'SUCCESS', request_id: 'req-14a', data: { matches: [] } }),
         getMatches: async () => ({ status: 'SUCCESS', request_id: 'req-15', data: [] }),
       },
       chat: {

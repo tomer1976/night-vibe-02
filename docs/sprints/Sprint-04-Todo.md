@@ -8,7 +8,7 @@
 - [ ] Add interaction feedback states (loading/success/duplicate/failure).
 
 ## Backend Tasks (if applicable)
-- [ ] Define `DiscoveryService`, `InteractionService`, and `MatchService` interfaces for Phase 2 parity.
+- [x] Define `DiscoveryService`, `InteractionService`, and `MatchService` interfaces for Phase 2 parity.
 - [ ] Define idempotency and duplicate-detection behavior contract for interactions.
 
 ## Firebase Tasks (if applicable)

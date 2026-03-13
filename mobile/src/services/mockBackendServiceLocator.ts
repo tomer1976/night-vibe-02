@@ -865,6 +865,33 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       },
     },
     discovery: {
+      getFeed: async (request) => {
+        applyDeterministicSessionTimeouts();
+
+        const candidates = buildDiscoveryCandidates(currentUser.uid);
+        const pageSize = request?.pageSize && request.pageSize > 0 ? request.pageSize : candidates.length;
+        const startOffset = request?.cursor ? Number.parseInt(request.cursor, 10) : 0;
+        const safeStartOffset = Number.isFinite(startOffset) && startOffset >= 0 ? startOffset : 0;
+        const page = candidates.slice(safeStartOffset, safeStartOffset + pageSize);
+        const nextOffset = safeStartOffset + page.length;
+        const nextCursor = nextOffset < candidates.length ? String(nextOffset) : undefined;
+
+        return responseFactory.build({
+          key: 'discovery.getFeed',
+          data: {
+            candidates: page,
+            nextCursor,
+          },
+        });
+      },
+      skipCandidate: async (targetUserId) =>
+        responseFactory.build({
+          key: 'discovery.skipCandidate',
+          data: {
+            skipped: true,
+            targetUserId,
+          },
+        }),
       getCandidates: async () => {
         applyDeterministicSessionTimeouts();
 
@@ -873,10 +900,41 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       },
     },
     interactions: {
+      likeUser: async (request) =>
+        responseFactory.build({
+          key: 'interactions.likeUser',
+          data: {
+            status: 'SUCCESS',
+            interaction: 'LIKE',
+            targetUserId: request.targetUserId,
+            matchCreated: false,
+          },
+        }),
+      passUser: async (request) =>
+        responseFactory.build({
+          key: 'interactions.passUser',
+          data: {
+            status: 'SUCCESS',
+            interaction: 'PASS',
+            targetUserId: request.targetUserId,
+            matchCreated: false,
+          },
+        }),
       like: async (targetUserId) => responseFactory.build({ key: 'interactions.like', data: { action: 'like', targetUserId } }),
       pass: async (targetUserId) => responseFactory.build({ key: 'interactions.pass', data: { action: 'pass', targetUserId } }),
     },
     match: {
+      listMatches: async (request) => {
+        const matches = computeMatchRecords(currentUser.uid);
+        const filteredMatches = request?.status ? matches.filter((match) => match.status === request.status) : matches;
+
+        return responseFactory.build({
+          key: 'match.listMatches',
+          data: {
+            matches: filteredMatches,
+          },
+        });
+      },
       getMatches: async () => {
         const matches = computeMatchRecords(currentUser.uid);
         return responseFactory.build({ key: 'match.getMatches', data: matches });

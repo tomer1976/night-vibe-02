@@ -169,15 +169,42 @@ export interface PresenceService {
 export type VenuesService = VenueDiscoveryService;
 
 export interface DiscoveryService {
+  getFeed(request?: { pageSize?: number; cursor?: string }): Promise<ApiResponse<{ candidates: DiscoveryCandidate[]; nextCursor?: string }>>;
+  skipCandidate(targetUserId: string): Promise<ApiResponse<{ skipped: true; targetUserId: string }>>;
+
+  // Legacy Sprint-01/03 compatibility shim
   getCandidates(cursor?: string): Promise<ApiResponse<{ items: DiscoveryCandidate[]; nextCursor?: string }>>;
 }
 
-export interface InteractionsService {
+export type InteractionRequest = {
+  targetUserId: string;
+  venueId: string;
+  idempotencyKey?: string;
+};
+
+export type InteractionResult = {
+  status: 'SUCCESS';
+  interaction: 'LIKE' | 'PASS';
+  targetUserId: string;
+  matchCreated: boolean;
+  matchId?: string;
+};
+
+export interface InteractionService {
+  likeUser(request: InteractionRequest): Promise<ApiResponse<InteractionResult>>;
+  passUser(request: InteractionRequest): Promise<ApiResponse<InteractionResult>>;
+}
+
+export interface InteractionsService extends InteractionService {
+  // Legacy Sprint-01/03 compatibility shim
   like(targetUserId: string): Promise<ApiResponse<{ action: 'like'; targetUserId: string }>>;
   pass(targetUserId: string): Promise<ApiResponse<{ action: 'pass'; targetUserId: string }>>;
 }
 
 export interface MatchService {
+  listMatches(request?: { status?: MatchRecord['status'] }): Promise<ApiResponse<{ matches: MatchRecord[] }>>;
+
+  // Legacy Sprint-01/03 compatibility shim
   getMatches(): Promise<ApiResponse<MatchRecord[]>>;
 }
 
