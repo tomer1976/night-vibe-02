@@ -7,6 +7,7 @@ import { ApiErrorCode } from '../contracts';
 import { Badge, Button, Card, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
+import { usePresenceSessionState } from '../state';
 import { useTheme } from '../theme';
 
 type CheckInConfirmationRouteParams = {
@@ -93,6 +94,7 @@ export function CheckInConfirmationScreen() {
   const route = useRoute();
   const theme = useTheme();
   const services = useServiceLocator();
+  const { applyCheckInResult } = usePresenceSessionState();
 
   const typedParams = route.params as CheckInConfirmationRouteParams | undefined;
   const venueId = typedParams?.venueId;
@@ -169,6 +171,8 @@ export function CheckInConfirmationScreen() {
         setResultText(`${deniedMessage.message} (Reason: ${response.error.code})`);
         return;
       }
+
+      applyCheckInResult(response.data);
 
       setResultTone('success');
       setResultTitle('Check-in confirmed');

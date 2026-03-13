@@ -7,7 +7,10 @@ import { Badge, Button, Card, EmptyStateTemplate, ErrorStateTemplate, LoadingSta
 import { PresenceStateTransition, VenueSession } from '../contracts';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
+import { usePresenceSessionState } from '../state';
 import { useTheme } from '../theme';
+
+const ACTIVE_SESSION_AUTO_REFRESH_MS = 15_000;
 
 const formatTransitionReason = (reason: PresenceStateTransition['reason']) => {
   if (!reason) {
@@ -46,6 +49,7 @@ export function ActiveVenueSessionScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
   const services = useServiceLocator();
+  const { setSessionSnapshot } = usePresenceSessionState();
 
   const [isLoading, setIsLoading] = useState(true);
   const [errorText, setErrorText] = useState<string | undefined>();
@@ -53,8 +57,11 @@ export function ActiveVenueSessionScreen() {
   const [transitions, setTransitions] = useState<PresenceStateTransition[]>([]);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<string | undefined>();
 
-  const loadSessionState = useCallback(async () => {
-    setIsLoading(true);
+  const loadSessionState = useCallback(async (skipLoading = false) => {
+    if (!skipLoading) {
+      setIsLoading(true);
+    }
+
     setErrorText(undefined);
 
     try {
@@ -67,6 +74,7 @@ export function ActiveVenueSessionScreen() {
         setErrorText(sessionResponse.error.message);
         setActiveSession(null);
         setTransitions([]);
+        setSessionSnapshot(null, []);
         return;
       }
 
@@ -74,23 +82,39 @@ export function ActiveVenueSessionScreen() {
         setErrorText(transitionsResponse.error.message);
         setActiveSession(null);
         setTransitions([]);
+        setSessionSnapshot(null, []);
         return;
       }
 
+      const syncedAt = new Date().toISOString();
       setActiveSession(sessionResponse.data);
       setTransitions(transitionsResponse.data);
-      setLastUpdatedAt(new Date().toISOString());
+      setLastUpdatedAt(syncedAt);
+      setSessionSnapshot(sessionResponse.data, transitionsResponse.data, syncedAt);
     } catch {
       setErrorText('Unable to load active venue session right now. Please retry.');
       setActiveSession(null);
       setTransitions([]);
+      setSessionSnapshot(null, []);
     } finally {
-      setIsLoading(false);
+      if (!skipLoading) {
+        setIsLoading(false);
+      }
     }
-  }, [services.presence]);
+  }, [services.presence, setSessionSnapshot]);
 
   useEffect(() => {
     void loadSessionState();
+  }, [loadSessionState]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      void loadSessionState(true);
+    }, ACTIVE_SESSION_AUTO_REFRESH_MS);
+
+    return () => {
+      clearInterval(intervalId);
+    };
   }, [loadSessionState]);
 
   const statusTone = activeSession?.status === 'active' ? 'success' : 'warning';

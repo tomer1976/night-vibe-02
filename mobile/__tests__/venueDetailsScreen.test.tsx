@@ -35,4 +35,21 @@ describe('venue details screen', () => {
 
     expect(await findByText('Venue Check-In Confirmation Screen')).toBeTruthy();
   });
+
+  it('updates check-in eligibility after successful check-in when returning to venue details', async () => {
+    const { findByText, getByText } = render(<VenueDetailsTestNavigator />);
+
+    expect(await findByText('Venue Details Screen')).toBeTruthy();
+    fireEvent.press(getByText('Start Check-In'));
+
+    expect(await findByText('Venue Check-In Confirmation Screen')).toBeTruthy();
+    fireEvent.press(getByText('Confirm Check-In'));
+
+    expect(await findByText('Check-in confirmed')).toBeTruthy();
+    fireEvent.press(getByText('Back to Venue Details'));
+
+    expect(await findByText('Venue Details Screen')).toBeTruthy();
+    expect(await findByText('Already Checked In')).toBeTruthy();
+    expect(await findByText('You already have an active session in this venue.')).toBeTruthy();
+  });
 });

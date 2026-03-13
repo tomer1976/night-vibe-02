@@ -48,7 +48,7 @@
 - [x] Add regression tests for Sprint 01/02 route guard compatibility.
 
 ## Bugfix/Stabilization Tasks
-- [ ] Fix stale session UI after replacement or timeout events.
+- [x] Fix stale session UI after replacement or timeout events.
 - [ ] Resolve race conditions in rapid check-in/check-out mock interactions.
 - [ ] Fix cross-screen inconsistency in venue status rendering.
 

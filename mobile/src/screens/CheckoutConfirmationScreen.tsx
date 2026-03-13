@@ -7,12 +7,14 @@ import { Badge, Button, Card, EmptyStateTemplate, ErrorStateTemplate, LoadingSta
 import { VenueSession } from '../contracts';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
+import { usePresenceSessionState } from '../state';
 import { useTheme } from '../theme';
 
 export function CheckoutConfirmationScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
   const services = useServiceLocator();
+  const { applyCheckout } = usePresenceSessionState();
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,6 +64,7 @@ export function CheckoutConfirmationScreen() {
         return;
       }
 
+      applyCheckout(response.data.checkoutTime);
       setCheckoutTime(response.data.checkoutTime);
       setActiveSession(null);
     } catch {
@@ -69,7 +72,7 @@ export function CheckoutConfirmationScreen() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [activeSession, isSubmitting, services.presence]);
+  }, [activeSession, applyCheckout, isSubmitting, services.presence]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 

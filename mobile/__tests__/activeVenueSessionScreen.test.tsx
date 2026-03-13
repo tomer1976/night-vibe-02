@@ -1,6 +1,6 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { fireEvent, render } from '@testing-library/react-native';
+import { act, fireEvent, render } from '@testing-library/react-native';
 
 import { BackendServiceContracts } from '../src/contracts';
 import { createMockClock } from '../src/mocks';
@@ -67,28 +67,37 @@ describe('active venue session screen', () => {
   });
 
   it('renders no-active-session state after deterministic timeout and refresh', async () => {
-    const clock = createMockClock({
-      startAt: '2026-03-08T22:59:00.000Z',
-      stepMs: 1_000,
-    });
+    jest.useFakeTimers();
 
-    const mockLocator = createMockBackendServiceLocator({
-      activeUserId: 'u-regular-1',
-      clock,
-    });
+    try {
+      const clock = createMockClock({
+        startAt: '2026-03-08T22:59:00.000Z',
+        stepMs: 1_000,
+      });
 
-    const { findByText, getByText } = render(
-      <ActiveVenueSessionTestNavigator servicesOverride={mockLocator.services} />,
-    );
+      const mockLocator = createMockBackendServiceLocator({
+        activeUserId: 'u-regular-1',
+        clock,
+      });
 
-    expect(await findByText('Active Venue Session Screen')).toBeTruthy();
-    expect(await findByText('Status: active')).toBeTruthy();
+      const { findByText } = render(
+        <ActiveVenueSessionTestNavigator servicesOverride={mockLocator.services} />,
+      );
 
-    clock.advanceBy(2 * 60 * 1000);
-    fireEvent.press(getByText('Refresh Session State'));
+      expect(await findByText('Active Venue Session Screen')).toBeTruthy();
+      expect(await findByText('Status: active')).toBeTruthy();
 
-    expect(await findByText('No Active Session')).toBeTruthy();
-    expect(await findByText('No active venue session exists in the current mock state.')).toBeTruthy();
-    expect(await findByText('Browse Nearby Venues')).toBeTruthy();
+      clock.advanceBy(2 * 60 * 1000);
+
+      await act(async () => {
+        jest.advanceTimersByTime(15_000);
+      });
+
+      expect(await findByText('No Active Session')).toBeTruthy();
+      expect(await findByText('No active venue session exists in the current mock state.')).toBeTruthy();
+      expect(await findByText('Browse Nearby Venues')).toBeTruthy();
+    } finally {
+      jest.useRealTimers();
+    }
   });
 });
