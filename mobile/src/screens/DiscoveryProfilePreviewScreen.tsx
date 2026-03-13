@@ -10,7 +10,6 @@ import { useServiceLocator } from '../services';
 import { useTheme } from '../theme';
 import { resolveUserPhotoSource } from './userPhotoSource';
 import {
-  dismissPotential,
   hideMatch,
   markPotentialLiked,
   markPotentialUnliked,
@@ -97,33 +96,6 @@ export function DiscoveryProfilePreviewScreen() {
     }
   }, [params.displayName, params.userId, params.venueId]);
 
-  const submitPotentialPass = useCallback(async () => {
-    setFeedback(undefined);
-    setIsSubmitting(true);
-
-    try {
-      const response = await services.interactions.passUser({
-        targetUserId: params.userId,
-        venueId: params.venueId,
-        idempotencyKey: `profile-pass-${params.userId}`,
-      });
-
-      if (response.status === 'FAIL') {
-        setFeedback(response.error.message);
-        return;
-      }
-
-      dismissPotential(params.venueId, params.userId);
-      markPotentialUnliked(params.venueId, params.userId);
-      setFeedback(`Passed on ${params.displayName}.`);
-      goBackToVenue();
-    } catch {
-      setFeedback('Unable to submit pass right now. Please retry.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [goBackToVenue, params.displayName, params.userId, params.venueId, services.interactions]);
-
   const submitUnmatch = useCallback(async () => {
     if (!params.matchId) {
       setFeedback('Match reference is missing for unmatch action.');
@@ -177,12 +149,6 @@ export function DiscoveryProfilePreviewScreen() {
                     disabled={isSubmitting}
                     label={isSubmitting ? 'Submitting…' : isPotentialLiked ? 'Unlike' : 'Like'}
                     onPress={() => void (isPotentialLiked ? submitPotentialUnlike() : submitPotentialLike())}
-                  />
-                  <Button
-                    disabled={isSubmitting}
-                    label={isSubmitting ? 'Submitting…' : 'Pass'}
-                    onPress={() => void submitPotentialPass()}
-                    variant="secondary"
                   />
                 </>
               ) : (

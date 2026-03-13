@@ -1,14 +1,14 @@
 # Sprint 04 PRD - Mock Discovery, Interactions, and Match Lifecycle
 
 ## Sprint Objective
-Implement a deterministic, fully mocked discovery-to-match experience that enforces same-venue visibility, preference compatibility, block/skip filtering, like/pass interaction handling, and reciprocal-like match creation/expiration behavior.
+Implement a deterministic, fully mocked discovery-to-match experience that enforces same-venue visibility, preference compatibility, block/skip filtering, like/unlike interaction handling, and reciprocal-like match creation/expiration behavior.
 
 ## Business Context
-Night Vibe’s core user value begins when users discover and interact with people physically present in the same venue. Sprint 04 validates the product’s most critical engagement loop (discover -> like/pass -> match) in a backend-free mode while preserving architecture and policy constraints required for Phase 2 real implementation.
+Night Vibe’s core user value begins when users discover and interact with people physically present in the same venue. Sprint 04 validates the product’s most critical engagement loop (discover -> like -> match) in a backend-free mode while preserving architecture and policy constraints required for Phase 2 real implementation.
 
 ## User Stories
 - As a checked-in user, I can see a discovery feed of relevant nearby people from my current venue only.
-- As a user, I can open a profile preview and decide to like or pass.
+- As a user, I can open a profile preview and decide to like or unlike.
 - As a user, I receive a match when there is a reciprocal like.
 - As a user, I do not see blocked/skipped/ineligible users in discovery.
 - As a QA/product reviewer, I can replay deterministic scenarios for mutual like, no match, and match expiration.
@@ -31,11 +31,11 @@ Night Vibe’s core user value begins when users discover and interact with peop
    - Show discovery-safe profile fields only (no sensitive/internal fields).
    - Open profile preview on a dedicated screen when user taps a person bar from venue lists.
    - Support conditional actions by profile type:
-     - potential profile: `like` or `pass`; if already liked, show `unlike` instead of `like`
+     - potential profile: `like`; if already liked, show `unlike` instead of `like`
      - match profile: `unmatch` only
    - Provide explicit back navigation from profile preview to venue page.
 3. Implement interaction handling:
-   - Persist mock like/pass records with idempotency semantics.
+   - Persist mock like records with idempotency semantics.
    - Prevent duplicate interactions for same actor-target in active session context.
 4. Implement match creation logic:
    - Create match only on reciprocal likes.
@@ -65,7 +65,7 @@ Night Vibe’s core user value begins when users discover and interact with peop
 ## Mocked vs Real Behavior Expectations
 - Mocked in Sprint 04:
   - Candidate retrieval and filtering.
-  - Like/pass persistence and duplicate detection.
+   - Like persistence and duplicate detection.
   - Reciprocal-like matching and match events.
   - Match expiration triggers.
 - Real in Phase 2 conversion:
@@ -90,7 +90,7 @@ Night Vibe’s core user value begins when users discover and interact with peop
 - Discovery Feed shows only same-venue candidates passing filters.
 - Venue page shows list bars for Potential Matches and Matches.
 - Tapping a bar opens Discovery Profile Preview screen.
-- Profile action visibility is context-aware (`like|pass|unlike` for potential, `unmatch` for match).
+- Profile action visibility is context-aware (`like|unlike` for potential, `unmatch` for match).
 - Unmatch returns the person to Potential Matches as unliked.
 - Match Confirmation appears only on valid reciprocal match.
 - Empty states display when no candidates are available.
@@ -106,7 +106,6 @@ Night Vibe’s core user value begins when users discover and interact with peop
 - `discovery_feed_requested_mock`
 - `discovery_candidate_viewed_mock`
 - `interaction_like_submitted_mock`
-- `interaction_pass_submitted_mock`
 - `interaction_duplicate_rejected_mock`
 - `match_created_mock`
 - `match_expired_mock`

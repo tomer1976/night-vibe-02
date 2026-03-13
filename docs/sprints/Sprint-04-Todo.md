@@ -2,7 +2,7 @@
 
 ## Frontend Tasks
 - [x] Implement User Discovery Feed UI with deterministic candidate progression.
-- [x] Implement Discovery Profile Preview with conditional action controls (`like|pass|unlike` for potential, `unmatch` for match).
+- [x] Implement Discovery Profile Preview with conditional action controls (`like|unlike` for potential, `unmatch` for match).
 - [ ] Implement Match Confirmation screen/overlay behavior.
 - [ ] Implement empty and error discovery states with retry handling.
 - [ ] Add interaction feedback states (loading/success/duplicate/failure).
@@ -41,7 +41,7 @@
 - [ ] Add selectors for same-venue eligibility and candidate visibility reasons.
 
 ## Testing Tasks
-- [ ] Add happy-path tests: feed load -> like/pass -> reciprocal match.
+- [ ] Add happy-path tests: feed load -> like -> reciprocal match.
 - [ ] Add tests for no-active-session discovery denial.
 - [ ] Add duplicate-interaction prevention tests.
 - [ ] Add preference/block/skip filter correctness tests.

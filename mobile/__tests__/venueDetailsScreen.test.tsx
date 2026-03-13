@@ -48,21 +48,21 @@ describe('venue details screen', () => {
 
     expect(await findByText('Discovery Profile Preview Screen')).toBeTruthy();
     expect(await findByText('Like')).toBeTruthy();
-    expect(await findByText('Pass')).toBeTruthy();
+    expect(queryByText('Pass')).toBeNull();
     expect(queryByText('Unmatch')).toBeNull();
 
     fireEvent.press(getByText('Back to Venue'));
     expect(await findByText('Venue Details Screen')).toBeTruthy();
   });
 
-  it('shows like/pass for potential profile and toggles like to unlike', async () => {
+  it('shows like for potential profile and toggles like to unlike', async () => {
     const { findByText, getByText, queryByText } = render(<VenueDetailsTestNavigator />);
 
     expect(await findByText('Venue Details Screen')).toBeTruthy();
     fireEvent.press(getByText('Riley Active • 29 • non binary'));
 
     expect(await findByText('Like')).toBeTruthy();
-    expect(await findByText('Pass')).toBeTruthy();
+    expect(queryByText('Pass')).toBeNull();
     expect(queryByText('Unmatch')).toBeNull();
 
     fireEvent.press(getByText('Like'));
