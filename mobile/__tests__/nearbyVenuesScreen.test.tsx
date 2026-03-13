@@ -30,7 +30,7 @@ function NearbyVenuesTestNavigator({ servicesOverride }: { servicesOverride?: Ba
 
 describe('nearby venues screen', () => {
   it('renders venue list with category/status/activity metadata from mock discovery', async () => {
-    const { getByText, findAllByText, findByText } = render(<NearbyVenuesTestNavigator />);
+    const { getByText, findAllByText, findByText, queryByText } = render(<NearbyVenuesTestNavigator />);
 
     fireEvent.press(getByText('Nearby Venues Screen'));
 
@@ -51,6 +51,10 @@ describe('nearby venues screen', () => {
     expect(await findByText('Check-In')).toBeTruthy();
 
     fireEvent.press(getByText('Halo Club'));
+
+    expect(queryByText('Venue Details Screen')).toBeNull();
+
+    fireEvent.press(getByText('Check-In'));
 
     expect(await findByText('Venue Details Screen')).toBeTruthy();
   });

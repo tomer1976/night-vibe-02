@@ -2,7 +2,7 @@
 
 ## Scope Under Test
 - Nearby venue discovery list behavior.
-- Venue details and check-in initiation flow.
+- Venue details access via check-in only and revised check-in/checkout navigation flow.
 - Mock proximity validation outcomes.
 - Single active venue session enforcement.
 - Active session, checkout, and timeout transitions.
@@ -10,10 +10,12 @@
 
 ## Happy Paths
 1. User opens Nearby Venues and sees ordered list.
-2. User opens Venue Details and successfully checks in (in-range scenario).
-3. Active Session screen displays current venue and session status.
-4. User manually checks out and active session is closed.
-5. Venue Presence screen reflects active participants while checked in.
+2. User taps venue card and remains on Nearby Venues.
+3. User taps `Check-In`, enters Venue Details, and is checked in (in-range scenario).
+4. User taps `Checkout` from Nearby Venues card and remains on Nearby Venues.
+5. User taps `Checkout` in Venue Details and is returned to Nearby Venues.
+6. Active Session screen displays current venue and session status.
+7. Venue Presence screen reflects active participants while checked in.
 
 ## Edge Cases
 - User checks into Venue A, then checks into Venue B (auto-replace).
@@ -53,6 +55,7 @@
 
 ## Acceptance Checklist
 - [x] All Sprint 03 in-scope screens implemented and reachable.
+- [x] Venue details is reachable only via active check-in context.
 - [x] Check-in scenarios pass for success and denial paths.
 - [x] One-active-session enforcement validated across replacement cases.
 - [x] Checkout and timeout transitions behave correctly.

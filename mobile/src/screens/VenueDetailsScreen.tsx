@@ -35,6 +35,7 @@ export function VenueDetailsScreen() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [errorText, setErrorText] = useState<string | undefined>();
+  const [isPresenceSynced, setIsPresenceSynced] = useState(false);
   const [venue, setVenue] = useState<VenueSummary | null>(null);
   const [isSubmittingAction, setIsSubmittingAction] = useState(false);
   const [actionFeedback, setActionFeedback] = useState<string | undefined>();
@@ -56,6 +57,8 @@ export function VenueDetailsScreen() {
     if (sessionResponse.status === 'SUCCESS' && transitionResponse.status === 'SUCCESS') {
       setSessionSnapshot(sessionResponse.data, transitionResponse.data, new Date().toISOString());
     }
+
+    setIsPresenceSynced(true);
   }, [services.presence, setSessionSnapshot]);
 
   const loadVenueDetails = useCallback(async () => {
@@ -102,6 +105,18 @@ export function VenueDetailsScreen() {
   useEffect(() => {
     void syncPresenceSnapshot();
   }, [syncPresenceSnapshot]);
+
+  useEffect(() => {
+    if (!venueId || !isPresenceSynced) {
+      return;
+    }
+
+    const isCheckedIntoVenue = activeSession?.status === 'active' && activeSession.venueId === venueId;
+
+    if (!isCheckedIntoVenue) {
+      navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues));
+    }
+  }, [activeSession, isPresenceSynced, navigation, venueId]);
 
   const checkInEligibilityDisplay = useMemo(
     () => selectCheckInEligibilityDisplayState(venue, activeSession),
@@ -224,62 +239,37 @@ export function VenueDetailsScreen() {
     setIsSubmittingAction(true);
 
     try {
-      if (activeSession?.status === 'active' && activeSession.venueId === venue.venueId) {
-        const checkoutResponse = await services.presence.checkOut(activeSession.sessionId);
+      if (!(activeSession?.status === 'active' && activeSession.venueId === venue.venueId)) {
+        navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues));
+        return;
+      }
 
-        if (checkoutResponse.status === 'FAIL') {
-          setActionFeedback(checkoutResponse.error.message);
-          return;
-        }
+      const checkoutResponse = await services.presence.checkOut(activeSession.sessionId);
 
-        setActionFeedback('Checkout completed. You are no longer checked into this venue.');
-      } else {
-        const checkinResponse = await services.presence.checkIn(venue.venueId);
-
-        if (checkinResponse.status === 'FAIL') {
-          setActionFeedback(checkinResponse.error.message);
-          return;
-        }
-
-        setActionFeedback('Check-in completed. You are now checked into this venue.');
+      if (checkoutResponse.status === 'FAIL') {
+        setActionFeedback(checkoutResponse.error.message);
+        return;
       }
 
       await syncPresenceSnapshot();
       await loadVenuePeople();
+      navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues));
     } catch {
       setActionFeedback('Unable to update venue session right now. Please retry.');
     } finally {
       setIsSubmittingAction(false);
     }
-  }, [activeSession, isSubmittingAction, loadVenuePeople, services.presence, syncPresenceSnapshot, venue]);
+  }, [activeSession, isSubmittingAction, loadVenuePeople, navigation, services.presence, syncPresenceSnapshot, venue]);
 
-  const venueActionLabel = useMemo(() => {
-    if (!venue) {
-      return 'Check-In';
-    }
-
-    if (venue.status !== 'active') {
-      return 'Check-In Unavailable';
-    }
-
-    if (activeSession?.status === 'active' && activeSession.venueId === venue.venueId) {
-      return 'Checkout';
-    }
-
-    if (activeSession?.status === 'active') {
-      return 'Switch Venue Check-In';
-    }
-
-    return 'Check-In';
-  }, [activeSession, venue]);
+  const venueActionLabel = 'Checkout';
 
   const isVenueActionDisabled = useMemo(() => {
     if (!venue || isSubmittingAction) {
       return true;
     }
 
-    return venue.status !== 'active';
-  }, [isSubmittingAction, venue]);
+    return venue.status !== 'active' || !(activeSession?.status === 'active' && activeSession.venueId === venue.venueId);
+  }, [activeSession, isSubmittingAction, venue]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 

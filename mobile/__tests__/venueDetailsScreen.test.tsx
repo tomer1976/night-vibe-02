@@ -1,23 +1,25 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { fireEvent, render } from '@testing-library/react-native';
+import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
-import { DiscoveryProfilePreviewScreen, VenueDetailsScreen } from '../src/screens';
-import { ServiceLocatorProvider } from '../src/services';
+import { DiscoveryProfilePreviewScreen, NearbyVenuesScreen, VenueDetailsScreen } from '../src/screens';
+import { createMockBackendServiceLocator, ServiceLocatorProvider } from '../src/services';
+import { BackendServiceContracts } from '../src/contracts';
 import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
 import { resetVenuePeopleInteractionState } from '../src/screens/venuePeopleInteractionState';
 
 const Stack = createNativeStackNavigator();
 
-function VenueDetailsTestNavigator() {
+function VenueDetailsTestNavigator({ servicesOverride }: { servicesOverride: BackendServiceContracts }) {
   return (
     <ThemeProvider>
       <AppStateProvider>
-        <ServiceLocatorProvider isMockModeEnabled>
+        <ServiceLocatorProvider isMockModeEnabled servicesOverride={servicesOverride}>
           <NavigationContainer>
-            <Stack.Navigator initialRouteName="VenueDetails" screenOptions={{ headerShown: false }}>
-              <Stack.Screen component={VenueDetailsScreen} initialParams={{ venueId: 'v-halo-club' }} name="VenueDetails" />
+            <Stack.Navigator initialRouteName="NearbyVenues" screenOptions={{ headerShown: false }}>
+              <Stack.Screen component={NearbyVenuesScreen} name="NearbyVenues" />
+              <Stack.Screen component={VenueDetailsScreen} name="VenueDetails" />
               <Stack.Screen component={DiscoveryProfilePreviewScreen} name="DiscoveryProfilePreview" />
             </Stack.Navigator>
           </NavigationContainer>
@@ -28,13 +30,37 @@ function VenueDetailsTestNavigator() {
 }
 
 describe('venue details screen', () => {
+  const renderNavigator = () => {
+    const servicesOverride = createMockBackendServiceLocator().services;
+    return render(<VenueDetailsTestNavigator servicesOverride={servicesOverride} />);
+  };
+
+  const enterFirstVenueDetailsViaCheckIn = async (screen: ReturnType<typeof renderNavigator>) => {
+    const { findByText, getAllByText, queryByText } = screen;
+
+    expect(await findByText('Nearby Venues Screen')).toBeTruthy();
+
+    const checkoutButton = queryByText('Checkout');
+    if (checkoutButton) {
+      fireEvent.press(checkoutButton);
+    }
+
+    await waitFor(() => {
+      expect(getAllByText('Check-In').length).toBeGreaterThan(0);
+    });
+
+    fireEvent.press(getAllByText('Check-In')[0]);
+  };
+
   beforeEach(() => {
     resetVenuePeopleInteractionState();
   });
 
   it('opens dedicated discovery profile page when tapping a potential match bar', async () => {
-    const { findByText, getByText, queryByText } = render(<VenueDetailsTestNavigator />);
+    const screen = renderNavigator();
+    const { findByText, getByText, queryByText } = screen;
 
+    await enterFirstVenueDetailsViaCheckIn(screen);
     expect(await findByText('Venue Details Screen')).toBeTruthy();
     expect(await findByText('Address: 12 Harbor Street, Tel Aviv')).toBeTruthy();
     expect(await findByText(/High-energy dance floor with live DJs/i)).toBeTruthy();
@@ -56,10 +82,12 @@ describe('venue details screen', () => {
   });
 
   it('shows like for potential profile and toggles like to unlike', async () => {
-    const { findByText, getByText, queryByText } = render(<VenueDetailsTestNavigator />);
+    const screen = renderNavigator();
+    const { findByText, getByText, queryByText } = screen;
 
+    await enterFirstVenueDetailsViaCheckIn(screen);
     expect(await findByText('Venue Details Screen')).toBeTruthy();
-    fireEvent.press(getByText('Riley Active • 29 • non binary'));
+    fireEvent.press(await findByText('Riley Active • 29 • non binary'));
 
     expect(await findByText('Like')).toBeTruthy();
     expect(queryByText('Pass')).toBeNull();
@@ -75,11 +103,13 @@ describe('venue details screen', () => {
   });
 
   it('unmatch removes from matches and returns profile to potential list as unliked', async () => {
-    const { findByText, getByText, queryByText } = render(<VenueDetailsTestNavigator />);
+    const screen = renderNavigator();
+    const { findByText, getByText, queryByText } = screen;
 
+    await enterFirstVenueDetailsViaCheckIn(screen);
     expect(await findByText('Matches')).toBeTruthy();
     fireEvent.press(getByText('Matches'));
-    fireEvent.press(getByText('Jordan • 27 • female'));
+    fireEvent.press(await findByText('Jordan • 27 • female'));
 
     expect(await findByText('Unmatch')).toBeTruthy();
     expect(queryByText('Like')).toBeNull();

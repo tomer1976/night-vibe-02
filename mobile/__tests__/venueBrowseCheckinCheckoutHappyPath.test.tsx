@@ -44,9 +44,6 @@ describe('venue browse to checkout happy path', () => {
     expect(await findByText('No matches are available in this venue right now.')).toBeTruthy();
 
     fireEvent.press(getByText('Checkout'));
-    expect(await findByText('Checkout completed. You are no longer checked into this venue.')).toBeTruthy();
-    fireEvent.press(getByText('Back to Nearby Venues'));
-
     expect(await findByText('Nearby Venues Screen')).toBeTruthy();
   });
 });

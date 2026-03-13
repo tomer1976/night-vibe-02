@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StackActions, useNavigation } from '@react-navigation/native';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { VenueSummary } from '../contracts';
@@ -24,7 +24,6 @@ export function NearbyVenuesScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorText, setErrorText] = useState<string | undefined>();
   const [activeVenueActionId, setActiveVenueActionId] = useState<string | null>(null);
-  const suppressNextCardPressRef = useRef(false);
 
   const syncPresenceSnapshot = useCallback(async () => {
     const [sessionResponse, transitionResponse] = await Promise.all([
@@ -153,19 +152,7 @@ export function NearbyVenuesScreen() {
                   const isBusy = activeVenueActionId === venue.venueId;
 
                   return (
-                    <Pressable
-                      accessibilityRole="button"
-                      key={venue.venueId}
-                      onPress={() => {
-                        if (suppressNextCardPressRef.current) {
-                          suppressNextCardPressRef.current = false;
-                          return;
-                        }
-
-                        openVenueDetails(venue.venueId);
-                      }}
-                      style={({ pressed }) => ({ opacity: pressed ? 0.92 : 1 })}
-                    >
+                    <View key={venue.venueId}>
                       <Card subtitle={`Category: ${formatCategoryLabel(venue.category)}`} title={venue.name}>
                         <View style={{ gap: theme.spacing.sm }}>
                           <View style={{ gap: theme.spacing.sm }}>
@@ -191,13 +178,12 @@ export function NearbyVenuesScreen() {
                         <Button
                           label={isBusy ? 'Updating…' : isCheckedIntoVenue ? 'Checkout' : 'Check-In'}
                           onPress={() => {
-                            suppressNextCardPressRef.current = true;
                             void performVenueAction(venue);
                           }}
                         />
                         </View>
                       </Card>
-                    </Pressable>
+                    </View>
                   );
                 })}
 

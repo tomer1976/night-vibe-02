@@ -8,7 +8,7 @@ Night Vibe’s core product differentiation is venue-based, proximity-gated inte
 
 ## User Stories
 - As a user, I can view nearby venues in a list sorted by relevant criteria.
-- As a user, I can inspect venue details and understand venue status and live activity.
+- As a user, I can enter venue details only after checking in.
 - As a user, I can attempt check-in and receive clear success/failure feedback based on proximity scenarios.
 - As a user, I can see my active venue session status and check out.
 - As a QA/product stakeholder, I can simulate location and session edge cases deterministically.
@@ -30,7 +30,7 @@ Night Vibe’s core product differentiation is venue-based, proximity-gated inte
    - Venue status badges and activity snapshot preview
 2. Implement venue detail flow:
    - Venue metadata, category, status, and mock activity signals
-   - Entry points to check-in where eligible
+  - Entry is allowed only for users currently checked into that venue
 3. Implement mocked check-in validation scenarios:
    - In-range success
    - Out-of-range denial
@@ -90,7 +90,11 @@ Night Vibe’s core product differentiation is venue-based, proximity-gated inte
 
 ## Screen-Level Behavior
 - Nearby Venues screen displays list with distance and activity snapshot values.
-- Venue Details screen surfaces check-in eligibility CTA or disabled state reason.
+- Nearby venue card tap does not navigate to venue details.
+- Nearby venue `Check-In` button checks user in and then navigates to venue details.
+- Nearby venue `Checkout` button checks user out and keeps user on Nearby Venues.
+- Venue Details screen is accessible only while user is checked into that venue.
+- Venue Details `Checkout` action checks out and navigates back to Nearby Venues.
 - Check-In confirmation displays scenario-specific outcome.
 - Active Venue Session screen displays venue and session duration/status.
 - Checkout confirmation closes active session and returns to non-active state.
