@@ -35,9 +35,9 @@ describe('venue details screen', () => {
     expect(await findByText('Status: Active')).toBeTruthy();
     expect(await findByText('Potential Matches')).toBeTruthy();
     expect(await findByText('Matches')).toBeTruthy();
+    expect(await findByText('No potential matches are available in this venue right now.')).toBeTruthy();
 
     if (queryByText('Checkout')) {
-      expect(await findByText('Jordan • 27 • female')).toBeTruthy();
       fireEvent.press(getByText('Checkout'));
 
       expect(await findByText('Checkout completed. You are no longer checked into this venue.')).toBeTruthy();
@@ -48,7 +48,7 @@ describe('venue details screen', () => {
     expect(await findByText('Check in to this venue to see people here.')).toBeTruthy();
     fireEvent.press(getByText('Check-In'));
     expect(await findByText('Check-in completed. You are now checked into this venue.')).toBeTruthy();
-    expect(await findByText('Jordan • 27 • female')).toBeTruthy();
+    expect(await findByText('No potential matches are available in this venue right now.')).toBeTruthy();
     fireEvent.press(getByText('Checkout'));
 
     expect(await findByText('Checkout completed. You are no longer checked into this venue.')).toBeTruthy();
@@ -68,7 +68,7 @@ describe('venue details screen', () => {
     fireEvent.press(getByText('Check-In'));
 
     expect(await findByText('Check-in completed. You are now checked into this venue.')).toBeTruthy();
-    expect(await findByText('Jordan • 27 • female')).toBeTruthy();
+    expect(await findByText('No potential matches are available in this venue right now.')).toBeTruthy();
     fireEvent.press(getByText('Matches'));
 
     expect(await findByText('Jordan • 27 • female')).toBeTruthy();

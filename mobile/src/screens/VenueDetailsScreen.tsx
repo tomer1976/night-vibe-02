@@ -269,7 +269,7 @@ export function VenueDetailsScreen() {
                   {activeSession?.status === 'active' && activeSession.venueId === venue.venueId ? <Badge label="You are checked in" tone="success" /> : null}
                 </View>
 
-                {checkInEligibilityDisplay.helperMessage ? (
+                {checkInEligibilityDisplay.helperMessage && !isCheckedIntoViewedVenue ? (
                   <Text style={{ color: theme.colors.warning, fontSize: theme.typography.bodySmall }}>
                     {checkInEligibilityDisplay.helperMessage}
                   </Text>

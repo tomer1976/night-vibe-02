@@ -39,7 +39,6 @@ describe('venue browse to checkout happy path', () => {
     fireEvent.press(getByText('Check-In'));
 
     expect(await findByText('Venue Details Screen')).toBeTruthy();
-    expect(await findByText('You already have an active session in this venue.')).toBeTruthy();
     expect(await findByText('Potential Matches')).toBeTruthy();
     fireEvent.press(getByText('Matches'));
     expect(await findByText('No matches are available in this venue right now.')).toBeTruthy();

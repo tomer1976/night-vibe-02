@@ -123,11 +123,18 @@ function buildDiscoveryCandidates(activeUserId: string): DiscoveryCandidate[] {
     return [];
   }
 
+  const matchedUserIdsInVenue = new Set(
+    computeMatchRecords(activeUserId)
+      .filter((match) => match.venueId === activeSession.venueId)
+      .map((match) => match.counterpart.userId)
+  );
+
   const fixtureParticipants = sprint03VenuePresenceParticipants.filter(
     (participant) =>
       participant.venueId === activeSession.venueId &&
       participant.visibility === 'visible' &&
-      participant.userId !== activeUserId
+      participant.userId !== activeUserId &&
+      !matchedUserIdsInVenue.has(participant.userId)
   );
 
   return fixtureParticipants.map((participant) => ({
