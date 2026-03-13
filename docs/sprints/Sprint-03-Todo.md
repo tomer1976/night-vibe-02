@@ -53,7 +53,7 @@
 - [x] Fix cross-screen inconsistency in venue status rendering.
 
 ## Documentation Tasks
-- [ ] Document check-in/check-out mock state machine.
+- [x] Document check-in/check-out mock state machine.
 - [ ] Document scenario matrix for proximity and location outcomes.
 - [ ] Document mocked-vs-real boundaries for venue/presence modules.
 - [ ] Record conversion notes for Phase 2 real presence implementation.
