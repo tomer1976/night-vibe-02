@@ -9,44 +9,9 @@ import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
 import { useVenueDiscoveryState } from '../state';
 import { useTheme } from '../theme';
+import { formatLiveStatusLabel, formatVenueStatusLabel, toLiveStatusTone, toVenueStatusTone } from './venueStatusPresentation';
 
 const formatCategoryLabel = (category: VenueSummary['category']) => category.replace('_', ' ');
-
-const formatLiveStatusLabel = (status: VenueSummary['activitySnapshot']['liveStatus']) => {
-  if (status === 'busy') {
-    return 'Busy now';
-  }
-
-  if (status === 'steady') {
-    return 'Steady now';
-  }
-
-  return 'Calm now';
-};
-
-const toVenueStatusTone = (status: VenueSummary['status']) => {
-  if (status === 'active') {
-    return 'success' as const;
-  }
-
-  if (status === 'pending') {
-    return 'warning' as const;
-  }
-
-  return 'danger' as const;
-};
-
-const toLiveStatusTone = (status: VenueSummary['activitySnapshot']['liveStatus']) => {
-  if (status === 'busy') {
-    return 'danger' as const;
-  }
-
-  if (status === 'steady') {
-    return 'warning' as const;
-  }
-
-  return 'success' as const;
-};
 
 export function NearbyVenuesScreen() {
   const navigation = useNavigation();
@@ -111,7 +76,7 @@ export function NearbyVenuesScreen() {
                 <Card key={venue.venueId} subtitle={`Category: ${formatCategoryLabel(venue.category)}`} title={venue.name}>
                   <View style={{ gap: theme.spacing.sm }}>
                     <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
-                      <Badge label={`Status: ${venue.status}`} tone={toVenueStatusTone(venue.status)} />
+                      <Badge label={`Status: ${formatVenueStatusLabel(venue.status)}`} tone={toVenueStatusTone(venue.status)} />
                       <Badge
                         label={`Live: ${formatLiveStatusLabel(venue.activitySnapshot.liveStatus)}`}
                         tone={toLiveStatusTone(venue.activitySnapshot.liveStatus)}

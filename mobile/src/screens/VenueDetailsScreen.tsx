@@ -9,36 +9,13 @@ import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
 import { selectCheckInEligibilityDisplayState, usePresenceSessionState } from '../state';
 import { useTheme } from '../theme';
+import { formatLiveStatusLabel, formatVenueStatusLabel, toVenueStatusTone } from './venueStatusPresentation';
 
 type VenueDetailsRouteParams = {
   venueId?: string;
 };
 
 const formatCategoryLabel = (category: VenueSummary['category']) => category.replaceAll('_', ' ');
-
-const formatLiveStatusLabel = (status: VenueSummary['activitySnapshot']['liveStatus']) => {
-  if (status === 'busy') {
-    return 'Busy now';
-  }
-
-  if (status === 'steady') {
-    return 'Steady now';
-  }
-
-  return 'Calm now';
-};
-
-const toStatusTone = (status: VenueSummary['status']) => {
-  if (status === 'active') {
-    return 'success' as const;
-  }
-
-  if (status === 'pending') {
-    return 'warning' as const;
-  }
-
-  return 'danger' as const;
-};
 
 export function VenueDetailsScreen() {
   const navigation = useNavigation();
@@ -134,7 +111,7 @@ export function VenueDetailsScreen() {
               </Text>
 
               <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
-                <Badge label={`Status: ${venue.status}`} tone={toStatusTone(venue.status)} />
+                <Badge label={`Status: ${formatVenueStatusLabel(venue.status)}`} tone={toVenueStatusTone(venue.status)} />
               </View>
 
               {checkInEligibilityDisplay.helperMessage ? (

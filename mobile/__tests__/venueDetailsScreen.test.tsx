@@ -31,6 +31,7 @@ describe('venue details screen', () => {
     const { findByText, getByText } = render(<VenueDetailsTestNavigator />);
 
     expect(await findByText('Venue Details Screen')).toBeTruthy();
+    expect(await findByText('Status: Active')).toBeTruthy();
     fireEvent.press(getByText('Start Check-In'));
 
     expect(await findByText('Venue Check-In Confirmation Screen')).toBeTruthy();

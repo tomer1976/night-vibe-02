@@ -44,7 +44,7 @@ describe('nearby venues screen', () => {
     expect(await findByText('Distance: 1.35 km')).toBeTruthy();
     expect(await findByText('Activity: 2 active attendees')).toBeTruthy();
     expect(await findByText('Activity: 0 active attendees')).toBeTruthy();
-    const activeStatusBadges = await findAllByText('Status: active');
+    const activeStatusBadges = await findAllByText('Status: Active');
     expect(activeStatusBadges).toHaveLength(2);
     expect(await findByText('Live: Busy now')).toBeTruthy();
     expect(await findByText('Live: Calm now')).toBeTruthy();
