@@ -30,8 +30,7 @@ function VenueDetailsTestNavigator({ servicesOverride }: { servicesOverride: Bac
 }
 
 describe('venue details screen', () => {
-  const renderNavigator = () => {
-    const servicesOverride = createMockBackendServiceLocator().services;
+  const renderNavigator = (servicesOverride: BackendServiceContracts = createMockBackendServiceLocator().services) => {
     return render(<VenueDetailsTestNavigator servicesOverride={servicesOverride} />);
   };
 
@@ -124,5 +123,80 @@ describe('venue details screen', () => {
     fireEvent.press(getByText('Jordan • 27 • female'));
     expect(await findByText('Like')).toBeTruthy();
     expect(queryByText('Unlike')).toBeNull();
+  });
+
+  it('renders discovery error state and retries successfully', async () => {
+    const locator = createMockBackendServiceLocator();
+    let getCandidatesAttempt = 0;
+
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      discovery: {
+        ...locator.services.discovery,
+        getCandidates: async () => {
+          getCandidatesAttempt += 1;
+
+          if (getCandidatesAttempt === 1) {
+            return {
+              status: 'FAIL',
+              error: {
+                code: 'INTERNAL_ERROR',
+                message: 'Simulated discovery failure for retry validation.',
+                details: { scenario: 'retry' },
+              },
+              request_id: 'req-discovery-retry-1',
+            };
+          }
+
+          return locator.services.discovery.getCandidates();
+        },
+      },
+    };
+
+    const screen = renderNavigator(servicesOverride);
+    const { findByText, getByText } = screen;
+
+    await enterFirstVenueDetailsViaCheckIn(screen);
+    expect(await findByText('Potential Matches Failed')).toBeTruthy();
+    expect(await findByText('Simulated discovery failure for retry validation.')).toBeTruthy();
+
+    fireEvent.press(getByText('Retry'));
+
+    expect(await findByText('Riley Active • 29 • non binary')).toBeTruthy();
+  });
+
+  it('renders explicit empty discovery states for potential matches and matches', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      discovery: {
+        ...locator.services.discovery,
+        getCandidates: async () => ({
+          status: 'SUCCESS',
+          data: {
+            items: [],
+          },
+          request_id: 'req-discovery-empty-1',
+        }),
+      },
+      match: {
+        ...locator.services.match,
+        getMatches: async () => ({
+          status: 'SUCCESS',
+          data: [],
+          request_id: 'req-matches-empty-1',
+        }),
+      },
+    };
+
+    const screen = renderNavigator(servicesOverride);
+    const { findByText, getByText } = screen;
+
+    await enterFirstVenueDetailsViaCheckIn(screen);
+    expect(await findByText('No Potential Matches')).toBeTruthy();
+
+    fireEvent.press(getByText('Matches'));
+    expect(await findByText('No Matches')).toBeTruthy();
   });
 });

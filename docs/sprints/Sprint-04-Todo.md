@@ -4,7 +4,7 @@
 - [x] Implement User Discovery Feed UI with deterministic candidate progression.
 - [x] Implement Discovery Profile Preview with conditional action controls (`like|unlike` for potential, `unmatch` for match).
 - [x] Implement Match Confirmation screen/overlay behavior.
-- [ ] Implement empty and error discovery states with retry handling.
+- [x] Implement empty and error discovery states with retry handling.
 - [ ] Add interaction feedback states (loading/success/duplicate/failure).
 
 ## Backend Tasks (if applicable)

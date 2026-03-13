@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, Button, Card, ErrorStateTemplate, LoadingStateTemplate, TopBar } from '../components';
+import { Badge, Button, Card, EmptyStateTemplate, ErrorStateTemplate, LoadingStateTemplate, TopBar } from '../components';
 import { DiscoveryCandidate, MatchRecord, VenueSummary } from '../contracts';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
@@ -352,23 +352,35 @@ export function VenueDetailsScreen() {
                   </View>
 
                   {!isCheckedIntoViewedVenue ? (
-                    <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
-                      Check in to this venue to see people here.
-                    </Text>
+                    <EmptyStateTemplate
+                      message="Check in to this venue to load discovery candidates and matches."
+                      title="Discovery Requires Active Session"
+                    />
                   ) : activePeopleTab === 'potential_matches' ? (
                     isLoadingPotentialMatches ? (
                       <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>Loading potential matches...</Text>
                     ) : potentialMatchesError ? (
-                      <Text style={{ color: theme.colors.warning, fontSize: theme.typography.bodySmall }}>{potentialMatchesError}</Text>
+                      <ErrorStateTemplate
+                        actionLabel="Retry"
+                        message={potentialMatchesError}
+                        onAction={() => void loadVenuePeople()}
+                        title="Potential Matches Failed"
+                      />
                     ) : potentialMatches.length === 0 ? (
-                      <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
-                        No potential matches are available in this venue right now.
-                      </Text>
+                      <EmptyStateTemplate
+                        message="No potential matches are available in this venue right now."
+                        onAction={() => void loadVenuePeople()}
+                        actionLabel="Retry"
+                        title="No Potential Matches"
+                      />
                     ) : (
                       visiblePotentialMatches.length === 0 ? (
-                        <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
-                          No potential matches are available in this venue right now.
-                        </Text>
+                        <EmptyStateTemplate
+                          message="No potential matches are available in this venue right now."
+                          onAction={() => void loadVenuePeople()}
+                          actionLabel="Retry"
+                          title="No Potential Matches"
+                        />
                       ) : (
                         <View style={{ gap: theme.spacing.sm }}>
                           {visiblePotentialMatches.map((candidate) => {
@@ -419,16 +431,27 @@ export function VenueDetailsScreen() {
                   ) : isLoadingMatches ? (
                     <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>Loading matches...</Text>
                   ) : matchesError ? (
-                    <Text style={{ color: theme.colors.warning, fontSize: theme.typography.bodySmall }}>{matchesError}</Text>
+                    <ErrorStateTemplate
+                      actionLabel="Retry"
+                      message={matchesError}
+                      onAction={() => void loadVenuePeople()}
+                      title="Matches Failed"
+                    />
                   ) : matches.length === 0 ? (
-                    <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
-                      No matches are available in this venue right now.
-                    </Text>
+                    <EmptyStateTemplate
+                      actionLabel="Retry"
+                      message="No matches are available in this venue right now."
+                      onAction={() => void loadVenuePeople()}
+                      title="No Matches"
+                    />
                   ) : (
                     visibleMatches.length === 0 ? (
-                      <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
-                        No matches are available in this venue right now.
-                      </Text>
+                      <EmptyStateTemplate
+                        actionLabel="Retry"
+                        message="No matches are available in this venue right now."
+                        onAction={() => void loadVenuePeople()}
+                        title="No Matches"
+                      />
                     ) : (
                       <View style={{ gap: theme.spacing.sm }}>
                         {visibleMatches.map((match) => {
