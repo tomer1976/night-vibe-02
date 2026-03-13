@@ -1,0 +1,8 @@
+appId: ${MAESTRO_APP_ID}
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Welcome Screen"
+- tapOn: "Go to Login"
+- assertVisible: "Login Screen"
+- assertVisible: "Email or Persona"

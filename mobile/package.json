@@ -9,7 +9,10 @@
     "web": "expo start --web",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "jest"
+    "test": "jest",
+    "e2e:maestro": "maestro test .maestro",
+    "e2e:maestro:welcome-login": "maestro test .maestro/smoke-welcome-login.yaml",
+    "e2e:maestro:login-nearby": "maestro test .maestro/smoke-login-nearby.yaml"
   },
   "dependencies": {
     "@expo/ngrok": "^4.1.0",
