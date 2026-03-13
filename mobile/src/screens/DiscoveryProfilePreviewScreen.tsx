@@ -76,12 +76,25 @@ export function DiscoveryProfilePreviewScreen() {
       markPotentialLiked(params.venueId, params.userId);
       setIsPotentialLikedOverride(true);
       setFeedback(`Liked ${params.displayName}.`);
+
+      if (response.data.matchCreated) {
+        navigation.dispatch(
+          StackActions.push(ROUTE_NAMES.MatchConfirmation, {
+            venueId: params.venueId,
+            matchId: response.data.matchId,
+            displayName: params.displayName,
+            age: params.age,
+            gender: params.gender,
+            profilePhotoUrl: params.profilePhotoUrl,
+          })
+        );
+      }
     } catch {
       setFeedback('Unable to submit like right now. Please retry.');
     } finally {
       setIsSubmitting(false);
     }
-  }, [params.displayName, params.userId, params.venueId, services.interactions]);
+  }, [navigation, params.age, params.displayName, params.gender, params.profilePhotoUrl, params.userId, params.venueId, services.interactions]);
 
   const submitPotentialUnlike = useCallback(async () => {
     setFeedback(undefined);

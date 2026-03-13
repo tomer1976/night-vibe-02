@@ -11,6 +11,7 @@ import { CheckInConfirmationScreen } from '../screens/CheckInConfirmationScreen'
 import { CheckoutConfirmationScreen } from '../screens/CheckoutConfirmationScreen';
 import { DeleteAccountScreen } from '../screens/DeleteAccountScreen';
 import { DiscoveryProfilePreviewScreen } from '../screens/DiscoveryProfilePreviewScreen';
+import { MatchConfirmationScreen } from '../screens/MatchConfirmationScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { LinkedAccountsScreen } from '../screens/LinkedAccountsScreen';
 import { ModeratorEntryScreen } from '../screens/ModeratorEntryScreen';
@@ -154,6 +155,7 @@ export function AppNavigator() {
         <Stack.Screen name={ROUTE_NAMES.DiscoveryProfilePreview}>
           {() => renderProtectedRoute('DiscoveryProfilePreview', DiscoveryProfilePreviewScreen)}
         </Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.MatchConfirmation}>{() => renderProtectedRoute('MatchConfirmation', MatchConfirmationScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.CheckInConfirmation}>{() => renderProtectedRoute('CheckInConfirmation', CheckInConfirmationScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.CheckoutConfirmation}>{() => renderProtectedRoute('CheckoutConfirmation', CheckoutConfirmationScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.UserProfile}>{() => renderProtectedRoute('UserProfile', UserProfileScreen)}</Stack.Screen>
