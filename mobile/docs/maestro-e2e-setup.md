@@ -45,6 +45,17 @@ From `mobile/`:
 - `npm run e2e:maestro:welcome-login`
 - `npm run e2e:maestro:login-nearby`
 
+## CI workflow
+- Workflow file: `.github/workflows/mobile-maestro-android.yml`
+- Runs on push/PR touching `mobile/**` and supports manual `workflow_dispatch`.
+- CI behavior:
+	- installs dependencies
+	- runs `expo prebuild` for Android
+	- builds debug APK with bundled JS
+	- boots Android emulator
+	- installs app and runs both Maestro smoke flows
+	- uploads Maestro artifacts
+
 ## Notes
 - Flows rely on stable visible text and existing testID `login-identity-input`.
 - If app id differs by platform/environment, set `MAESTRO_APP_ID` per run.
