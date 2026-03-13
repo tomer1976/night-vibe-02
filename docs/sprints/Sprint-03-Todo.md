@@ -55,7 +55,7 @@
 ## Documentation Tasks
 - [x] Document check-in/check-out mock state machine.
 - [x] Document scenario matrix for proximity and location outcomes.
-- [ ] Document mocked-vs-real boundaries for venue/presence modules.
+- [x] Document mocked-vs-real boundaries for venue/presence modules.
 - [ ] Record conversion notes for Phase 2 real presence implementation.
 
 ## Release/Readiness Tasks (if applicable)
