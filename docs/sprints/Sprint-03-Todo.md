@@ -64,7 +64,7 @@
 - [x] Finalize carry-over list for Sprint 04 dependencies.
 
 ## Sprint Exit Checklist
-- [ ] Sprint-03 PRD commitments delivered or formally deferred.
+- [x] Sprint-03 PRD commitments delivered or formally deferred.
 - [ ] Sprint-03 TestPlan executed and signed off.
 - [ ] No blocker defects in venue discovery and presence lifecycle paths.
 - [ ] Stakeholder sprint demo completed successfully.
