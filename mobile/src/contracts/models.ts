@@ -15,9 +15,14 @@ export type UserProfile = {
   profileCompleted: boolean;
 };
 
+export type UserGender = 'male' | 'female' | 'non_binary';
+
 export type VenueSummary = {
   venueId: string;
   name: string;
+  coverPhotoUrl?: string;
+  description?: string;
+  addressText?: string;
   distanceKm: number;
   category: 'bar' | 'club' | 'restaurant' | 'lounge' | 'event_space' | 'festival' | 'other';
   status: 'pending' | 'active' | 'rejected' | 'suspended' | 'expired';
@@ -40,12 +45,22 @@ export type DiscoveryCandidate = {
   userId: string;
   displayName: string;
   age: number;
+  gender: UserGender;
+  profilePhotoUrl: string;
   venueId: string;
 };
 
 export type MatchRecord = {
   matchId: string;
   users: [string, string];
+  venueId: string;
+  counterpart: {
+    userId: string;
+    displayName: string;
+    age: number;
+    gender: UserGender;
+    profilePhotoUrl: string;
+  };
   status: 'matched' | 'expired' | 'blocked';
 };
 

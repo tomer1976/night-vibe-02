@@ -8,6 +8,7 @@ export type {
   NotificationRecord,
   Role,
   SafetyReport,
+  UserGender,
   UserProfile,
   VenueAnalyticsSnapshot,
   VenueSession,

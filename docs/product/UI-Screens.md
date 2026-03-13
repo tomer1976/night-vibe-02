@@ -21,9 +21,7 @@
 - Nearby Venues Screen
 - Venue Details Screen
 - Venue Check-In Confirmation Screen
-- Active Venue Session Screen
 - Venue Checkout Confirmation Screen
-- Venue Presence Screen
 - User Discovery Feed Screen
 - Discovery Profile Preview Screen
 - Match Confirmation Screen

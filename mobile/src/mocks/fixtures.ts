@@ -1,8 +1,11 @@
-import { AccountStatus, Role } from '../contracts';
+import { AccountStatus, Role, UserGender } from '../contracts';
 
 export type MockFixtureUser = {
   uid: string;
   displayName: string;
+  age: number;
+  gender: UserGender;
+  profilePhotoUrl: string;
   status: AccountStatus;
   isNewUser: boolean;
   roles: readonly Role[];
@@ -41,6 +44,9 @@ export type MockFixtureRoleContext = {
 export type MockFixtureVenue = {
   venueId: string;
   name: string;
+  coverPhotoUrl: string;
+  description: string;
+  addressText: string;
   category: 'bar' | 'club' | 'restaurant' | 'lounge' | 'event_space' | 'festival' | 'other';
   status: 'pending' | 'active' | 'rejected' | 'suspended' | 'expired';
   latitude: number;
@@ -84,6 +90,8 @@ export type MockVenuePresenceParticipant = {
   venueId: string;
   displayName: string;
   age: number;
+  gender: UserGender;
+  profilePhotoUrl: string;
   visibility: 'visible' | 'hidden';
 };
 
@@ -104,6 +112,9 @@ const users: readonly MockFixtureUser[] = Object.freeze([
   Object.freeze({
     uid: 'u-regular-1',
     displayName: 'Alex',
+    age: 28,
+    gender: 'male',
+    profilePhotoUrl: 'mock://user-photo/alex',
     status: 'active',
     isNewUser: false,
     roles: regularUserRoles,
@@ -112,6 +123,9 @@ const users: readonly MockFixtureUser[] = Object.freeze([
   Object.freeze({
     uid: 'u-persona-new-1',
     displayName: 'Ari New',
+    age: 24,
+    gender: 'female',
+    profilePhotoUrl: 'mock://user-photo/ari',
     status: 'active',
     isNewUser: true,
     roles: regularUserRoles,
@@ -120,6 +134,9 @@ const users: readonly MockFixtureUser[] = Object.freeze([
   Object.freeze({
     uid: 'u-persona-active-1',
     displayName: 'Riley Active',
+    age: 29,
+    gender: 'non_binary',
+    profilePhotoUrl: 'mock://user-photo/riley',
     status: 'active',
     isNewUser: false,
     roles: regularUserRoles,
@@ -128,6 +145,9 @@ const users: readonly MockFixtureUser[] = Object.freeze([
   Object.freeze({
     uid: 'u-persona-suspended-1',
     displayName: 'Casey Suspended',
+    age: 30,
+    gender: 'female',
+    profilePhotoUrl: 'mock://user-photo/casey',
     status: 'suspended',
     isNewUser: false,
     roles: regularUserRoles,
@@ -136,6 +156,9 @@ const users: readonly MockFixtureUser[] = Object.freeze([
   Object.freeze({
     uid: 'u-persona-banned-1',
     displayName: 'Parker Banned',
+    age: 33,
+    gender: 'male',
+    profilePhotoUrl: 'mock://user-photo/parker',
     status: 'banned',
     isNewUser: false,
     roles: regularUserRoles,
@@ -144,6 +167,9 @@ const users: readonly MockFixtureUser[] = Object.freeze([
   Object.freeze({
     uid: 'u-persona-pending-del-1',
     displayName: 'Jordan Pending',
+    age: 31,
+    gender: 'non_binary',
+    profilePhotoUrl: 'mock://user-photo/jordan-pending',
     status: 'pending_deletion',
     isNewUser: false,
     roles: regularUserRoles,
@@ -152,6 +178,9 @@ const users: readonly MockFixtureUser[] = Object.freeze([
   Object.freeze({
     uid: 'u-owner-1',
     displayName: 'Jordan',
+    age: 27,
+    gender: 'female',
+    profilePhotoUrl: 'mock://user-photo/jordan-owner',
     status: 'active',
     isNewUser: false,
     roles: ownerRoles,
@@ -160,6 +189,9 @@ const users: readonly MockFixtureUser[] = Object.freeze([
   Object.freeze({
     uid: 'u-moderator-1',
     displayName: 'Morgan',
+    age: 35,
+    gender: 'non_binary',
+    profilePhotoUrl: 'mock://user-photo/morgan',
     status: 'active',
     isNewUser: false,
     roles: moderatorRoles,
@@ -168,6 +200,9 @@ const users: readonly MockFixtureUser[] = Object.freeze([
   Object.freeze({
     uid: 'u-admin-1',
     displayName: 'Taylor',
+    age: 31,
+    gender: 'male',
+    profilePhotoUrl: 'mock://user-photo/taylor',
     status: 'active',
     isNewUser: false,
     roles: adminRoles,
@@ -227,6 +262,9 @@ const venues: readonly MockFixtureVenue[] = Object.freeze([
   Object.freeze({
     venueId: 'v-halo-club',
     name: 'Halo Club',
+    coverPhotoUrl: 'mock://venue-photo/halo-club',
+    description: 'High-energy dance floor with live DJs and curated late-night sets.',
+    addressText: '12 Harbor Street, Tel Aviv',
     category: 'club',
     status: 'active',
     latitude: 32.0853,
@@ -235,6 +273,9 @@ const venues: readonly MockFixtureVenue[] = Object.freeze([
   Object.freeze({
     venueId: 'v-luna-lounge',
     name: 'Luna Lounge',
+    coverPhotoUrl: 'mock://venue-photo/luna-lounge',
+    description: 'Relaxed lounge setting with signature cocktails and softer music.',
+    addressText: '48 Moonlight Avenue, Tel Aviv',
     category: 'lounge',
     status: 'active',
     latitude: 32.0806,
@@ -243,6 +284,9 @@ const venues: readonly MockFixtureVenue[] = Object.freeze([
   Object.freeze({
     venueId: 'v-pending-rooftop',
     name: 'Rooftop Pending',
+    coverPhotoUrl: 'mock://venue-photo/rooftop-pending',
+    description: 'Open-air rooftop concept currently pending moderation review.',
+    addressText: '8 Skyline Road, Tel Aviv',
     category: 'bar',
     status: 'pending',
     latitude: 32.074,
@@ -251,6 +295,9 @@ const venues: readonly MockFixtureVenue[] = Object.freeze([
   Object.freeze({
     venueId: 'v-rejected-cellar',
     name: 'Cellar Rejected',
+    coverPhotoUrl: 'mock://venue-photo/cellar-rejected',
+    description: 'Basement venue mock fixture representing rejected moderation state.',
+    addressText: '22 Old Port Lane, Tel Aviv',
     category: 'club',
     status: 'rejected',
     latitude: 32.0712,
@@ -259,6 +306,9 @@ const venues: readonly MockFixtureVenue[] = Object.freeze([
   Object.freeze({
     venueId: 'v-suspended-plaza',
     name: 'Plaza Suspended',
+    coverPhotoUrl: 'mock://venue-photo/plaza-suspended',
+    description: 'Event plaza mock fixture representing suspended lifecycle state.',
+    addressText: '3 Central Plaza, Tel Aviv',
     category: 'event_space',
     status: 'suspended',
     latitude: 32.0791,
@@ -378,6 +428,8 @@ export const sprint03VenuePresenceParticipants: readonly MockVenuePresencePartic
     venueId: 'v-halo-club',
     displayName: 'Jordan',
     age: 27,
+    gender: 'female',
+    profilePhotoUrl: 'mock://user-photo/jordan-owner',
     visibility: 'visible',
   }),
   Object.freeze({
@@ -386,6 +438,8 @@ export const sprint03VenuePresenceParticipants: readonly MockVenuePresencePartic
     venueId: 'v-halo-club',
     displayName: 'Taylor',
     age: 31,
+    gender: 'male',
+    profilePhotoUrl: 'mock://user-photo/taylor',
     visibility: 'hidden',
   }),
 ]);

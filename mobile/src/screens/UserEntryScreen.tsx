@@ -96,18 +96,6 @@ export function UserEntryScreen() {
             trailingText="Open"
           />
           <ListItem
-            onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.ActiveVenueSession))}
-            subtitle="View active venue session state and deterministic transition indicators"
-            title="Active Venue Session Screen"
-            trailingText="Open"
-          />
-          <ListItem
-            onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.VenuePresence))}
-            subtitle="See mock active attendee summaries for your current venue"
-            title="Venue Presence Screen"
-            trailingText="Open"
-          />
-          <ListItem
             onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.UserProfile, { draft: DEFAULT_PROFILE_DRAFT }))}
             subtitle="View profile details and completion status"
             title="User Profile Screen"

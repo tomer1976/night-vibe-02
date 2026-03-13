@@ -68,6 +68,7 @@ function calculateMockDistanceMeters(
 function computeMatchRecords(activeUserId: string): MatchRecord[] {
   const likes = sprint01Fixtures.interactions.filter((interaction) => interaction.action === 'like');
   const matchMap = new Map<string, MatchRecord>();
+  const userById = new Map(sprint01Fixtures.users.map((user) => [user.uid, user]));
 
   for (const like of likes) {
     const reciprocal = likes.find(
@@ -89,9 +90,24 @@ function computeMatchRecords(activeUserId: string): MatchRecord[] {
     const matchId = `match-${users[0]}-${users[1]}`;
 
     if (!matchMap.has(matchId)) {
+      const counterpartUserId = users[0] === activeUserId ? users[1] : users[0];
+      const counterpartUser = userById.get(counterpartUserId);
+
+      if (!counterpartUser) {
+        continue;
+      }
+
       matchMap.set(matchId, {
         matchId,
         users,
+        venueId: like.venueId,
+        counterpart: {
+          userId: counterpartUser.uid,
+          displayName: counterpartUser.displayName,
+          age: counterpartUser.age,
+          gender: counterpartUser.gender,
+          profilePhotoUrl: counterpartUser.profilePhotoUrl,
+        },
         status: 'matched',
       });
     }
@@ -118,6 +134,8 @@ function buildDiscoveryCandidates(activeUserId: string): DiscoveryCandidate[] {
     userId: participant.userId,
     displayName: participant.displayName,
     age: participant.age,
+    gender: participant.gender,
+    profilePhotoUrl: participant.profilePhotoUrl,
     venueId: participant.venueId,
   }));
 }
@@ -601,6 +619,9 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
             return {
               venueId: venue.venueId,
               name: venue.name,
+              coverPhotoUrl: venue.coverPhotoUrl,
+              description: venue.description,
+              addressText: venue.addressText,
               distanceKm,
               category: venue.category,
               status: venue.status,

@@ -3,9 +3,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fireEvent, render } from '@testing-library/react-native';
 
 import {
-  ActiveVenueSessionScreen,
-  CheckInConfirmationScreen,
-  CheckoutConfirmationScreen,
   NearbyVenuesScreen,
   VenueDetailsScreen,
 } from '../src/screens';
@@ -24,9 +21,6 @@ function VenueBrowseCheckinCheckoutNavigator() {
             <Stack.Navigator initialRouteName="NearbyVenues" screenOptions={{ headerShown: false }}>
               <Stack.Screen component={NearbyVenuesScreen} name="NearbyVenues" />
               <Stack.Screen component={VenueDetailsScreen} name="VenueDetails" />
-              <Stack.Screen component={CheckInConfirmationScreen} name="CheckInConfirmation" />
-              <Stack.Screen component={ActiveVenueSessionScreen} name="ActiveVenueSession" />
-              <Stack.Screen component={CheckoutConfirmationScreen} name="CheckoutConfirmation" />
             </Stack.Navigator>
           </NavigationContainer>
         </ServiceLocatorProvider>
@@ -36,31 +30,23 @@ function VenueBrowseCheckinCheckoutNavigator() {
 }
 
 describe('venue browse to checkout happy path', () => {
-  it('completes browse -> check-in -> active session -> checkout flow', async () => {
-    const { findByText, getAllByText, getByLabelText, getByText } = render(
+  it('completes browse -> check-in -> venue details tabs -> checkout flow', async () => {
+    const { findByText, getByText } = render(
       <VenueBrowseCheckinCheckoutNavigator />,
     );
 
     expect(await findByText('Nearby Venues Screen')).toBeTruthy();
-    fireEvent.press(getAllByText(/View Details:/i)[0]);
+    fireEvent.press(getByText('Check-In'));
 
     expect(await findByText('Venue Details Screen')).toBeTruthy();
-    fireEvent.press(getByText('Start Check-In'));
+    expect(await findByText('You already have an active session in this venue.')).toBeTruthy();
+    expect(await findByText('Potential Matches')).toBeTruthy();
+    fireEvent.press(getByText('Matches'));
+    expect(await findByText('No matches are available in this venue right now.')).toBeTruthy();
 
-    expect(await findByText('Venue Check-In Confirmation Screen')).toBeTruthy();
-    fireEvent.press(getByText('Confirm Check-In'));
-
-    expect(await findByText('Check-in confirmed')).toBeTruthy();
-    fireEvent.press(getByText('Open Active Session'));
-
-    expect(await findByText('Active Venue Session Screen')).toBeTruthy();
-    fireEvent.press(getByText('Proceed to Checkout'));
-
-    expect(await findByText('Venue Checkout Confirmation Screen')).toBeTruthy();
-    fireEvent.press(getByLabelText('Confirm Checkout'));
-
-    expect(await findByText('Checkout Completed')).toBeTruthy();
-    fireEvent.press(getByText('Return to Nearby Venues'));
+    fireEvent.press(getByText('Checkout'));
+    expect(await findByText('Checkout completed. You are no longer checked into this venue.')).toBeTruthy();
+    fireEvent.press(getByText('Back to Nearby Venues'));
 
     expect(await findByText('Nearby Venues Screen')).toBeTruthy();
   });

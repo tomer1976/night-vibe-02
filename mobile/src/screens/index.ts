@@ -4,7 +4,6 @@ export { AccountSettingsScreen } from './AccountSettingsScreen';
 export { AdminEntryScreen } from './AdminEntryScreen';
 export { AuthEntryScreen } from './AuthEntryScreen';
 export { CheckInConfirmationScreen } from './CheckInConfirmationScreen';
-export { ActiveVenueSessionScreen } from './ActiveVenueSessionScreen';
 export { CheckoutConfirmationScreen } from './CheckoutConfirmationScreen';
 export { DeleteAccountScreen } from './DeleteAccountScreen';
 export { EditProfileScreen } from './EditProfileScreen';
@@ -30,7 +29,6 @@ export { UnknownRouteFallbackScreen } from './UnknownRouteFallbackScreen';
 export { UserEntryScreen } from './UserEntryScreen';
 export { UserProfileScreen } from './UserProfileScreen';
 export { VenueDetailsScreen } from './VenueDetailsScreen';
-export { VenuePresenceScreen } from './VenuePresenceScreen';
 export { WelcomeScreen } from './WelcomeScreen';
 export { calculateAge, DEFAULT_ONBOARDING_DRAFT, type OnboardingDraft } from './onboardingDraft';
 export {

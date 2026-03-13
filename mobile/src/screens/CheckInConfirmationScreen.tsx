@@ -1,6 +1,6 @@
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ApiErrorCode } from '../contracts';
@@ -193,8 +193,9 @@ export function CheckInConfirmationScreen() {
       </View>
 
       <View style={[styles.content, { gap: theme.spacing.md, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.lg }]}> 
-        <Card subtitle={venueId ? `Venue: ${venueName}` : 'Missing venue context'} title="Venue Check-In Confirmation Screen">
-          <View style={{ gap: theme.spacing.sm }}>
+        <ScrollView contentContainerStyle={{ paddingBottom: theme.spacing.xl }} showsVerticalScrollIndicator={false}>
+          <Card subtitle={venueId ? `Venue: ${venueName}` : 'Missing venue context'} title="Venue Check-In Confirmation Screen">
+            <View style={{ gap: theme.spacing.sm }}>
             {!venueId ? (
               <Text style={{ color: theme.colors.danger, fontSize: theme.typography.bodySmall }}>
                 Venue reference is missing. Return to Venue Details and retry.
@@ -238,14 +239,15 @@ export function CheckInConfirmationScreen() {
 
             {resultTone === 'success' ? (
               <Button
-                label="Open Active Session"
-                onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.ActiveVenueSession))}
+                label="Open Venue Page"
+                onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.VenueDetails, { venueId }))}
               />
             ) : null}
 
-            <Button label="Back to Venue Details" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.VenueDetails, { venueId }))} variant="secondary" />
-          </View>
-        </Card>
+              <Button label="Back to Venue Details" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.VenueDetails, { venueId }))} variant="secondary" />
+            </View>
+          </Card>
+        </ScrollView>
       </View>
     </SafeAreaView>
   );

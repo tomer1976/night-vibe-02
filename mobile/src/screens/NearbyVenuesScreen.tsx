@@ -1,15 +1,16 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StackActions, useNavigation } from '@react-navigation/native';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { VenueSummary } from '../contracts';
 import { Badge, Button, Card, EmptyStateTemplate, ErrorStateTemplate, LoadingStateTemplate, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
-import { useVenueDiscoveryState } from '../state';
+import { usePresenceSessionState, useVenueDiscoveryState } from '../state';
 import { useTheme } from '../theme';
 import { formatLiveStatusLabel, formatVenueStatusLabel, toLiveStatusTone, toVenueStatusTone } from './venueStatusPresentation';
+import { resolveVenuePhotoSource } from './venuePhotoSource';
 
 const formatCategoryLabel = (category: VenueSummary['category']) => category.replace('_', ' ');
 
@@ -18,9 +19,23 @@ export function NearbyVenuesScreen() {
   const theme = useTheme();
   const services = useServiceLocator();
   const { clearCachedVenues, setCachedVenues, visibleVenues } = useVenueDiscoveryState();
+  const { activeSession, setSessionSnapshot } = usePresenceSessionState();
 
   const [isLoading, setIsLoading] = useState(true);
   const [errorText, setErrorText] = useState<string | undefined>();
+  const [activeVenueActionId, setActiveVenueActionId] = useState<string | null>(null);
+  const suppressNextCardPressRef = useRef(false);
+
+  const syncPresenceSnapshot = useCallback(async () => {
+    const [sessionResponse, transitionResponse] = await Promise.all([
+      services.presence.getMyActiveSession(),
+      services.presence.getStateTransitions(),
+    ]);
+
+    if (sessionResponse.status === 'SUCCESS' && transitionResponse.status === 'SUCCESS') {
+      setSessionSnapshot(sessionResponse.data, transitionResponse.data, new Date().toISOString());
+    }
+  }, [services.presence, setSessionSnapshot]);
 
   const fetchNearbyVenues = useCallback(async () => {
     setIsLoading(true);
@@ -48,6 +63,10 @@ export function NearbyVenuesScreen() {
     void fetchNearbyVenues();
   }, [fetchNearbyVenues]);
 
+  useEffect(() => {
+    void syncPresenceSnapshot();
+  }, [syncPresenceSnapshot]);
+
   const summaryText = useMemo(() => {
     if (visibleVenues.length === 0) {
       return 'No nearby active venues in this mock scenario.';
@@ -55,6 +74,56 @@ export function NearbyVenuesScreen() {
 
     return `${visibleVenues.length} active venues available for check-in.`;
   }, [visibleVenues.length]);
+
+  const openVenueDetails = useCallback(
+    (venueId: string) => {
+      navigation.dispatch(StackActions.push(ROUTE_NAMES.VenueDetails, { venueId }));
+    },
+    [navigation]
+  );
+
+  const performVenueAction = useCallback(
+    async (venue: VenueSummary) => {
+      if (activeVenueActionId) {
+        return;
+      }
+
+      setActiveVenueActionId(venue.venueId);
+
+      try {
+        let didCheckIn = false;
+
+        if (activeSession?.status === 'active' && activeSession.venueId === venue.venueId) {
+          const checkoutResponse = await services.presence.checkOut(activeSession.sessionId);
+
+          if (checkoutResponse.status === 'FAIL') {
+            setErrorText(checkoutResponse.error.message);
+            return;
+          }
+        } else {
+          const checkinResponse = await services.presence.checkIn(venue.venueId);
+
+          if (checkinResponse.status === 'FAIL') {
+            setErrorText(checkinResponse.error.message);
+            return;
+          }
+
+          didCheckIn = true;
+        }
+
+        await syncPresenceSnapshot();
+
+        if (didCheckIn) {
+          openVenueDetails(venue.venueId);
+        }
+      } catch {
+        setErrorText('Unable to update venue session right now. Please retry.');
+      } finally {
+        setActiveVenueActionId(null);
+      }
+    },
+    [activeSession, activeVenueActionId, openVenueDetails, services.presence, syncPresenceSnapshot]
+  );
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
@@ -70,42 +139,76 @@ export function NearbyVenuesScreen() {
         ) : visibleVenues.length === 0 ? (
           <EmptyStateTemplate actionLabel="Refresh" message="Try refreshing to rerun deterministic mock discovery." onAction={() => void fetchNearbyVenues()} title="No Nearby Venues" />
         ) : (
-          <Card subtitle={summaryText} title="Nearby Venues Screen">
-            <View style={{ gap: theme.spacing.md }}>
-              {visibleVenues.map((venue) => (
-                <Card key={venue.venueId} subtitle={`Category: ${formatCategoryLabel(venue.category)}`} title={venue.name}>
-                  <View style={{ gap: theme.spacing.sm }}>
-                    <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
-                      <Badge label={`Status: ${formatVenueStatusLabel(venue.status)}`} tone={toVenueStatusTone(venue.status)} />
-                      <Badge
-                        label={`Live: ${formatLiveStatusLabel(venue.activitySnapshot.liveStatus)}`}
-                        tone={toLiveStatusTone(venue.activitySnapshot.liveStatus)}
-                      />
-                    </View>
+          <ScrollView
+            contentContainerStyle={{
+              gap: theme.spacing.md,
+              paddingBottom: theme.spacing.xl,
+            }}
+            showsVerticalScrollIndicator={false}
+          >
+            <Card subtitle={summaryText} title="Nearby Venues Screen">
+              <View style={{ gap: theme.spacing.md }}>
+                {visibleVenues.map((venue) => {
+                  const isCheckedIntoVenue = activeSession?.status === 'active' && activeSession.venueId === venue.venueId;
+                  const isBusy = activeVenueActionId === venue.venueId;
 
-                    <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
-                      Distance: {venue.distanceKm.toFixed(2)} km
-                    </Text>
-                    <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
-                      Activity: {venue.activitySnapshot.checkinCount} active attendees
-                    </Text>
+                  return (
+                    <Pressable
+                      accessibilityRole="button"
+                      key={venue.venueId}
+                      onPress={() => {
+                        if (suppressNextCardPressRef.current) {
+                          suppressNextCardPressRef.current = false;
+                          return;
+                        }
 
-                    <Button
-                      label={`View Details: ${venue.name}`}
-                      onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.VenueDetails, { venueId: venue.venueId }))}
-                      variant="secondary"
-                    />
-                  </View>
-                </Card>
-              ))}
+                        openVenueDetails(venue.venueId);
+                      }}
+                      style={({ pressed }) => ({ opacity: pressed ? 0.92 : 1 })}
+                    >
+                      <Card subtitle={`Category: ${formatCategoryLabel(venue.category)}`} title={venue.name}>
+                        <View style={{ gap: theme.spacing.sm }}>
+                          <View style={{ gap: theme.spacing.sm }}>
+                            <Image source={resolveVenuePhotoSource(venue)} style={[styles.venuePhoto, { borderRadius: theme.radius.sm }]} />
 
-              <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.meta }}>
-                List is mock-backed, deterministic, and sorted by configured mock distance.
-              </Text>
+                            <View style={{ flexDirection: 'row', gap: theme.spacing.sm, flexWrap: 'wrap' }}>
+                              <Badge label={`Status: ${formatVenueStatusLabel(venue.status)}`} tone={toVenueStatusTone(venue.status)} />
+                              <Badge
+                                label={`Live: ${formatLiveStatusLabel(venue.activitySnapshot.liveStatus)}`}
+                                tone={toLiveStatusTone(venue.activitySnapshot.liveStatus)}
+                              />
+                              {isCheckedIntoVenue ? <Badge label="You are checked in" tone="success" /> : null}
+                            </View>
 
-              <Button label="Back to User Entry" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserGroup))} variant="secondary" />
-            </View>
-          </Card>
+                            <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
+                              Distance: {venue.distanceKm.toFixed(2)} km
+                            </Text>
+                            <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
+                              Activity: {venue.activitySnapshot.checkinCount} active attendees
+                            </Text>
+                          </View>
+
+                        <Button
+                          label={isBusy ? 'Updating…' : isCheckedIntoVenue ? 'Checkout' : 'Check-In'}
+                          onPress={() => {
+                            suppressNextCardPressRef.current = true;
+                            void performVenueAction(venue);
+                          }}
+                        />
+                        </View>
+                      </Card>
+                    </Pressable>
+                  );
+                })}
+
+                <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.meta }}>
+                  List is mock-backed, deterministic, and sorted by configured mock distance.
+                </Text>
+
+                <Button label="Back to User Entry" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserGroup))} variant="secondary" />
+              </View>
+            </Card>
+          </ScrollView>
         )}
       </View>
     </SafeAreaView>
@@ -121,5 +224,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  venuePhoto: {
+    width: '100%',
+    height: 140,
   },
 });

@@ -1,9 +1,9 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { fireEvent, render } from '@testing-library/react-native';
+import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import { BackendServiceContracts } from '../src/contracts';
-import { CheckInConfirmationScreen, NearbyVenuesScreen, UserEntryScreen, VenueDetailsScreen } from '../src/screens';
+import { NearbyVenuesScreen, UserEntryScreen, VenueDetailsScreen } from '../src/screens';
 import { createMockBackendServiceLocator, ServiceLocatorProvider } from '../src/services';
 import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
@@ -20,7 +20,6 @@ function NearbyVenuesTestNavigator({ servicesOverride }: { servicesOverride?: Ba
               <Stack.Screen component={UserEntryScreen} name="UserGroup" />
               <Stack.Screen component={NearbyVenuesScreen} name="NearbyVenues" />
               <Stack.Screen component={VenueDetailsScreen} name="VenueDetails" />
-              <Stack.Screen component={CheckInConfirmationScreen} name="CheckInConfirmation" />
             </Stack.Navigator>
           </NavigationContainer>
         </ServiceLocatorProvider>
@@ -48,13 +47,12 @@ describe('nearby venues screen', () => {
     expect(activeStatusBadges).toHaveLength(2);
     expect(await findByText('Live: Busy now')).toBeTruthy();
     expect(await findByText('Live: Calm now')).toBeTruthy();
+    expect(await findByText('Checkout')).toBeTruthy();
+    expect(await findByText('Check-In')).toBeTruthy();
 
-    fireEvent.press(getByText('View Details: Halo Club'));
+    fireEvent.press(getByText('Halo Club'));
 
     expect(await findByText('Venue Details Screen')).toBeTruthy();
-    fireEvent.press(getByText('Start Check-In'));
-    expect(await findByText('Venue Check-In Confirmation Screen')).toBeTruthy();
-    expect(await findByText('Venue: Halo Club')).toBeTruthy();
   });
 
   it('renders nearby venues empty state when no active venues are returned', async () => {
@@ -129,5 +127,19 @@ describe('nearby venues screen', () => {
     fireEvent.press(getByText('Retry'));
     expect(await findByText('Nearby Venues Screen')).toBeTruthy();
     expect(await findByText('Halo Club')).toBeTruthy();
+  });
+
+  it('keeps user on nearby list when checking out from the list card action', async () => {
+    const { findByText, getByText, queryByText } = render(<NearbyVenuesTestNavigator />);
+
+    fireEvent.press(getByText('Nearby Venues Screen'));
+
+    expect(await findByText('Nearby Venues Screen')).toBeTruthy();
+    fireEvent.press(getByText('Checkout'));
+
+    await waitFor(() => {
+      expect(queryByText('You are checked in')).toBeNull();
+      expect(queryByText('Venue Details Screen')).toBeNull();
+    });
   });
 });

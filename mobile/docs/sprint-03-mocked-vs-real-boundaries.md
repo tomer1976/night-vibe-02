@@ -15,9 +15,8 @@ Define exactly what is mocked in Sprint-03 for venue discovery and presence life
 - `mobile/src/state/presenceSessionStore.ts`
 - `mobile/src/screens/NearbyVenuesScreen.tsx`
 - `mobile/src/screens/CheckInConfirmationScreen.tsx`
-- `mobile/src/screens/ActiveVenueSessionScreen.tsx`
+- `mobile/src/screens/VenueDetailsScreen.tsx`
 - `mobile/src/screens/CheckoutConfirmationScreen.tsx`
-- `mobile/src/screens/VenuePresenceScreen.tsx`
 
 ## Boundary Summary
 

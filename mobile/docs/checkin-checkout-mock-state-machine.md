@@ -19,7 +19,7 @@ It is implementation-derived and intended to keep QA/demo runs repeatable in Pha
   - `mobile/src/state/presenceSessionStore.ts`
   - `mobile/src/screens/CheckInConfirmationScreen.tsx`
   - `mobile/src/screens/CheckoutConfirmationScreen.tsx`
-  - `mobile/src/screens/ActiveVenueSessionScreen.tsx`
+   - `mobile/src/screens/VenueDetailsScreen.tsx`
 
 ## Core Invariants Preserved
 1. A user has at most one active venue session.

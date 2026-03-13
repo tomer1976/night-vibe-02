@@ -160,7 +160,8 @@ User finds nearby active venues and checks into one venue.
    - System validates venue status and user proximity (within check-in radius).
 3. System creates active session for selected venue.
    - If user already has active session elsewhere, previous session is closed first.
-4. User lands on Active Venue Session Screen.
+4. User lands on Venue Details Screen.
+5. User can switch between Potential Matches and Matches tabs on Venue Details.
 
 #### 3.4.5 Decision Points
 - Are coordinates valid and available?
@@ -186,12 +187,12 @@ Active venue presence is maintained, timed out, or ended by user checkout.
 - User has active venue session.
 
 #### 3.5.3 Entry Point
-- Active Venue Session Screen.
+- Venue Details Screen.
 
 #### 3.5.4 Main Flow
 1. User remains checked in.
    - System keeps session active until checkout or timeout.
-2. User taps checkout.
+2. User taps checkout from Venue Details.
    - System closes session and records checkout time.
 3. User returns to Home/Nearby Venues.
 
@@ -218,7 +219,7 @@ User browses potential matches visible only within the same active venue.
 - Profile is completed.
 
 #### 3.6.3 Entry Point
-- Active Venue Session Screen -> User Discovery Feed Screen.
+- Venue Details Screen (Potential Matches tab).
 
 #### 3.6.4 Main Flow
 1. User opens discovery feed.
