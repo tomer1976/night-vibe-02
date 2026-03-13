@@ -1,4 +1,4 @@
-import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
+import { StackActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,6 +10,7 @@ import { useServiceLocator } from '../services';
 import { selectCheckInEligibilityDisplayState, usePresenceSessionState } from '../state';
 import { useTheme } from '../theme';
 import { resolveUserPhotoSource } from './userPhotoSource';
+import { readVenuePeopleInteractionSnapshot } from './venuePeopleInteractionState';
 import { formatLiveStatusLabel, formatVenueStatusLabel, toVenueStatusTone } from './venueStatusPresentation';
 import { resolveVenuePhotoSource } from './venuePhotoSource';
 
@@ -18,22 +19,6 @@ type VenueDetailsRouteParams = {
 };
 
 type VenuePeopleTab = 'potential_matches' | 'matches';
-type SelectedProfileSource = 'potential' | 'match';
-
-type SelectedProfile = {
-  source: SelectedProfileSource;
-  userId: string;
-};
-
-type ProfilePreview = {
-  source: SelectedProfileSource;
-  userId: string;
-  displayName: string;
-  age: number;
-  gender: DiscoveryCandidate['gender'];
-  profilePhotoUrl: string;
-  matchId?: string;
-};
 
 const formatCategoryLabel = (category: VenueSummary['category']) => category.replaceAll('_', ' ');
 const formatGenderLabel = (gender: DiscoveryCandidate['gender']) => gender.replace('_', ' ');
@@ -60,12 +45,7 @@ export function VenueDetailsScreen() {
   const [matchesError, setMatchesError] = useState<string | undefined>();
   const [matches, setMatches] = useState<MatchRecord[]>([]);
   const [activePeopleTab, setActivePeopleTab] = useState<VenuePeopleTab>('potential_matches');
-  const [selectedProfile, setSelectedProfile] = useState<SelectedProfile | null>(null);
-  const [dismissedPotentialUserIds, setDismissedPotentialUserIds] = useState<string[]>([]);
-  const [likedPotentialUserIds, setLikedPotentialUserIds] = useState<string[]>([]);
-  const [hiddenMatchIds, setHiddenMatchIds] = useState<string[]>([]);
-  const [isSubmittingProfileAction, setIsSubmittingProfileAction] = useState(false);
-  const [profileActionFeedback, setProfileActionFeedback] = useState<string | undefined>();
+  const [interactionStateVersion, setInteractionStateVersion] = useState(0);
 
   const syncPresenceSnapshot = useCallback(async () => {
     const [sessionResponse, transitionResponse] = await Promise.all([
@@ -139,7 +119,6 @@ export function VenueDetailsScreen() {
       setPotentialMatchesError(undefined);
       setMatches([]);
       setMatchesError(undefined);
-      setSelectedProfile(null);
       return;
     }
 
@@ -148,7 +127,6 @@ export function VenueDetailsScreen() {
       setPotentialMatchesError(undefined);
       setMatches([]);
       setMatchesError(undefined);
-      setSelectedProfile(null);
       return;
     }
 
@@ -193,164 +171,48 @@ export function VenueDetailsScreen() {
     void loadVenuePeople();
   }, [loadVenuePeople]);
 
-  const visiblePotentialMatches = useMemo(
-    () => potentialMatches.filter((candidate) => !dismissedPotentialUserIds.includes(candidate.userId)),
-    [dismissedPotentialUserIds, potentialMatches]
+  useFocusEffect(
+    useCallback(() => {
+      void loadVenuePeople();
+      setInteractionStateVersion((version) => version + 1);
+    }, [loadVenuePeople])
   );
 
-  const visibleMatches = useMemo(
-    () => matches.filter((match) => !hiddenMatchIds.includes(match.matchId)),
-    [hiddenMatchIds, matches]
-  );
+  const interactionSnapshot = useMemo(() => {
+    const version = interactionStateVersion;
+    void version;
 
-  useEffect(() => {
-    if (!selectedProfile) {
-      return;
-    }
-
-    if (selectedProfile.source === 'potential') {
-      const stillExists = visiblePotentialMatches.some((candidate) => candidate.userId === selectedProfile.userId);
-
-      if (!stillExists) {
-        setSelectedProfile(null);
-      }
-
-      return;
-    }
-
-    const stillExists = visibleMatches.some((match) => match.counterpart.userId === selectedProfile.userId);
-    if (!stillExists) {
-      setSelectedProfile(null);
-    }
-  }, [selectedProfile, visibleMatches, visiblePotentialMatches]);
-
-  const selectedProfilePreview = useMemo<ProfilePreview | null>(() => {
-    if (!selectedProfile) {
-      return null;
-    }
-
-    if (selectedProfile.source === 'potential') {
-      const candidate = visiblePotentialMatches.find((entry) => entry.userId === selectedProfile.userId);
-
-      if (!candidate) {
-        return null;
-      }
-
+    if (!venue) {
       return {
-        source: 'potential',
-        userId: candidate.userId,
-        displayName: candidate.displayName,
-        age: candidate.age,
-        gender: candidate.gender,
-        profilePhotoUrl: candidate.profilePhotoUrl,
+        dismissedPotentialUserIds: [] as string[],
+        likedPotentialUserIds: [] as string[],
+        hiddenMatchIds: [] as string[],
+        returnedPotentials: [] as DiscoveryCandidate[],
       };
     }
 
-    const matchedPerson = visibleMatches.find((entry) => entry.counterpart.userId === selectedProfile.userId);
+    return readVenuePeopleInteractionSnapshot(venue.venueId);
+  }, [interactionStateVersion, venue]);
 
-    if (!matchedPerson) {
-      return null;
+  const visiblePotentialMatches = useMemo(() => {
+    const byUserId = new Map<string, DiscoveryCandidate>();
+
+    for (const candidate of potentialMatches) {
+      byUserId.set(candidate.userId, candidate);
     }
 
-    return {
-      source: 'match',
-      userId: matchedPerson.counterpart.userId,
-      displayName: matchedPerson.counterpart.displayName,
-      age: matchedPerson.counterpart.age,
-      gender: matchedPerson.counterpart.gender,
-      profilePhotoUrl: matchedPerson.counterpart.profilePhotoUrl,
-      matchId: matchedPerson.matchId,
-    };
-  }, [selectedProfile, visibleMatches, visiblePotentialMatches]);
+    for (const candidate of interactionSnapshot.returnedPotentials) {
+      byUserId.set(candidate.userId, candidate);
+    }
 
-  const submitProfileAction = useCallback(
-    async (action: 'like' | 'pass' | 'unlike' | 'unmatch') => {
-      if (!venue || !selectedProfilePreview || isSubmittingProfileAction) {
-        return;
-      }
+    return [...byUserId.values()].filter(
+      (candidate) => !interactionSnapshot.dismissedPotentialUserIds.includes(candidate.userId)
+    );
+  }, [interactionSnapshot.dismissedPotentialUserIds, interactionSnapshot.returnedPotentials, potentialMatches]);
 
-      setProfileActionFeedback(undefined);
-      setIsSubmittingProfileAction(true);
-
-      try {
-        if (action === 'like') {
-          if (selectedProfilePreview.source !== 'potential') {
-            setProfileActionFeedback('Like is available from Potential Matches only.');
-            return;
-          }
-
-          const response = await services.interactions.likeUser({
-            targetUserId: selectedProfilePreview.userId,
-            venueId: venue.venueId,
-            idempotencyKey: `venue-details-like-${selectedProfilePreview.userId}`,
-          });
-
-          if (response.status === 'FAIL') {
-            setProfileActionFeedback(response.error.message);
-            return;
-          }
-
-          setLikedPotentialUserIds((current) => (current.includes(selectedProfilePreview.userId) ? current : [...current, selectedProfilePreview.userId]));
-          setProfileActionFeedback(`Liked ${selectedProfilePreview.displayName}.`);
-          return;
-        }
-
-        if (action === 'pass') {
-          if (selectedProfilePreview.source !== 'potential') {
-            setProfileActionFeedback('Pass is available from Potential Matches only.');
-            return;
-          }
-
-          const response = await services.interactions.passUser({
-            targetUserId: selectedProfilePreview.userId,
-            venueId: venue.venueId,
-            idempotencyKey: `venue-details-pass-${selectedProfilePreview.userId}`,
-          });
-
-          if (response.status === 'FAIL') {
-            setProfileActionFeedback(response.error.message);
-            return;
-          }
-
-          setDismissedPotentialUserIds((current) => (current.includes(selectedProfilePreview.userId) ? current : [...current, selectedProfilePreview.userId]));
-          setSelectedProfile(null);
-          setProfileActionFeedback(`Passed on ${selectedProfilePreview.displayName}.`);
-          return;
-        }
-
-        if (action === 'unlike') {
-          if (selectedProfilePreview.source === 'potential') {
-            setLikedPotentialUserIds((current) => current.filter((entry) => entry !== selectedProfilePreview.userId));
-            setProfileActionFeedback(`Removed like for ${selectedProfilePreview.displayName}.`);
-            return;
-          }
-
-          const matchId = selectedProfilePreview.matchId;
-
-          if (matchId) {
-            setHiddenMatchIds((current) => (current.includes(matchId) ? current : [...current, matchId]));
-          }
-          setSelectedProfile(null);
-          setProfileActionFeedback(`Removed like for ${selectedProfilePreview.displayName}.`);
-          return;
-        }
-
-        if (selectedProfilePreview.source !== 'match' || !selectedProfilePreview.matchId) {
-          setProfileActionFeedback('Unmatch is available from Matches only.');
-          return;
-        }
-
-        const matchId = selectedProfilePreview.matchId;
-        setHiddenMatchIds((current) => (current.includes(matchId) ? current : [...current, matchId]));
-        setSelectedProfile(null);
-        setProfileActionFeedback(`Unmatched ${selectedProfilePreview.displayName}.`);
-      } catch {
-        setProfileActionFeedback('Unable to submit profile action right now. Please retry.');
-      } finally {
-        setIsSubmittingProfileAction(false);
-      }
-    },
-    [isSubmittingProfileAction, selectedProfilePreview, services.interactions, venue]
+  const visibleMatches = useMemo(
+    () => matches.filter((match) => !interactionSnapshot.hiddenMatchIds.includes(match.matchId)),
+    [interactionSnapshot.hiddenMatchIds, matches]
   );
 
   const handleVenueAction = useCallback(async () => {
@@ -520,19 +382,24 @@ export function VenueDetailsScreen() {
                       ) : (
                         <View style={{ gap: theme.spacing.sm }}>
                           {visiblePotentialMatches.map((candidate) => {
-                            const isSelected = selectedProfile?.source === 'potential' && selectedProfile.userId === candidate.userId;
-                            const isLiked = likedPotentialUserIds.includes(candidate.userId);
+                            const isLiked = interactionSnapshot.likedPotentialUserIds.includes(candidate.userId);
 
                             return (
                               <Pressable
                                 accessibilityRole="button"
                                 key={candidate.userId}
                                 onPress={() => {
-                                  setSelectedProfile({
-                                    source: 'potential',
-                                    userId: candidate.userId,
-                                  });
-                                  setProfileActionFeedback(undefined);
+                                  navigation.dispatch(
+                                    StackActions.push(ROUTE_NAMES.DiscoveryProfilePreview, {
+                                      venueId: candidate.venueId,
+                                      source: 'potential',
+                                      userId: candidate.userId,
+                                      displayName: candidate.displayName,
+                                      age: candidate.age,
+                                      gender: candidate.gender,
+                                      profilePhotoUrl: candidate.profilePhotoUrl,
+                                    })
+                                  );
                                 }}
                                 style={{
                                   flexDirection: 'row',
@@ -540,7 +407,7 @@ export function VenueDetailsScreen() {
                                   gap: theme.spacing.sm,
                                   borderRadius: theme.radius.sm,
                                   borderWidth: 1,
-                                  borderColor: isSelected ? theme.colors.accentPrimary : theme.colors.backgroundSecondary,
+                                  borderColor: theme.colors.backgroundSecondary,
                                   backgroundColor: theme.colors.backgroundSecondary,
                                   paddingHorizontal: theme.spacing.md,
                                   paddingVertical: theme.spacing.sm,
@@ -575,18 +442,23 @@ export function VenueDetailsScreen() {
                     ) : (
                       <View style={{ gap: theme.spacing.sm }}>
                         {visibleMatches.map((match) => {
-                          const isSelected = selectedProfile?.source === 'match' && selectedProfile.userId === match.counterpart.userId;
-
                           return (
                             <Pressable
                               accessibilityRole="button"
                               key={match.matchId}
                               onPress={() => {
-                                setSelectedProfile({
-                                  source: 'match',
-                                  userId: match.counterpart.userId,
-                                });
-                                setProfileActionFeedback(undefined);
+                                navigation.dispatch(
+                                  StackActions.push(ROUTE_NAMES.DiscoveryProfilePreview, {
+                                    venueId: match.venueId,
+                                    source: 'match',
+                                    userId: match.counterpart.userId,
+                                    displayName: match.counterpart.displayName,
+                                    age: match.counterpart.age,
+                                    gender: match.counterpart.gender,
+                                    profilePhotoUrl: match.counterpart.profilePhotoUrl,
+                                    matchId: match.matchId,
+                                  })
+                                );
                               }}
                               style={{
                                 flexDirection: 'row',
@@ -594,7 +466,7 @@ export function VenueDetailsScreen() {
                                 gap: theme.spacing.sm,
                                 borderRadius: theme.radius.sm,
                                 borderWidth: 1,
-                                borderColor: isSelected ? theme.colors.accentPrimary : theme.colors.backgroundSecondary,
+                                borderColor: theme.colors.backgroundSecondary,
                                 backgroundColor: theme.colors.backgroundSecondary,
                                 paddingHorizontal: theme.spacing.md,
                                 paddingVertical: theme.spacing.sm,
@@ -614,48 +486,6 @@ export function VenueDetailsScreen() {
                     )
                   )}
 
-                  {profileActionFeedback ? (
-                    <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>{profileActionFeedback}</Text>
-                  ) : null}
-
-                  {selectedProfilePreview ? (
-                    <Card
-                      subtitle={selectedProfilePreview.source === 'potential' ? 'Potential Match Profile' : 'Match Profile'}
-                      title="Profile"
-                    >
-                      <View style={{ gap: theme.spacing.sm }}>
-                        <Image source={resolveUserPhotoSource(selectedProfilePreview)} style={[styles.previewPhoto, { borderRadius: theme.radius.sm }]} />
-                        <Text style={{ color: theme.colors.textPrimary, fontSize: theme.typography.title }}>{selectedProfilePreview.displayName}</Text>
-                        <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
-                          {selectedProfilePreview.age} • {formatGenderLabel(selectedProfilePreview.gender)}
-                        </Text>
-
-                        <Button
-                          disabled={isSubmittingProfileAction}
-                          label={isSubmittingProfileAction ? 'Submitting…' : 'Like'}
-                          onPress={() => void submitProfileAction('like')}
-                        />
-                        <Button
-                          disabled={isSubmittingProfileAction}
-                          label={isSubmittingProfileAction ? 'Submitting…' : 'Pass'}
-                          onPress={() => void submitProfileAction('pass')}
-                          variant="secondary"
-                        />
-                        <Button
-                          disabled={isSubmittingProfileAction}
-                          label={isSubmittingProfileAction ? 'Submitting…' : 'Unlike'}
-                          onPress={() => void submitProfileAction('unlike')}
-                          variant="secondary"
-                        />
-                        <Button
-                          disabled={isSubmittingProfileAction}
-                          label={isSubmittingProfileAction ? 'Submitting…' : 'Unmatch'}
-                          onPress={() => void submitProfileAction('unmatch')}
-                          variant="secondary"
-                        />
-                      </View>
-                    </Card>
-                  ) : null}
                 </View>
 
                 <Button label="Back to Nearby Venues" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))} variant="secondary" />
@@ -679,10 +509,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   venuePhoto: {
-    width: '100%',
-    height: 180,
-  },
-  previewPhoto: {
     width: '100%',
     height: 180,
   },

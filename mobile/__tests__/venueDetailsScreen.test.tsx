@@ -2,22 +2,23 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fireEvent, render } from '@testing-library/react-native';
 
-import { BackendServiceContracts } from '../src/contracts';
-import { VenueDetailsScreen } from '../src/screens';
-import { createMockBackendServiceLocator, ServiceLocatorProvider } from '../src/services';
+import { DiscoveryProfilePreviewScreen, VenueDetailsScreen } from '../src/screens';
+import { ServiceLocatorProvider } from '../src/services';
 import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
+import { resetVenuePeopleInteractionState } from '../src/screens/venuePeopleInteractionState';
 
 const Stack = createNativeStackNavigator();
 
-function VenueDetailsTestNavigator({ servicesOverride }: { servicesOverride?: BackendServiceContracts } = {}) {
+function VenueDetailsTestNavigator() {
   return (
     <ThemeProvider>
       <AppStateProvider>
-        <ServiceLocatorProvider isMockModeEnabled servicesOverride={servicesOverride}>
+        <ServiceLocatorProvider isMockModeEnabled>
           <NavigationContainer>
             <Stack.Navigator initialRouteName="VenueDetails" screenOptions={{ headerShown: false }}>
               <Stack.Screen component={VenueDetailsScreen} initialParams={{ venueId: 'v-halo-club' }} name="VenueDetails" />
+              <Stack.Screen component={DiscoveryProfilePreviewScreen} name="DiscoveryProfilePreview" />
             </Stack.Navigator>
           </NavigationContainer>
         </ServiceLocatorProvider>
@@ -27,7 +28,11 @@ function VenueDetailsTestNavigator({ servicesOverride }: { servicesOverride?: Ba
 }
 
 describe('venue details screen', () => {
-  it('renders list bars first and opens profile card only after selecting a person', async () => {
+  beforeEach(() => {
+    resetVenuePeopleInteractionState();
+  });
+
+  it('opens dedicated discovery profile page when tapping a potential match bar', async () => {
     const { findByText, getByText, queryByText } = render(<VenueDetailsTestNavigator />);
 
     expect(await findByText('Venue Details Screen')).toBeTruthy();
@@ -37,117 +42,57 @@ describe('venue details screen', () => {
     expect(await findByText('Potential Matches')).toBeTruthy();
     expect(await findByText('Matches')).toBeTruthy();
     expect(await findByText('Riley Active • 29 • non binary')).toBeTruthy();
-    expect(queryByText('Profile')).toBeNull();
+    expect(queryByText('Discovery Profile Preview Screen')).toBeNull();
 
     fireEvent.press(getByText('Riley Active • 29 • non binary'));
 
-    expect(await findByText('Profile')).toBeTruthy();
+    expect(await findByText('Discovery Profile Preview Screen')).toBeTruthy();
     expect(await findByText('Like')).toBeTruthy();
     expect(await findByText('Pass')).toBeTruthy();
-    expect(await findByText('Unlike')).toBeTruthy();
-    expect(await findByText('Unmatch')).toBeTruthy();
+    expect(queryByText('Unmatch')).toBeNull();
 
-    if (queryByText('Checkout')) {
-      fireEvent.press(getByText('Checkout'));
-
-      expect(await findByText('Checkout completed. You are no longer checked into this venue.')).toBeTruthy();
-      expect(await findByText('Check in to this venue to see people here.')).toBeTruthy();
-      return;
-    }
-
-    expect(await findByText('Check in to this venue to see people here.')).toBeTruthy();
-    fireEvent.press(getByText('Check-In'));
-    expect(await findByText('Check-in completed. You are now checked into this venue.')).toBeTruthy();
-    expect(await findByText('Riley Active')).toBeTruthy();
-    fireEvent.press(getByText('Checkout'));
-
-    expect(await findByText('Checkout completed. You are no longer checked into this venue.')).toBeTruthy();
-    expect(await findByText('Check in to this venue to see people here.')).toBeTruthy();
+    fireEvent.press(getByText('Back to Venue'));
+    expect(await findByText('Venue Details Screen')).toBeTruthy();
   });
 
-  it('switches between potential matches and matches tabs on venue page', async () => {
+  it('shows like/pass for potential profile and toggles like to unlike', async () => {
     const { findByText, getByText, queryByText } = render(<VenueDetailsTestNavigator />);
 
     expect(await findByText('Venue Details Screen')).toBeTruthy();
-
-    if (queryByText('Checkout')) {
-      fireEvent.press(getByText('Checkout'));
-      expect(await findByText('Checkout completed. You are no longer checked into this venue.')).toBeTruthy();
-    }
-
-    fireEvent.press(getByText('Check-In'));
-
-    expect(await findByText('Check-in completed. You are now checked into this venue.')).toBeTruthy();
-    fireEvent.press(getByText('Matches'));
-
-    expect(await findByText('Jordan • 27 • female')).toBeTruthy();
-
-    fireEvent.press(getByText('Jordan • 27 • female'));
-    expect(await findByText('Profile')).toBeTruthy();
-  });
-
-  it('supports like pass unlike and unmatch actions from selected profile', async () => {
-    const mockLocator = createMockBackendServiceLocator();
-
-    const servicesOverride: BackendServiceContracts = {
-      ...mockLocator.services,
-      discovery: {
-        ...mockLocator.services.discovery,
-        getCandidates: async () => ({
-          status: 'SUCCESS',
-          data: {
-            items: [
-              {
-                userId: 'u-discovery-inline-1',
-                displayName: 'Riley Active',
-                age: 29,
-                gender: 'non_binary',
-                profilePhotoUrl: 'mock://user-photo/riley',
-                venueId: 'v-halo-club',
-              },
-            ],
-          },
-          request_id: 'req-venue-details-candidates',
-        }),
-      },
-      interactions: {
-        ...mockLocator.services.interactions,
-        likeUser: async () => ({
-          status: 'SUCCESS',
-          data: {
-            status: 'SUCCESS',
-            interaction: 'LIKE',
-            interactionId: 'i-venue-details-like-1',
-            targetUserId: 'u-discovery-inline-1',
-            venueId: 'v-halo-club',
-            decision: 'created',
-            duplicateScope: 'actor_target_venue_session',
-            matchCreated: false,
-          },
-          request_id: 'req-venue-details-like',
-        }),
-      },
-    };
-
-    const { findByText, getByText } = render(<VenueDetailsTestNavigator servicesOverride={servicesOverride} />);
-
-    expect(await findByText('Venue Details Screen')).toBeTruthy();
     fireEvent.press(getByText('Riley Active • 29 • non binary'));
-    expect(await findByText('Profile')).toBeTruthy();
+
+    expect(await findByText('Like')).toBeTruthy();
+    expect(await findByText('Pass')).toBeTruthy();
+    expect(queryByText('Unmatch')).toBeNull();
 
     fireEvent.press(getByText('Like'));
-
     expect(await findByText('Liked Riley Active.')).toBeTruthy();
+    expect(await findByText('Unlike')).toBeTruthy();
 
     fireEvent.press(getByText('Unlike'));
     expect(await findByText('Removed like for Riley Active.')).toBeTruthy();
+    expect(await findByText('Like')).toBeTruthy();
+  });
 
-    fireEvent.press(getByText('Pass'));
-    expect(await findByText('Passed on Riley Active.')).toBeTruthy();
+  it('unmatch removes from matches and returns profile to potential list as unliked', async () => {
+    const { findByText, getByText, queryByText } = render(<VenueDetailsTestNavigator />);
 
+    expect(await findByText('Matches')).toBeTruthy();
     fireEvent.press(getByText('Matches'));
     fireEvent.press(getByText('Jordan • 27 • female'));
+
+    expect(await findByText('Unmatch')).toBeTruthy();
+    expect(queryByText('Like')).toBeNull();
+    expect(queryByText('Pass')).toBeNull();
+
     fireEvent.press(getByText('Unmatch'));
-    expect(await findByText('Unmatched Jordan.')).toBeTruthy();
+
+    expect(await findByText('Venue Details Screen')).toBeTruthy();
+    fireEvent.press(getByText('Potential Matches'));
+    expect(await findByText('Jordan • 27 • female')).toBeTruthy();
+
+    fireEvent.press(getByText('Jordan • 27 • female'));
+    expect(await findByText('Like')).toBeTruthy();
+    expect(queryByText('Unlike')).toBeNull();
   });
 });

@@ -6,6 +6,7 @@ export { AuthEntryScreen } from './AuthEntryScreen';
 export { CheckInConfirmationScreen } from './CheckInConfirmationScreen';
 export { CheckoutConfirmationScreen } from './CheckoutConfirmationScreen';
 export { DeleteAccountScreen } from './DeleteAccountScreen';
+export { DiscoveryProfilePreviewScreen } from './DiscoveryProfilePreviewScreen';
 export { EditProfileScreen } from './EditProfileScreen';
 export { LinkedAccountsScreen } from './LinkedAccountsScreen';
 export { LoginScreen } from './LoginScreen';

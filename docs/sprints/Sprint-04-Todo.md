@@ -2,7 +2,7 @@
 
 ## Frontend Tasks
 - [x] Implement User Discovery Feed UI with deterministic candidate progression.
-- [x] Implement Discovery Profile Preview with action controls (like/pass).
+- [x] Implement Discovery Profile Preview with conditional action controls (`like|pass|unlike` for potential, `unmatch` for match).
 - [ ] Implement Match Confirmation screen/overlay behavior.
 - [ ] Implement empty and error discovery states with retry handling.
 - [ ] Add interaction feedback states (loading/success/duplicate/failure).

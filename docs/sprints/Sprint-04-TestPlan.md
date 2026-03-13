@@ -2,7 +2,8 @@
 
 ## Scope Under Test
 - Same-venue discovery feed generation and filtering.
-- Profile preview and like/pass action handling.
+- Venue list-bar selection and dedicated profile preview page behavior.
+- Conditional profile actions by context (`like|pass|unlike` for potential, `unmatch` for match).
 - Duplicate interaction prevention behavior.
 - Reciprocal-like match creation and confirmation.
 - Match expiration behavior and downstream state updates.
@@ -10,8 +11,10 @@
 
 ## Happy Paths
 1. User with active session opens discovery and sees eligible same-venue candidates.
-2. User likes a candidate; reciprocal like exists; match confirmation is shown.
-3. User passes candidate and next candidate loads correctly.
+2. User taps a person bar in Potential Matches and opens profile preview page.
+3. User likes a potential profile; later opening shows `unlike` instead of `like`.
+4. User passes potential profile and returns to venue page.
+5. User opens a match profile and unmatches; profile returns to Potential Matches as unliked.
 4. Pagination loads additional candidates until feed end.
 5. Match remains active while both users remain co-located in mock session.
 
@@ -54,6 +57,9 @@
 ## Acceptance Checklist
 - [ ] Same-venue gating validated across all discovery tests.
 - [ ] Filter correctness verified (preference, block, skip, mutual visibility).
+- [ ] Profile preview route opens only from list bar interaction and supports back navigation.
+- [ ] Action availability matrix is correct for potential vs match profiles.
+- [ ] Unmatch returns profile to potential list in unliked state.
 - [ ] Duplicate prevention verified.
 - [ ] Match creation occurs exactly once for reciprocal likes.
 - [ ] Match expiration updates state as expected.

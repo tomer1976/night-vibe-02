@@ -29,7 +29,11 @@ Night Vibe’s core user value begins when users discover and interact with peop
    - Provide deterministic ordering and pagination behavior.
 2. Implement profile preview behavior:
    - Show discovery-safe profile fields only (no sensitive/internal fields).
-   - Support swipe/button-like actions for like/pass.
+   - Open profile preview on a dedicated screen when user taps a person bar from venue lists.
+   - Support conditional actions by profile type:
+     - potential profile: `like` or `pass`; if already liked, show `unlike` instead of `like`
+     - match profile: `unmatch` only
+   - Provide explicit back navigation from profile preview to venue page.
 3. Implement interaction handling:
    - Persist mock like/pass records with idempotency semantics.
    - Prevent duplicate interactions for same actor-target in active session context.
@@ -84,7 +88,10 @@ Night Vibe’s core user value begins when users discover and interact with peop
 
 ## Screen-Level Behavior
 - Discovery Feed shows only same-venue candidates passing filters.
-- Profile Preview supports like/pass and updates feed progression state.
+- Venue page shows list bars for Potential Matches and Matches.
+- Tapping a bar opens Discovery Profile Preview screen.
+- Profile action visibility is context-aware (`like|pass|unlike` for potential, `unmatch` for match).
+- Unmatch returns the person to Potential Matches as unliked.
 - Match Confirmation appears only on valid reciprocal match.
 - Empty states display when no candidates are available.
 - Error/retry states handle mock service failures gracefully.
