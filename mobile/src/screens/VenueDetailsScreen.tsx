@@ -18,6 +18,22 @@ type VenueDetailsRouteParams = {
 };
 
 type VenuePeopleTab = 'potential_matches' | 'matches';
+type SelectedProfileSource = 'potential' | 'match';
+
+type SelectedProfile = {
+  source: SelectedProfileSource;
+  userId: string;
+};
+
+type ProfilePreview = {
+  source: SelectedProfileSource;
+  userId: string;
+  displayName: string;
+  age: number;
+  gender: DiscoveryCandidate['gender'];
+  profilePhotoUrl: string;
+  matchId?: string;
+};
 
 const formatCategoryLabel = (category: VenueSummary['category']) => category.replaceAll('_', ' ');
 const formatGenderLabel = (gender: DiscoveryCandidate['gender']) => gender.replace('_', ' ');
@@ -44,9 +60,12 @@ export function VenueDetailsScreen() {
   const [matchesError, setMatchesError] = useState<string | undefined>();
   const [matches, setMatches] = useState<MatchRecord[]>([]);
   const [activePeopleTab, setActivePeopleTab] = useState<VenuePeopleTab>('potential_matches');
-  const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
-  const [isSubmittingInteraction, setIsSubmittingInteraction] = useState(false);
-  const [interactionFeedback, setInteractionFeedback] = useState<string | undefined>();
+  const [selectedProfile, setSelectedProfile] = useState<SelectedProfile | null>(null);
+  const [dismissedPotentialUserIds, setDismissedPotentialUserIds] = useState<string[]>([]);
+  const [likedPotentialUserIds, setLikedPotentialUserIds] = useState<string[]>([]);
+  const [hiddenMatchIds, setHiddenMatchIds] = useState<string[]>([]);
+  const [isSubmittingProfileAction, setIsSubmittingProfileAction] = useState(false);
+  const [profileActionFeedback, setProfileActionFeedback] = useState<string | undefined>();
 
   const syncPresenceSnapshot = useCallback(async () => {
     const [sessionResponse, transitionResponse] = await Promise.all([
@@ -120,6 +139,7 @@ export function VenueDetailsScreen() {
       setPotentialMatchesError(undefined);
       setMatches([]);
       setMatchesError(undefined);
+      setSelectedProfile(null);
       return;
     }
 
@@ -128,6 +148,7 @@ export function VenueDetailsScreen() {
       setPotentialMatchesError(undefined);
       setMatches([]);
       setMatchesError(undefined);
+      setSelectedProfile(null);
       return;
     }
 
@@ -144,21 +165,10 @@ export function VenueDetailsScreen() {
 
       if (candidatesResponse.status === 'FAIL') {
         setPotentialMatches([]);
-        setSelectedCandidateId(null);
         setPotentialMatchesError(candidatesResponse.error.message);
       } else {
         const venueScopedCandidates = candidatesResponse.data.items.filter((candidate) => candidate.venueId === venue.venueId);
         setPotentialMatches(venueScopedCandidates);
-
-        if (venueScopedCandidates.length === 0) {
-          setSelectedCandidateId(null);
-        } else {
-          const selectedStillExists = venueScopedCandidates.some((candidate) => candidate.userId === selectedCandidateId);
-
-          if (!selectedStillExists) {
-            setSelectedCandidateId(venueScopedCandidates[0].userId);
-          }
-        }
       }
 
       if (matchesResponse.status === 'FAIL') {
@@ -177,70 +187,170 @@ export function VenueDetailsScreen() {
       setIsLoadingPotentialMatches(false);
       setIsLoadingMatches(false);
     }
-  }, [isCheckedIntoViewedVenue, selectedCandidateId, services.discovery, services.match, venue]);
+  }, [isCheckedIntoViewedVenue, services.discovery, services.match, venue]);
 
   useEffect(() => {
     void loadVenuePeople();
   }, [loadVenuePeople]);
 
-  const selectedCandidate = useMemo(
-    () => potentialMatches.find((candidate) => candidate.userId === selectedCandidateId) ?? null,
-    [potentialMatches, selectedCandidateId]
+  const visiblePotentialMatches = useMemo(
+    () => potentialMatches.filter((candidate) => !dismissedPotentialUserIds.includes(candidate.userId)),
+    [dismissedPotentialUserIds, potentialMatches]
   );
 
-  const removeCandidateFromList = useCallback((targetUserId: string) => {
-    setPotentialMatches((currentMatches) => {
-      const nextMatches = currentMatches.filter((candidate) => candidate.userId !== targetUserId);
+  const visibleMatches = useMemo(
+    () => matches.filter((match) => !hiddenMatchIds.includes(match.matchId)),
+    [hiddenMatchIds, matches]
+  );
 
-      if (nextMatches.length === 0) {
-        setSelectedCandidateId(null);
-      } else if (selectedCandidateId === targetUserId) {
-        setSelectedCandidateId(nextMatches[0].userId);
+  useEffect(() => {
+    if (!selectedProfile) {
+      return;
+    }
+
+    if (selectedProfile.source === 'potential') {
+      const stillExists = visiblePotentialMatches.some((candidate) => candidate.userId === selectedProfile.userId);
+
+      if (!stillExists) {
+        setSelectedProfile(null);
       }
 
-      return nextMatches;
-    });
-  }, [selectedCandidateId]);
+      return;
+    }
 
-  const submitInteraction = useCallback(
-    async (action: 'like' | 'pass') => {
-      if (!venue || !selectedCandidate || isSubmittingInteraction) {
+    const stillExists = visibleMatches.some((match) => match.counterpart.userId === selectedProfile.userId);
+    if (!stillExists) {
+      setSelectedProfile(null);
+    }
+  }, [selectedProfile, visibleMatches, visiblePotentialMatches]);
+
+  const selectedProfilePreview = useMemo<ProfilePreview | null>(() => {
+    if (!selectedProfile) {
+      return null;
+    }
+
+    if (selectedProfile.source === 'potential') {
+      const candidate = visiblePotentialMatches.find((entry) => entry.userId === selectedProfile.userId);
+
+      if (!candidate) {
+        return null;
+      }
+
+      return {
+        source: 'potential',
+        userId: candidate.userId,
+        displayName: candidate.displayName,
+        age: candidate.age,
+        gender: candidate.gender,
+        profilePhotoUrl: candidate.profilePhotoUrl,
+      };
+    }
+
+    const matchedPerson = visibleMatches.find((entry) => entry.counterpart.userId === selectedProfile.userId);
+
+    if (!matchedPerson) {
+      return null;
+    }
+
+    return {
+      source: 'match',
+      userId: matchedPerson.counterpart.userId,
+      displayName: matchedPerson.counterpart.displayName,
+      age: matchedPerson.counterpart.age,
+      gender: matchedPerson.counterpart.gender,
+      profilePhotoUrl: matchedPerson.counterpart.profilePhotoUrl,
+      matchId: matchedPerson.matchId,
+    };
+  }, [selectedProfile, visibleMatches, visiblePotentialMatches]);
+
+  const submitProfileAction = useCallback(
+    async (action: 'like' | 'pass' | 'unlike' | 'unmatch') => {
+      if (!venue || !selectedProfilePreview || isSubmittingProfileAction) {
         return;
       }
 
-      setInteractionFeedback(undefined);
-      setIsSubmittingInteraction(true);
+      setProfileActionFeedback(undefined);
+      setIsSubmittingProfileAction(true);
 
       try {
-        const request = {
-          targetUserId: selectedCandidate.userId,
-          venueId: venue.venueId,
-          idempotencyKey: `venue-details-${venue.venueId}-${action}-${selectedCandidate.userId}`,
-        };
+        if (action === 'like') {
+          if (selectedProfilePreview.source !== 'potential') {
+            setProfileActionFeedback('Like is available from Potential Matches only.');
+            return;
+          }
 
-        const response =
-          action === 'like'
-            ? await services.interactions.likeUser(request)
-            : await services.interactions.passUser(request);
+          const response = await services.interactions.likeUser({
+            targetUserId: selectedProfilePreview.userId,
+            venueId: venue.venueId,
+            idempotencyKey: `venue-details-like-${selectedProfilePreview.userId}`,
+          });
 
-        if (response.status === 'FAIL') {
-          setInteractionFeedback(response.error.message);
+          if (response.status === 'FAIL') {
+            setProfileActionFeedback(response.error.message);
+            return;
+          }
+
+          setLikedPotentialUserIds((current) => (current.includes(selectedProfilePreview.userId) ? current : [...current, selectedProfilePreview.userId]));
+          setProfileActionFeedback(`Liked ${selectedProfilePreview.displayName}.`);
           return;
         }
 
-        setInteractionFeedback(
-          action === 'like'
-            ? `Liked ${selectedCandidate.displayName}.`
-            : `Passed on ${selectedCandidate.displayName}.`
-        );
-        removeCandidateFromList(selectedCandidate.userId);
+        if (action === 'pass') {
+          if (selectedProfilePreview.source !== 'potential') {
+            setProfileActionFeedback('Pass is available from Potential Matches only.');
+            return;
+          }
+
+          const response = await services.interactions.passUser({
+            targetUserId: selectedProfilePreview.userId,
+            venueId: venue.venueId,
+            idempotencyKey: `venue-details-pass-${selectedProfilePreview.userId}`,
+          });
+
+          if (response.status === 'FAIL') {
+            setProfileActionFeedback(response.error.message);
+            return;
+          }
+
+          setDismissedPotentialUserIds((current) => (current.includes(selectedProfilePreview.userId) ? current : [...current, selectedProfilePreview.userId]));
+          setSelectedProfile(null);
+          setProfileActionFeedback(`Passed on ${selectedProfilePreview.displayName}.`);
+          return;
+        }
+
+        if (action === 'unlike') {
+          if (selectedProfilePreview.source === 'potential') {
+            setLikedPotentialUserIds((current) => current.filter((entry) => entry !== selectedProfilePreview.userId));
+            setProfileActionFeedback(`Removed like for ${selectedProfilePreview.displayName}.`);
+            return;
+          }
+
+          const matchId = selectedProfilePreview.matchId;
+
+          if (matchId) {
+            setHiddenMatchIds((current) => (current.includes(matchId) ? current : [...current, matchId]));
+          }
+          setSelectedProfile(null);
+          setProfileActionFeedback(`Removed like for ${selectedProfilePreview.displayName}.`);
+          return;
+        }
+
+        if (selectedProfilePreview.source !== 'match' || !selectedProfilePreview.matchId) {
+          setProfileActionFeedback('Unmatch is available from Matches only.');
+          return;
+        }
+
+        const matchId = selectedProfilePreview.matchId;
+        setHiddenMatchIds((current) => (current.includes(matchId) ? current : [...current, matchId]));
+        setSelectedProfile(null);
+        setProfileActionFeedback(`Unmatched ${selectedProfilePreview.displayName}.`);
       } catch {
-        setInteractionFeedback('Unable to submit interaction right now. Please retry.');
+        setProfileActionFeedback('Unable to submit profile action right now. Please retry.');
       } finally {
-        setIsSubmittingInteraction(false);
+        setIsSubmittingProfileAction(false);
       }
     },
-    [isSubmittingInteraction, removeCandidateFromList, selectedCandidate, services.interactions, venue]
+    [isSubmittingProfileAction, selectedProfilePreview, services.interactions, venue]
   );
 
   const handleVenueAction = useCallback(async () => {
@@ -403,60 +513,51 @@ export function VenueDetailsScreen() {
                         No potential matches are available in this venue right now.
                       </Text>
                     ) : (
-                      <View style={{ gap: theme.spacing.sm }}>
-                        {selectedCandidate ? (
-                          <Card subtitle={`Venue: ${selectedCandidate.venueId}`} title="Discovery Profile Preview">
-                            <View style={{ gap: theme.spacing.sm }}>
-                              <Image source={resolveUserPhotoSource(selectedCandidate)} style={[styles.previewPhoto, { borderRadius: theme.radius.sm }]} />
-                              <Text style={{ color: theme.colors.textPrimary, fontSize: theme.typography.title }}>{selectedCandidate.displayName}</Text>
-                              <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
-                                {selectedCandidate.age} • {formatGenderLabel(selectedCandidate.gender)}
-                              </Text>
+                      visiblePotentialMatches.length === 0 ? (
+                        <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
+                          No potential matches are available in this venue right now.
+                        </Text>
+                      ) : (
+                        <View style={{ gap: theme.spacing.sm }}>
+                          {visiblePotentialMatches.map((candidate) => {
+                            const isSelected = selectedProfile?.source === 'potential' && selectedProfile.userId === candidate.userId;
+                            const isLiked = likedPotentialUserIds.includes(candidate.userId);
 
-                              {interactionFeedback ? (
-                                <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>{interactionFeedback}</Text>
-                              ) : null}
-
-                              <Button
-                                disabled={isSubmittingInteraction}
-                                label={isSubmittingInteraction ? 'Submitting…' : 'Like'}
-                                onPress={() => void submitInteraction('like')}
-                              />
-                              <Button
-                                disabled={isSubmittingInteraction}
-                                label={isSubmittingInteraction ? 'Submitting…' : 'Pass'}
-                                onPress={() => void submitInteraction('pass')}
-                                variant="secondary"
-                              />
-                            </View>
-                          </Card>
-                        ) : null}
-
-                        {potentialMatches.map((candidate) => (
-                          <Pressable
-                            accessibilityRole="button"
-                            key={candidate.userId}
-                            onPress={() => setSelectedCandidateId(candidate.userId)}
-                            style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              gap: theme.spacing.sm,
-                              borderRadius: theme.radius.sm,
-                              borderWidth: 1,
-                              borderColor:
-                                selectedCandidateId === candidate.userId ? theme.colors.accentPrimary : theme.colors.backgroundSecondary,
-                              backgroundColor: theme.colors.backgroundSecondary,
-                              paddingHorizontal: theme.spacing.md,
-                              paddingVertical: theme.spacing.sm,
-                            }}
-                          >
-                            <Image source={resolveUserPhotoSource(candidate)} style={{ width: 36, height: 36, borderRadius: 18 }} />
-                            <Text style={{ color: theme.colors.textPrimary, fontSize: theme.typography.bodySmall }}>
-                              {candidate.displayName} • {candidate.age} • {formatGenderLabel(candidate.gender)}
-                            </Text>
-                          </Pressable>
-                        ))}
-                      </View>
+                            return (
+                              <Pressable
+                                accessibilityRole="button"
+                                key={candidate.userId}
+                                onPress={() => {
+                                  setSelectedProfile({
+                                    source: 'potential',
+                                    userId: candidate.userId,
+                                  });
+                                  setProfileActionFeedback(undefined);
+                                }}
+                                style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  gap: theme.spacing.sm,
+                                  borderRadius: theme.radius.sm,
+                                  borderWidth: 1,
+                                  borderColor: isSelected ? theme.colors.accentPrimary : theme.colors.backgroundSecondary,
+                                  backgroundColor: theme.colors.backgroundSecondary,
+                                  paddingHorizontal: theme.spacing.md,
+                                  paddingVertical: theme.spacing.sm,
+                                }}
+                              >
+                                <Image source={resolveUserPhotoSource(candidate)} style={{ width: 36, height: 36, borderRadius: 18 }} />
+                                <Text style={{ color: theme.colors.textPrimary, fontSize: theme.typography.bodySmall, flex: 1 }}>
+                                  {candidate.displayName} • {candidate.age} • {formatGenderLabel(candidate.gender)}
+                                </Text>
+                                {isLiked ? (
+                                  <Text style={{ color: theme.colors.accentPrimary, fontSize: theme.typography.meta }}>Liked</Text>
+                                ) : null}
+                              </Pressable>
+                            );
+                          })}
+                        </View>
+                      )
                     )
                   ) : isLoadingMatches ? (
                     <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>Loading matches...</Text>
@@ -467,29 +568,94 @@ export function VenueDetailsScreen() {
                       No matches are available in this venue right now.
                     </Text>
                   ) : (
-                    matches.map((match) => (
-                      <View
-                        key={match.matchId}
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          gap: theme.spacing.sm,
-                          borderRadius: theme.radius.sm,
-                          backgroundColor: theme.colors.backgroundSecondary,
-                          paddingHorizontal: theme.spacing.md,
-                          paddingVertical: theme.spacing.sm,
-                        }}
-                      >
-                        <Image
-                          source={resolveUserPhotoSource(match.counterpart)}
-                          style={{ width: 36, height: 36, borderRadius: 18 }}
-                        />
-                        <Text style={{ color: theme.colors.textPrimary, fontSize: theme.typography.bodySmall }}>
-                          {match.counterpart.displayName} • {match.counterpart.age} • {formatGenderLabel(match.counterpart.gender)}
-                        </Text>
+                    visibleMatches.length === 0 ? (
+                      <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
+                        No matches are available in this venue right now.
+                      </Text>
+                    ) : (
+                      <View style={{ gap: theme.spacing.sm }}>
+                        {visibleMatches.map((match) => {
+                          const isSelected = selectedProfile?.source === 'match' && selectedProfile.userId === match.counterpart.userId;
+
+                          return (
+                            <Pressable
+                              accessibilityRole="button"
+                              key={match.matchId}
+                              onPress={() => {
+                                setSelectedProfile({
+                                  source: 'match',
+                                  userId: match.counterpart.userId,
+                                });
+                                setProfileActionFeedback(undefined);
+                              }}
+                              style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: theme.spacing.sm,
+                                borderRadius: theme.radius.sm,
+                                borderWidth: 1,
+                                borderColor: isSelected ? theme.colors.accentPrimary : theme.colors.backgroundSecondary,
+                                backgroundColor: theme.colors.backgroundSecondary,
+                                paddingHorizontal: theme.spacing.md,
+                                paddingVertical: theme.spacing.sm,
+                              }}
+                            >
+                              <Image
+                                source={resolveUserPhotoSource(match.counterpart)}
+                                style={{ width: 36, height: 36, borderRadius: 18 }}
+                              />
+                              <Text style={{ color: theme.colors.textPrimary, fontSize: theme.typography.bodySmall }}>
+                                {match.counterpart.displayName} • {match.counterpart.age} • {formatGenderLabel(match.counterpart.gender)}
+                              </Text>
+                            </Pressable>
+                          );
+                        })}
                       </View>
-                    ))
+                    )
                   )}
+
+                  {profileActionFeedback ? (
+                    <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>{profileActionFeedback}</Text>
+                  ) : null}
+
+                  {selectedProfilePreview ? (
+                    <Card
+                      subtitle={selectedProfilePreview.source === 'potential' ? 'Potential Match Profile' : 'Match Profile'}
+                      title="Profile"
+                    >
+                      <View style={{ gap: theme.spacing.sm }}>
+                        <Image source={resolveUserPhotoSource(selectedProfilePreview)} style={[styles.previewPhoto, { borderRadius: theme.radius.sm }]} />
+                        <Text style={{ color: theme.colors.textPrimary, fontSize: theme.typography.title }}>{selectedProfilePreview.displayName}</Text>
+                        <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
+                          {selectedProfilePreview.age} • {formatGenderLabel(selectedProfilePreview.gender)}
+                        </Text>
+
+                        <Button
+                          disabled={isSubmittingProfileAction}
+                          label={isSubmittingProfileAction ? 'Submitting…' : 'Like'}
+                          onPress={() => void submitProfileAction('like')}
+                        />
+                        <Button
+                          disabled={isSubmittingProfileAction}
+                          label={isSubmittingProfileAction ? 'Submitting…' : 'Pass'}
+                          onPress={() => void submitProfileAction('pass')}
+                          variant="secondary"
+                        />
+                        <Button
+                          disabled={isSubmittingProfileAction}
+                          label={isSubmittingProfileAction ? 'Submitting…' : 'Unlike'}
+                          onPress={() => void submitProfileAction('unlike')}
+                          variant="secondary"
+                        />
+                        <Button
+                          disabled={isSubmittingProfileAction}
+                          label={isSubmittingProfileAction ? 'Submitting…' : 'Unmatch'}
+                          onPress={() => void submitProfileAction('unmatch')}
+                          variant="secondary"
+                        />
+                      </View>
+                    </Card>
+                  ) : null}
                 </View>
 
                 <Button label="Back to Nearby Venues" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))} variant="secondary" />

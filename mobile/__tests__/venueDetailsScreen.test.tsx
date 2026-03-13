@@ -27,7 +27,7 @@ function VenueDetailsTestNavigator({ servicesOverride }: { servicesOverride?: Ba
 }
 
 describe('venue details screen', () => {
-  it('renders richer venue details content and supports direct checkout action', async () => {
+  it('renders list bars first and opens profile card only after selecting a person', async () => {
     const { findByText, getByText, queryByText } = render(<VenueDetailsTestNavigator />);
 
     expect(await findByText('Venue Details Screen')).toBeTruthy();
@@ -36,8 +36,16 @@ describe('venue details screen', () => {
     expect(await findByText('Status: Active')).toBeTruthy();
     expect(await findByText('Potential Matches')).toBeTruthy();
     expect(await findByText('Matches')).toBeTruthy();
-    expect(await findByText('Discovery Profile Preview')).toBeTruthy();
-    expect(await findByText('Riley Active')).toBeTruthy();
+    expect(await findByText('Riley Active • 29 • non binary')).toBeTruthy();
+    expect(queryByText('Profile')).toBeNull();
+
+    fireEvent.press(getByText('Riley Active • 29 • non binary'));
+
+    expect(await findByText('Profile')).toBeTruthy();
+    expect(await findByText('Like')).toBeTruthy();
+    expect(await findByText('Pass')).toBeTruthy();
+    expect(await findByText('Unlike')).toBeTruthy();
+    expect(await findByText('Unmatch')).toBeTruthy();
 
     if (queryByText('Checkout')) {
       fireEvent.press(getByText('Checkout'));
@@ -50,7 +58,6 @@ describe('venue details screen', () => {
     expect(await findByText('Check in to this venue to see people here.')).toBeTruthy();
     fireEvent.press(getByText('Check-In'));
     expect(await findByText('Check-in completed. You are now checked into this venue.')).toBeTruthy();
-    expect(await findByText('Discovery Profile Preview')).toBeTruthy();
     expect(await findByText('Riley Active')).toBeTruthy();
     fireEvent.press(getByText('Checkout'));
 
@@ -71,13 +78,15 @@ describe('venue details screen', () => {
     fireEvent.press(getByText('Check-In'));
 
     expect(await findByText('Check-in completed. You are now checked into this venue.')).toBeTruthy();
-    expect(await findByText('Discovery Profile Preview')).toBeTruthy();
     fireEvent.press(getByText('Matches'));
 
     expect(await findByText('Jordan • 27 • female')).toBeTruthy();
+
+    fireEvent.press(getByText('Jordan • 27 • female'));
+    expect(await findByText('Profile')).toBeTruthy();
   });
 
-  it('submits like/pass actions from inline discovery preview and progresses candidates', async () => {
+  it('supports like pass unlike and unmatch actions from selected profile', async () => {
     const mockLocator = createMockBackendServiceLocator();
 
     const servicesOverride: BackendServiceContracts = {
@@ -123,12 +132,22 @@ describe('venue details screen', () => {
     const { findByText, getByText } = render(<VenueDetailsTestNavigator servicesOverride={servicesOverride} />);
 
     expect(await findByText('Venue Details Screen')).toBeTruthy();
-    expect(await findByText('Discovery Profile Preview')).toBeTruthy();
-    expect(await findByText('Riley Active')).toBeTruthy();
+    fireEvent.press(getByText('Riley Active • 29 • non binary'));
+    expect(await findByText('Profile')).toBeTruthy();
 
     fireEvent.press(getByText('Like'));
 
     expect(await findByText('Liked Riley Active.')).toBeTruthy();
-    expect(await findByText('Discovery Profile Preview')).toBeTruthy();
+
+    fireEvent.press(getByText('Unlike'));
+    expect(await findByText('Removed like for Riley Active.')).toBeTruthy();
+
+    fireEvent.press(getByText('Pass'));
+    expect(await findByText('Passed on Riley Active.')).toBeTruthy();
+
+    fireEvent.press(getByText('Matches'));
+    fireEvent.press(getByText('Jordan • 27 • female'));
+    fireEvent.press(getByText('Unmatch'));
+    expect(await findByText('Unmatched Jordan.')).toBeTruthy();
   });
 });
