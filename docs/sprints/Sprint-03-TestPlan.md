@@ -12,10 +12,11 @@
 1. User opens Nearby Venues and sees ordered list.
 2. User taps venue card and remains on Nearby Venues.
 3. User taps `Check-In`, enters Venue Details, and is checked in (in-range scenario).
-4. User taps `Checkout` from Nearby Venues card and remains on Nearby Venues.
-5. User taps `Checkout` in Venue Details and is returned to Nearby Venues.
-6. Active Session screen displays current venue and session status.
-7. Venue Presence screen reflects active participants while checked in.
+4. While checked in, user taps the checked-in venue card and enters Venue Details.
+5. User taps `Checkout` from Nearby Venues card and remains on Nearby Venues.
+6. User taps `Checkout` in Venue Details and is returned to Nearby Venues.
+7. Active Session screen displays current venue and session status.
+8. Venue Presence screen reflects active participants while checked in.
 
 ## Edge Cases
 - User checks into Venue A, then checks into Venue B (auto-replace).

@@ -90,7 +90,7 @@ Night Vibe’s core product differentiation is venue-based, proximity-gated inte
 
 ## Screen-Level Behavior
 - Nearby Venues screen displays list with distance and activity snapshot values.
-- Nearby venue card tap does not navigate to venue details.
+- Nearby venue card tap does not navigate to venue details, except for the currently checked-in venue card which opens venue details.
 - Nearby venue `Check-In` button checks user in and then navigates to venue details.
 - Nearby venue `Checkout` button checks user out and keeps user on Nearby Venues.
 - Venue Details screen is accessible only while user is checked into that venue.

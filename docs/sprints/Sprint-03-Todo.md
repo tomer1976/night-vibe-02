@@ -24,7 +24,7 @@
 - [x] Add mock venue presence participant fixtures.
 
 ## Navigation Tasks
-- [x] Wire navigation flow: Nearby card tap stays on list; `Check-In` enters Venue Details.
+- [x] Wire navigation flow: Nearby card tap stays on list except the checked-in venue card; `Check-In` enters Venue Details.
 - [x] Wire Active Session -> Checkout Confirmation -> Nearby Venues return path.
 - [x] Add guards for profile completion/account status before venue routes and checked-in-only venue details access.
 

@@ -29,8 +29,36 @@ function NearbyVenuesTestNavigator({ servicesOverride }: { servicesOverride?: Ba
 }
 
 describe('nearby venues screen', () => {
+  const createServicesWithActiveSession = (venueId: string | null): BackendServiceContracts => {
+    const mockLocator = createMockBackendServiceLocator();
+
+    return {
+      ...mockLocator.services,
+      presence: {
+        ...mockLocator.services.presence,
+        getMyActiveSession: async () => ({
+          status: 'SUCCESS',
+          request_id: 'req-test-active-session',
+          data: venueId
+            ? {
+                sessionId: 'session-test-active',
+                userId: 'u-regular-001',
+                venueId,
+                status: 'active',
+                checkinAt: '2026-03-08T20:00:00.000Z',
+                checkoutAt: null,
+              }
+            : null,
+        }),
+      },
+    };
+  };
+
   it('renders venue list with category/status/activity metadata from mock discovery', async () => {
-    const { getByText, findAllByText, findByText, queryByText } = render(<NearbyVenuesTestNavigator />);
+    const servicesOverride = createServicesWithActiveSession(null);
+    const { getByText, findAllByText, findByText, queryByText } = render(
+      <NearbyVenuesTestNavigator servicesOverride={servicesOverride} />
+    );
 
     fireEvent.press(getByText('Nearby Venues Screen'));
 
@@ -47,16 +75,12 @@ describe('nearby venues screen', () => {
     expect(activeStatusBadges).toHaveLength(2);
     expect(await findByText('Live: Busy now')).toBeTruthy();
     expect(await findByText('Live: Calm now')).toBeTruthy();
-    expect(await findByText('Checkout')).toBeTruthy();
-    expect(await findByText('Check-In')).toBeTruthy();
+    expect(queryByText('Checkout')).toBeNull();
+    expect((await findAllByText('Check-In')).length).toBeGreaterThan(0);
 
     fireEvent.press(getByText('Halo Club'));
 
     expect(queryByText('Venue Details Screen')).toBeNull();
-
-    fireEvent.press(getByText('Check-In'));
-
-    expect(await findByText('Venue Details Screen')).toBeTruthy();
   });
 
   it('renders nearby venues empty state when no active venues are returned', async () => {
@@ -145,5 +169,18 @@ describe('nearby venues screen', () => {
       expect(queryByText('You are checked in')).toBeNull();
       expect(queryByText('Venue Details Screen')).toBeNull();
     });
+  });
+
+  it('opens venue details when tapping the card of the currently checked-in venue', async () => {
+    const servicesOverride = createServicesWithActiveSession('v-luna-lounge');
+    const { findByText, getByText } = render(<NearbyVenuesTestNavigator servicesOverride={servicesOverride} />);
+
+    fireEvent.press(getByText('Nearby Venues Screen'));
+
+    expect(await findByText('You are checked in')).toBeTruthy();
+    fireEvent.press(getByText('Luna Lounge'));
+
+    expect(await findByText('Venue Details Screen')).toBeTruthy();
+    expect(await findByText('Luna Lounge')).toBeTruthy();
   });
 });
