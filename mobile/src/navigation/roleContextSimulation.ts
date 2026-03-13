@@ -130,7 +130,6 @@ export function canAccessRoute(routeName: AppRouteName, context: SimulatedRoleCo
   switch (routeName) {
     case ROUTE_NAMES.UserGroup:
     case ROUTE_NAMES.NearbyVenues:
-    case ROUTE_NAMES.UserDiscoveryFeed:
     case ROUTE_NAMES.VenueDetails:
     case ROUTE_NAMES.CheckInConfirmation:
     case ROUTE_NAMES.CheckoutConfirmation:

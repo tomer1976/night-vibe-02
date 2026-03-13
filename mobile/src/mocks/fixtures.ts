@@ -433,6 +433,16 @@ export const sprint03VenuePresenceParticipants: readonly MockVenuePresencePartic
     visibility: 'visible',
   }),
   Object.freeze({
+    participantId: 'vp-halo-active-visible',
+    userId: 'u-persona-active-1',
+    venueId: 'v-halo-club',
+    displayName: 'Riley Active',
+    age: 29,
+    gender: 'non_binary',
+    profilePhotoUrl: 'mock://user-photo/riley',
+    visibility: 'visible',
+  }),
+  Object.freeze({
     participantId: 'vp-halo-admin-hidden',
     userId: 'u-admin-1',
     venueId: 'v-halo-club',

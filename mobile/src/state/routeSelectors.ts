@@ -34,7 +34,6 @@ export function useRouteAccessSelectors() {
     () => {
       const isVenueRoute = (routeName: AppRouteName) =>
         routeName === ROUTE_NAMES.NearbyVenues ||
-        routeName === ROUTE_NAMES.UserDiscoveryFeed ||
         routeName === ROUTE_NAMES.VenueDetails ||
         routeName === ROUTE_NAMES.CheckInConfirmation ||
         routeName === ROUTE_NAMES.CheckoutConfirmation;
@@ -42,7 +41,6 @@ export function useRouteAccessSelectors() {
       const isPostOnboardingRoute = (routeName: AppRouteName) =>
         routeName === ROUTE_NAMES.UserGroup ||
         routeName === ROUTE_NAMES.NearbyVenues ||
-        routeName === ROUTE_NAMES.UserDiscoveryFeed ||
         routeName === ROUTE_NAMES.VenueDetails ||
         routeName === ROUTE_NAMES.CheckInConfirmation ||
         routeName === ROUTE_NAMES.CheckoutConfirmation ||

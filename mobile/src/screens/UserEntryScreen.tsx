@@ -96,12 +96,6 @@ export function UserEntryScreen() {
             trailingText="Open"
           />
           <ListItem
-            onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.UserDiscoveryFeed))}
-            subtitle="Review deterministic same-venue discovery candidates in feed order"
-            title="User Discovery Feed Screen"
-            trailingText="Open"
-          />
-          <ListItem
             onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.UserProfile, { draft: DEFAULT_PROFILE_DRAFT }))}
             subtitle="View profile details and completion status"
             title="User Profile Screen"

@@ -2,18 +2,19 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fireEvent, render } from '@testing-library/react-native';
 
+import { BackendServiceContracts } from '../src/contracts';
 import { VenueDetailsScreen } from '../src/screens';
-import { ServiceLocatorProvider } from '../src/services';
+import { createMockBackendServiceLocator, ServiceLocatorProvider } from '../src/services';
 import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
 
 const Stack = createNativeStackNavigator();
 
-function VenueDetailsTestNavigator() {
+function VenueDetailsTestNavigator({ servicesOverride }: { servicesOverride?: BackendServiceContracts } = {}) {
   return (
     <ThemeProvider>
       <AppStateProvider>
-        <ServiceLocatorProvider isMockModeEnabled>
+        <ServiceLocatorProvider isMockModeEnabled servicesOverride={servicesOverride}>
           <NavigationContainer>
             <Stack.Navigator initialRouteName="VenueDetails" screenOptions={{ headerShown: false }}>
               <Stack.Screen component={VenueDetailsScreen} initialParams={{ venueId: 'v-halo-club' }} name="VenueDetails" />
@@ -35,7 +36,8 @@ describe('venue details screen', () => {
     expect(await findByText('Status: Active')).toBeTruthy();
     expect(await findByText('Potential Matches')).toBeTruthy();
     expect(await findByText('Matches')).toBeTruthy();
-    expect(await findByText('No potential matches are available in this venue right now.')).toBeTruthy();
+    expect(await findByText('Discovery Profile Preview')).toBeTruthy();
+    expect(await findByText('Riley Active')).toBeTruthy();
 
     if (queryByText('Checkout')) {
       fireEvent.press(getByText('Checkout'));
@@ -48,7 +50,8 @@ describe('venue details screen', () => {
     expect(await findByText('Check in to this venue to see people here.')).toBeTruthy();
     fireEvent.press(getByText('Check-In'));
     expect(await findByText('Check-in completed. You are now checked into this venue.')).toBeTruthy();
-    expect(await findByText('No potential matches are available in this venue right now.')).toBeTruthy();
+    expect(await findByText('Discovery Profile Preview')).toBeTruthy();
+    expect(await findByText('Riley Active')).toBeTruthy();
     fireEvent.press(getByText('Checkout'));
 
     expect(await findByText('Checkout completed. You are no longer checked into this venue.')).toBeTruthy();
@@ -68,9 +71,64 @@ describe('venue details screen', () => {
     fireEvent.press(getByText('Check-In'));
 
     expect(await findByText('Check-in completed. You are now checked into this venue.')).toBeTruthy();
-    expect(await findByText('No potential matches are available in this venue right now.')).toBeTruthy();
+    expect(await findByText('Discovery Profile Preview')).toBeTruthy();
     fireEvent.press(getByText('Matches'));
 
     expect(await findByText('Jordan • 27 • female')).toBeTruthy();
+  });
+
+  it('submits like/pass actions from inline discovery preview and progresses candidates', async () => {
+    const mockLocator = createMockBackendServiceLocator();
+
+    const servicesOverride: BackendServiceContracts = {
+      ...mockLocator.services,
+      discovery: {
+        ...mockLocator.services.discovery,
+        getCandidates: async () => ({
+          status: 'SUCCESS',
+          data: {
+            items: [
+              {
+                userId: 'u-discovery-inline-1',
+                displayName: 'Riley Active',
+                age: 29,
+                gender: 'non_binary',
+                profilePhotoUrl: 'mock://user-photo/riley',
+                venueId: 'v-halo-club',
+              },
+            ],
+          },
+          request_id: 'req-venue-details-candidates',
+        }),
+      },
+      interactions: {
+        ...mockLocator.services.interactions,
+        likeUser: async () => ({
+          status: 'SUCCESS',
+          data: {
+            status: 'SUCCESS',
+            interaction: 'LIKE',
+            interactionId: 'i-venue-details-like-1',
+            targetUserId: 'u-discovery-inline-1',
+            venueId: 'v-halo-club',
+            decision: 'created',
+            duplicateScope: 'actor_target_venue_session',
+            matchCreated: false,
+          },
+          request_id: 'req-venue-details-like',
+        }),
+      },
+    };
+
+    const { findByText, getByText } = render(<VenueDetailsTestNavigator servicesOverride={servicesOverride} />);
+
+    expect(await findByText('Venue Details Screen')).toBeTruthy();
+    expect(await findByText('Discovery Profile Preview')).toBeTruthy();
+    expect(await findByText('Riley Active')).toBeTruthy();
+
+    fireEvent.press(getByText('Like'));
+
+    expect(await findByText('Liked Riley Active.')).toBeTruthy();
+    expect(await findByText('Discovery Profile Preview')).toBeTruthy();
   });
 });
