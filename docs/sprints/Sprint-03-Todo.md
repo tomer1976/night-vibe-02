@@ -61,7 +61,7 @@
 ## Release/Readiness Tasks (if applicable)
 - [x] Prepare Sprint 03 demo script for all check-in outcome scenarios.
 - [x] Publish QA report and open-defect summary.
-- [ ] Finalize carry-over list for Sprint 04 dependencies.
+- [x] Finalize carry-over list for Sprint 04 dependencies.
 
 ## Sprint Exit Checklist
 - [ ] Sprint-03 PRD commitments delivered or formally deferred.
