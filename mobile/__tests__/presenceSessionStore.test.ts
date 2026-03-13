@@ -133,4 +133,62 @@ describe('presenceSessionStore', () => {
     expect(expiredState.transitions[0].toStatus).toBe('expired');
     expect(expiredState.lastSyncedAt).toBe('2026-03-13T01:50:00.000Z');
   });
+
+  it('ignores stale check-in result that arrives after a newer checkout update', () => {
+    const checkedOutState = presenceSessionStoreReducer(
+      presenceSessionStoreReducer(createInitialPresenceSessionStoreState(), {
+        type: 'SET_SESSION_SNAPSHOT',
+        session: {
+          sessionId: 's-active',
+          userId: 'u-test',
+          venueId: 'v-halo',
+          status: 'active',
+          checkinAt: '2026-03-12T22:10:00.000Z',
+          checkoutAt: null,
+        },
+        syncedAt: '2026-03-12T22:10:00.000Z',
+      }),
+      {
+        type: 'APPLY_CHECKOUT',
+        checkoutTime: '2026-03-12T22:20:00.000Z',
+      },
+    );
+
+    const outOfOrderState = presenceSessionStoreReducer(checkedOutState, {
+      type: 'APPLY_CHECKIN_RESULT',
+      result: createCheckInResult({
+        venueId: 'v-luna-lounge',
+        sessionId: 's-late-response',
+        checkinTimestamp: '2026-03-12T22:15:00.000Z',
+      }),
+      userId: 'u-test',
+    });
+
+    expect(outOfOrderState.activeSession).toBeNull();
+    expect(outOfOrderState.transitions).toHaveLength(1);
+    expect(outOfOrderState.transitions[0].reason).toBe('manual_checkout');
+    expect(outOfOrderState.lastSyncedAt).toBe('2026-03-12T22:20:00.000Z');
+  });
+
+  it('ignores stale checkout event that arrives after a newer check-in update', () => {
+    const checkedInState = presenceSessionStoreReducer(createInitialPresenceSessionStoreState(), {
+      type: 'APPLY_CHECKIN_RESULT',
+      result: createCheckInResult({
+        venueId: 'v-luna-lounge',
+        sessionId: 's-new',
+        checkinTimestamp: '2026-03-12T22:40:00.000Z',
+      }),
+      userId: 'u-test',
+    });
+
+    const outOfOrderState = presenceSessionStoreReducer(checkedInState, {
+      type: 'APPLY_CHECKOUT',
+      checkoutTime: '2026-03-12T22:35:00.000Z',
+    });
+
+    expect(outOfOrderState.activeSession?.sessionId).toBe('s-new');
+    expect(outOfOrderState.activeSession?.status).toBe('active');
+    expect(outOfOrderState.transitions).toEqual([]);
+    expect(outOfOrderState.lastSyncedAt).toBe('2026-03-12T22:40:00.000Z');
+  });
 });

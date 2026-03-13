@@ -43,6 +43,41 @@ export function createInitialPresenceSessionStoreState(): PresenceSessionStoreSt
   };
 }
 
+function getLatestPresenceEventTimestamp(state: PresenceSessionStoreState): string | null {
+  const candidateInstants: string[] = [];
+
+  if (state.activeSession?.checkinAt) {
+    candidateInstants.push(state.activeSession.checkinAt);
+  }
+
+  for (const transition of state.transitions) {
+    candidateInstants.push(transition.transitionedAt);
+  }
+
+  const sortedCandidates = candidateInstants
+    .filter((instant) => Number.isFinite(new Date(instant).getTime()))
+    .sort((left, right) => new Date(right).getTime() - new Date(left).getTime());
+
+  return sortedCandidates[0] ?? null;
+}
+
+function shouldIgnoreStalePresenceEvent(state: PresenceSessionStoreState, nextEventTimestamp: string): boolean {
+  const latestEventTimestamp = getLatestPresenceEventTimestamp(state);
+
+  if (!latestEventTimestamp) {
+    return false;
+  }
+
+  const nextEventMs = new Date(nextEventTimestamp).getTime();
+  const latestEventMs = new Date(latestEventTimestamp).getTime();
+
+  if (!Number.isFinite(nextEventMs) || !Number.isFinite(latestEventMs)) {
+    return false;
+  }
+
+  return nextEventMs < latestEventMs;
+}
+
 function toSessionFromCheckInResult(result: PresenceCheckInResult, existingUserId?: string): VenueSession {
   return {
     sessionId: result.sessionId,
@@ -97,6 +132,10 @@ export function presenceSessionStoreReducer(
     }
 
     case 'APPLY_CHECKIN_RESULT': {
+      if (shouldIgnoreStalePresenceEvent(state, action.result.checkinTimestamp)) {
+        return state;
+      }
+
       const existingActiveSession = state.activeSession;
       const nextSession = toSessionFromCheckInResult(action.result, action.userId ?? existingActiveSession?.userId);
 
@@ -146,6 +185,10 @@ export function presenceSessionStoreReducer(
     }
 
     case 'APPLY_CHECKOUT': {
+      if (shouldIgnoreStalePresenceEvent(state, action.checkoutTime)) {
+        return state;
+      }
+
       if (!state.activeSession || state.activeSession.status !== 'active') {
         return {
           ...state,
@@ -164,6 +207,10 @@ export function presenceSessionStoreReducer(
     }
 
     case 'APPLY_TIMEOUT': {
+      if (shouldIgnoreStalePresenceEvent(state, action.expiredAt)) {
+        return state;
+      }
+
       if (!state.activeSession || state.activeSession.status !== 'active') {
         return {
           ...state,

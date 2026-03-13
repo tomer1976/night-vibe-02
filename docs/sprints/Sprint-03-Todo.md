@@ -49,7 +49,7 @@
 
 ## Bugfix/Stabilization Tasks
 - [x] Fix stale session UI after replacement or timeout events.
-- [ ] Resolve race conditions in rapid check-in/check-out mock interactions.
+- [x] Resolve race conditions in rapid check-in/check-out mock interactions.
 - [ ] Fix cross-screen inconsistency in venue status rendering.
 
 ## Documentation Tasks
