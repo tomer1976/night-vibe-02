@@ -59,7 +59,7 @@
 - [x] Record conversion notes for Phase 2 real presence implementation.
 
 ## Release/Readiness Tasks (if applicable)
-- [ ] Prepare Sprint 03 demo script for all check-in outcome scenarios.
+- [x] Prepare Sprint 03 demo script for all check-in outcome scenarios.
 - [ ] Publish QA report and open-defect summary.
 - [ ] Finalize carry-over list for Sprint 04 dependencies.
 
