@@ -95,6 +95,13 @@ export type MockVenuePresenceParticipant = {
   visibility: 'visible' | 'hidden';
 };
 
+export type Sprint04VenueSessionCandidatePartition = {
+  partitionId: string;
+  venueId: string;
+  sessionStatus: MockFixtureSession['status'];
+  participants: readonly MockVenuePresenceParticipant[];
+};
+
 export type MockFixtureSet = {
   users: readonly MockFixtureUser[];
   roleContexts: readonly MockFixtureRoleContext[];
@@ -451,6 +458,44 @@ export const sprint03VenuePresenceParticipants: readonly MockVenuePresencePartic
     gender: 'male',
     profilePhotoUrl: 'mock://user-photo/taylor',
     visibility: 'hidden',
+  }),
+]);
+
+export const sprint04VenueSessionCandidateFixtures: readonly Sprint04VenueSessionCandidatePartition[] = Object.freeze([
+  Object.freeze({
+    partitionId: 's4-v-halo-club-active',
+    venueId: 'v-halo-club',
+    sessionStatus: 'active',
+    participants: sprint03VenuePresenceParticipants,
+  }),
+  Object.freeze({
+    partitionId: 's4-v-luna-lounge-active',
+    venueId: 'v-luna-lounge',
+    sessionStatus: 'active',
+    participants: Object.freeze([
+      Object.freeze({
+        participantId: 'vp-luna-moderator-hidden',
+        userId: 'u-moderator-1',
+        venueId: 'v-luna-lounge',
+        displayName: 'Morgan',
+        age: 35,
+        gender: 'non_binary',
+        profilePhotoUrl: 'mock://user-photo/morgan',
+        visibility: 'hidden',
+      }),
+    ]),
+  }),
+  Object.freeze({
+    partitionId: 's4-v-halo-club-closed',
+    venueId: 'v-halo-club',
+    sessionStatus: 'closed',
+    participants: Object.freeze([]),
+  }),
+  Object.freeze({
+    partitionId: 's4-v-luna-lounge-expired',
+    venueId: 'v-luna-lounge',
+    sessionStatus: 'expired',
+    participants: Object.freeze([]),
   }),
 ]);
 

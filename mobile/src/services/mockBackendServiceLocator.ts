@@ -25,6 +25,7 @@ import {
   sprint01Fixtures,
   sprint03DiscoveryCoordinates,
   sprint03VenuePresenceParticipants,
+  sprint04VenueSessionCandidateFixtures,
   sprint03VenueDistanceOutputs,
   sprint02AuthPersonaFixtures,
   sprint02ProfileFixtures,
@@ -150,7 +151,11 @@ function buildDiscoveryCandidates(activeUserId: string): DiscoveryCandidate[] {
       .map((match) => match.counterpart.userId)
   );
 
-  const fixtureParticipants = sprint03VenuePresenceParticipants.filter(
+  const partition = sprint04VenueSessionCandidateFixtures.find(
+    (item) => item.venueId === activeSession.venueId && item.sessionStatus === activeSession.status
+  );
+
+  const fixtureParticipants = (partition?.participants ?? sprint03VenuePresenceParticipants).filter(
     (participant) =>
       participant.venueId === activeSession.venueId &&
       participant.visibility === 'visible' &&

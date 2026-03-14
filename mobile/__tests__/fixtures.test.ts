@@ -6,6 +6,7 @@ import {
   sprint03DiscoveryCoordinates,
   sprint03VenuePresenceParticipants,
   sprint03VenueDistanceOutputs,
+  sprint04VenueSessionCandidateFixtures,
 } from '../src/mocks';
 
 describe('sprint01 fixtures', () => {
@@ -47,6 +48,29 @@ describe('sprint01 fixtures', () => {
       expect(fixtureVenueIds.has(participant.venueId)).toBe(true);
       expect(participant.displayName.length).toBeGreaterThan(0);
       expect(participant.age).toBeGreaterThanOrEqual(18);
+    }
+  });
+
+  it('includes Sprint-04 candidate fixture datasets partitioned by venue and session context', () => {
+    expect(sprint04VenueSessionCandidateFixtures.length).toBeGreaterThanOrEqual(4);
+
+    const partitionKeys = new Set(
+      sprint04VenueSessionCandidateFixtures.map((partition) => `${partition.venueId}:${partition.sessionStatus}`)
+    );
+
+    expect(partitionKeys.size).toBe(sprint04VenueSessionCandidateFixtures.length);
+    expect(partitionKeys.has('v-halo-club:active')).toBe(true);
+
+    const fixtureUserIds = new Set(sprint01Fixtures.users.map((user) => user.uid));
+    const fixtureVenueIds = new Set(sprint01Fixtures.venues.map((venue) => venue.venueId));
+
+    for (const partition of sprint04VenueSessionCandidateFixtures) {
+      expect(fixtureVenueIds.has(partition.venueId)).toBe(true);
+
+      for (const participant of partition.participants) {
+        expect(participant.venueId).toBe(partition.venueId);
+        expect(fixtureUserIds.has(participant.userId)).toBe(true);
+      }
     }
   });
 

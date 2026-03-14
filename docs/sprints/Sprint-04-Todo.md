@@ -16,7 +16,7 @@
 - [x] Add placeholder client contract mappers for future `/api/v1` discovery/interaction endpoints.
 
 ## Mock-Data Tasks
-- [ ] Create candidate fixture datasets partitioned by venue/session context.
+- [x] Create candidate fixture datasets partitioned by venue/session context.
 - [ ] Create preference compatibility fixture matrix.
 - [ ] Create block/skip fixture states to validate filtering behavior.
 - [ ] Create reciprocal-like scenario fixture packs.
