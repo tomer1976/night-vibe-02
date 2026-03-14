@@ -1,5 +1,5 @@
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,6 +7,7 @@ import { Button, Card, TopBar } from '../components';
 import { DiscoveryCandidate } from '../contracts';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
+import { usePresenceSessionState } from '../state';
 import { useTheme } from '../theme';
 import { resolveUserPhotoSource } from './userPhotoSource';
 import {
@@ -42,11 +43,13 @@ export function DiscoveryProfilePreviewScreen() {
   const route = useRoute();
   const theme = useTheme();
   const services = useServiceLocator();
+  const { activeSession, setSessionSnapshot } = usePresenceSessionState();
 
   const params = route.params as DiscoveryProfilePreviewRouteParams;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<InteractionFeedbackState | undefined>();
   const [isPotentialLikedOverride, setIsPotentialLikedOverride] = useState<boolean | null>(null);
+  const [isPresenceSynced, setIsPresenceSynced] = useState(false);
 
   const venueSnapshot = useMemo(
     () => readVenuePeopleInteractionSnapshot(params.venueId),
@@ -57,6 +60,40 @@ export function DiscoveryProfilePreviewScreen() {
     () => isPotentialLikedOverride ?? venueSnapshot.likedPotentialUserIds.includes(params.userId),
     [isPotentialLikedOverride, params.userId, venueSnapshot.likedPotentialUserIds]
   );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const syncPresenceSnapshot = async () => {
+      const sessionResponse = await services.presence.getMyActiveSession();
+
+      if (sessionResponse.status === 'SUCCESS') {
+        setSessionSnapshot(sessionResponse.data, undefined, new Date().toISOString());
+      }
+
+      if (isMounted) {
+        setIsPresenceSynced(true);
+      }
+    };
+
+    void syncPresenceSnapshot();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [services.presence, setSessionSnapshot]);
+
+  useEffect(() => {
+    if (!isPresenceSynced) {
+      return;
+    }
+
+    const hasActiveSessionInVenue = activeSession?.status === 'active' && activeSession.venueId === params.venueId;
+
+    if (!hasActiveSessionInVenue) {
+      navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues));
+    }
+  }, [activeSession, isPresenceSynced, navigation, params.venueId]);
 
   const goBackToVenue = useCallback(() => {
     navigation.dispatch(StackActions.replace(ROUTE_NAMES.VenueDetails, { venueId: params.venueId }));

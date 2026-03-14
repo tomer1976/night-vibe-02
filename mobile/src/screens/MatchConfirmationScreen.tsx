@@ -1,9 +1,12 @@
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
+import { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, Card, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { useServiceLocator } from '../services';
+import { usePresenceSessionState } from '../state';
 import { useTheme } from '../theme';
 import { resolveUserPhotoSource } from './userPhotoSource';
 
@@ -22,8 +25,45 @@ export function MatchConfirmationScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const theme = useTheme();
+  const services = useServiceLocator();
+  const { activeSession, setSessionSnapshot } = usePresenceSessionState();
+  const [isPresenceSynced, setIsPresenceSynced] = useState(false);
 
   const params = route.params as MatchConfirmationRouteParams;
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const syncPresenceSnapshot = async () => {
+      const sessionResponse = await services.presence.getMyActiveSession();
+
+      if (sessionResponse.status === 'SUCCESS') {
+        setSessionSnapshot(sessionResponse.data, undefined, new Date().toISOString());
+      }
+
+      if (isMounted) {
+        setIsPresenceSynced(true);
+      }
+    };
+
+    void syncPresenceSnapshot();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [services.presence, setSessionSnapshot]);
+
+  useEffect(() => {
+    if (!isPresenceSynced) {
+      return;
+    }
+
+    const hasActiveSessionInVenue = activeSession?.status === 'active' && activeSession.venueId === params.venueId;
+
+    if (!hasActiveSessionInVenue) {
+      navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues));
+    }
+  }, [activeSession, isPresenceSynced, navigation, params.venueId]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 

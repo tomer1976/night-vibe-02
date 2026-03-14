@@ -1,8 +1,10 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
+import { Text } from 'react-native';
 
 import { BackendServiceContracts } from '../src/contracts';
+import { ROUTE_NAMES } from '../src/navigation';
 import { DiscoveryProfilePreviewScreen } from '../src/screens';
 import { resetVenuePeopleInteractionState } from '../src/screens/venuePeopleInteractionState';
 import { createMockBackendServiceLocator, ServiceLocatorProvider } from '../src/services';
@@ -10,6 +12,10 @@ import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
 
 const Stack = createNativeStackNavigator();
+
+function NearbyVenuesGuardStub() {
+  return <Text>Nearby Venues Guarded Route</Text>;
+}
 
 function buildNavigator(servicesOverride: BackendServiceContracts) {
   return render(
@@ -31,6 +37,7 @@ function buildNavigator(servicesOverride: BackendServiceContracts) {
                 }}
                 name="DiscoveryProfilePreview"
               />
+              <Stack.Screen component={NearbyVenuesGuardStub} name={ROUTE_NAMES.NearbyVenues} />
             </Stack.Navigator>
           </NavigationContainer>
         </ServiceLocatorProvider>

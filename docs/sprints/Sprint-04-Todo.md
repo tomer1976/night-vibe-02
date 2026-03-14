@@ -25,7 +25,7 @@
 
 ## Navigation Tasks
 - [x] Wire route flow: Discovery Feed -> Profile Preview -> Match Confirmation -> Feed return.
-- [ ] Add guard for users without active venue session.
+- [x] Add guard for users without active venue session.
 - [ ] Add fallback route for exhausted feed and ineligible discovery states.
 
 ## UI Tasks

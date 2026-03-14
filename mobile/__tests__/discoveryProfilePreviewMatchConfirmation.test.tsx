@@ -1,6 +1,7 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fireEvent, render } from '@testing-library/react-native';
+import { Text } from 'react-native';
 
 import { BackendServiceContracts } from '../src/contracts';
 import { ROUTE_NAMES } from '../src/navigation';
@@ -12,11 +13,25 @@ import { ThemeProvider } from '../src/theme';
 
 const Stack = createNativeStackNavigator();
 
-function buildServicesOverride(matchCreated: boolean): BackendServiceContracts {
+function buildServicesOverride(matchCreated: boolean, withActiveSession: boolean): BackendServiceContracts {
   const locator = createMockBackendServiceLocator();
 
   return {
     ...locator.services,
+    presence: {
+      ...locator.services.presence,
+      getMyActiveSession: async () => {
+        if (withActiveSession) {
+          return locator.services.presence.getMyActiveSession();
+        }
+
+        return {
+          status: 'SUCCESS',
+          data: null,
+          request_id: 'req-no-active-session',
+        };
+      },
+    },
     interactions: {
       ...locator.services.interactions,
       likeUser: async (request) => ({
@@ -39,8 +54,12 @@ function buildServicesOverride(matchCreated: boolean): BackendServiceContracts {
   };
 }
 
-function DiscoveryProfilePreviewMatchNavigator({ matchCreated }: { matchCreated: boolean }) {
-  const servicesOverride = buildServicesOverride(matchCreated);
+function NearbyVenuesGuardStub() {
+  return <Text>Nearby Venues Guarded Route</Text>;
+}
+
+function DiscoveryProfilePreviewMatchNavigator({ matchCreated, withActiveSession = true }: { matchCreated: boolean; withActiveSession?: boolean }) {
+  const servicesOverride = buildServicesOverride(matchCreated, withActiveSession);
 
   return (
     <ThemeProvider>
@@ -62,6 +81,7 @@ function DiscoveryProfilePreviewMatchNavigator({ matchCreated }: { matchCreated:
                 name={ROUTE_NAMES.DiscoveryProfilePreview}
               />
               <Stack.Screen component={MatchConfirmationScreen} name={ROUTE_NAMES.MatchConfirmation} />
+              <Stack.Screen component={NearbyVenuesGuardStub} name={ROUTE_NAMES.NearbyVenues} />
             </Stack.Navigator>
           </NavigationContainer>
         </ServiceLocatorProvider>
@@ -88,5 +108,12 @@ describe('discovery profile preview to match confirmation', () => {
     fireEvent.press(await withoutMatch.findByText('Like'));
     expect(await withoutMatch.findByText('Liked Sky.')).toBeTruthy();
     expect(withoutMatch.queryByText('Match Confirmation Screen')).toBeNull();
+  });
+
+  it('redirects discovery preview to nearby venues when there is no active venue session', async () => {
+    const screen = render(<DiscoveryProfilePreviewMatchNavigator matchCreated withActiveSession={false} />);
+
+    expect(await screen.findByText('Nearby Venues Guarded Route')).toBeTruthy();
+    expect(screen.queryByText('Discovery Profile Preview Screen')).toBeNull();
   });
 });
