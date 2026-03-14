@@ -1,4 +1,23 @@
 export type { ApiError, ApiErrorCode, ApiFailure, ApiResponse, ApiStatus, ApiSuccess } from './api';
+export {
+  API_V1_DISCOVERY_ENDPOINTS,
+  API_V1_INTERACTION_ENDPOINTS,
+  mapDiscoveryFeedRequestToApiV1,
+  mapDiscoveryFeedResponseFromApiV1,
+  mapDiscoverySkipRequestToApiV1,
+  mapInteractionRequestToApiV1,
+  mapInteractionResponseFromApiV1,
+} from './discoveryInteractionApiMappers';
+export type {
+  ApiV1DiscoveryCandidate,
+  ApiV1DiscoveryFeedRequest,
+  ApiV1DiscoveryFeedResponse,
+  ApiV1DiscoverySkipRequest,
+  ApiV1InteractionRequest,
+  ApiV1InteractionResponse,
+  DiscoveryApiV1MappingContext,
+  InteractionApiV1MappingContext,
+} from './discoveryInteractionApiMappers';
 export type {
   AccountStatus,
   AuthSession,

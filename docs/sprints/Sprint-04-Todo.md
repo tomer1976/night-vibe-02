@@ -13,7 +13,7 @@
 
 ## Firebase Tasks (if applicable)
 - [x] Keep Firebase adapters disabled in Phase 1 mode.
-- [ ] Add placeholder client contract mappers for future `/api/v1` discovery/interaction endpoints.
+- [x] Add placeholder client contract mappers for future `/api/v1` discovery/interaction endpoints.
 
 ## Mock-Data Tasks
 - [ ] Create candidate fixture datasets partitioned by venue/session context.
