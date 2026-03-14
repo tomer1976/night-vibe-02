@@ -9,6 +9,7 @@ import { AdminEntryScreen } from '../screens/AdminEntryScreen';
 import { AuthEntryScreen } from '../screens/AuthEntryScreen';
 import { CheckInConfirmationScreen } from '../screens/CheckInConfirmationScreen';
 import { CheckoutConfirmationScreen } from '../screens/CheckoutConfirmationScreen';
+import { DiscoveryFallbackScreen } from '../screens/DiscoveryFallbackScreen';
 import { DeleteAccountScreen } from '../screens/DeleteAccountScreen';
 import { DiscoveryProfilePreviewScreen } from '../screens/DiscoveryProfilePreviewScreen';
 import { MatchConfirmationScreen } from '../screens/MatchConfirmationScreen';
@@ -152,6 +153,7 @@ export function AppNavigator() {
         <Stack.Screen name={ROUTE_NAMES.ProfileCompletionRequired} component={ProfileCompletionRequiredScreen} />
         <Stack.Screen name={ROUTE_NAMES.NearbyVenues}>{() => renderProtectedRoute('NearbyVenues', NearbyVenuesScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.VenueDetails}>{() => renderProtectedRoute('VenueDetails', VenueDetailsScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.DiscoveryFallback}>{() => renderProtectedRoute('DiscoveryFallback', DiscoveryFallbackScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.DiscoveryProfilePreview}>
           {() => renderProtectedRoute('DiscoveryProfilePreview', DiscoveryProfilePreviewScreen)}
         </Stack.Screen>

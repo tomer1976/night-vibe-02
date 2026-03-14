@@ -2,7 +2,13 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
-import { DiscoveryProfilePreviewScreen, MatchConfirmationScreen, NearbyVenuesScreen, VenueDetailsScreen } from '../src/screens';
+import {
+  DiscoveryFallbackScreen,
+  DiscoveryProfilePreviewScreen,
+  MatchConfirmationScreen,
+  NearbyVenuesScreen,
+  VenueDetailsScreen,
+} from '../src/screens';
 import { createMockBackendServiceLocator, ServiceLocatorProvider } from '../src/services';
 import { BackendServiceContracts } from '../src/contracts';
 import { AppStateProvider } from '../src/state';
@@ -20,6 +26,7 @@ function VenueDetailsTestNavigator({ servicesOverride }: { servicesOverride: Bac
             <Stack.Navigator initialRouteName="NearbyVenues" screenOptions={{ headerShown: false }}>
               <Stack.Screen component={NearbyVenuesScreen} name="NearbyVenues" />
               <Stack.Screen component={VenueDetailsScreen} name="VenueDetails" />
+              <Stack.Screen component={DiscoveryFallbackScreen} name="DiscoveryFallback" />
               <Stack.Screen component={DiscoveryProfilePreviewScreen} name="DiscoveryProfilePreview" />
               <Stack.Screen component={MatchConfirmationScreen} name="MatchConfirmation" />
             </Stack.Navigator>
@@ -199,6 +206,68 @@ describe('venue details screen', () => {
 
     fireEvent.press(getByText('Matches'));
     expect(await findByText('No Matches')).toBeTruthy();
+  });
+
+  it('renders exhausted fallback affordance and ineligible fallback route content', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const exhaustedServices: BackendServiceContracts = {
+      ...locator.services,
+      discovery: {
+        ...locator.services.discovery,
+        getCandidates: async () => ({
+          status: 'SUCCESS',
+          data: {
+            items: [],
+          },
+          request_id: 'req-discovery-empty-fallback-1',
+        }),
+      },
+      match: {
+        ...locator.services.match,
+        getMatches: async () => ({
+          status: 'SUCCESS',
+          data: [],
+          request_id: 'req-matches-empty-fallback-1',
+        }),
+      },
+    };
+
+    const exhaustedScreen = renderNavigator(exhaustedServices);
+
+    await enterFirstVenueDetailsViaCheckIn(exhaustedScreen);
+    expect(await exhaustedScreen.findByText('Open Discovery Fallback')).toBeTruthy();
+
+    const ineligibleServices: BackendServiceContracts = {
+      ...locator.services,
+      presence: {
+        ...locator.services.presence,
+        getMyActiveSession: async () => ({
+          status: 'SUCCESS',
+          data: null,
+          request_id: 'req-no-session-fallback-1',
+        }),
+      },
+    };
+
+    const ineligibleScreen = render(
+      <ThemeProvider>
+        <AppStateProvider>
+          <ServiceLocatorProvider isMockModeEnabled servicesOverride={ineligibleServices}>
+            <NavigationContainer>
+              <Stack.Navigator initialRouteName="DiscoveryFallback" screenOptions={{ headerShown: false }}>
+                <Stack.Screen component={NearbyVenuesScreen} name="NearbyVenues" />
+                <Stack.Screen component={VenueDetailsScreen} initialParams={{ venueId: 'v-halo-club' }} name="VenueDetails" />
+                <Stack.Screen component={DiscoveryFallbackScreen} initialParams={{ reason: 'ineligible_state', venueId: 'v-halo-club' }} name="DiscoveryFallback" />
+              </Stack.Navigator>
+            </NavigationContainer>
+          </ServiceLocatorProvider>
+        </AppStateProvider>
+      </ThemeProvider>
+    );
+
+    expect(await ineligibleScreen.findByText('Discovery Fallback Screen')).toBeTruthy();
+    expect(await ineligibleScreen.findByText('Discovery Ineligible')).toBeTruthy();
   });
 
   it('supports flow from discovery feed to profile preview to match confirmation and back to feed', async () => {

@@ -19,6 +19,7 @@ describe('route groups', () => {
       'ProfileCompletionRequired',
       'NearbyVenues',
       'VenueDetails',
+      'DiscoveryFallback',
       'DiscoveryProfilePreview',
       'MatchConfirmation',
       'CheckInConfirmation',
@@ -66,6 +67,7 @@ describe('route groups', () => {
       ProfileCompletionRequired: 'auth',
       NearbyVenues: 'user',
       VenueDetails: 'user',
+      DiscoveryFallback: 'user',
       DiscoveryProfilePreview: 'user',
       MatchConfirmation: 'user',
       CheckInConfirmation: 'user',
@@ -95,6 +97,7 @@ describe('route groups', () => {
     expect(canAccessRoute(ROUTE_NAMES.UserGroup, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.NearbyVenues, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.VenueDetails, regularUser)).toBe(true);
+    expect(canAccessRoute(ROUTE_NAMES.DiscoveryFallback, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.DiscoveryProfilePreview, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.MatchConfirmation, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.CheckInConfirmation, regularUser)).toBe(true);

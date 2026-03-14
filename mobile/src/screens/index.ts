@@ -6,6 +6,7 @@ export { AuthEntryScreen } from './AuthEntryScreen';
 export { CheckInConfirmationScreen } from './CheckInConfirmationScreen';
 export { CheckoutConfirmationScreen } from './CheckoutConfirmationScreen';
 export { DeleteAccountScreen } from './DeleteAccountScreen';
+export { DiscoveryFallbackScreen } from './DiscoveryFallbackScreen';
 export { DiscoveryProfilePreviewScreen } from './DiscoveryProfilePreviewScreen';
 export { MatchConfirmationScreen } from './MatchConfirmationScreen';
 export { EditProfileScreen } from './EditProfileScreen';
