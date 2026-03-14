@@ -17,7 +17,7 @@
 
 ## Mock-Data Tasks
 - [x] Create candidate fixture datasets partitioned by venue/session context.
-- [ ] Create preference compatibility fixture matrix.
+- [x] Create preference compatibility fixture matrix.
 - [ ] Create block/skip fixture states to validate filtering behavior.
 - [ ] Create reciprocal-like scenario fixture packs.
 - [ ] Create match lifecycle fixture states (`matched`, `expired`, `blocked`).

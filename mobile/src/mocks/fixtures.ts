@@ -102,6 +102,38 @@ export type Sprint04VenueSessionCandidatePartition = {
   participants: readonly MockVenuePresenceParticipant[];
 };
 
+export type Sprint04PreferenceCompatibilityReason =
+  | 'age_in_range'
+  | 'age_out_of_range'
+  | 'gender_allowed'
+  | 'gender_blocked'
+  | 'mutual_visibility_pass'
+  | 'mutual_visibility_fail';
+
+export type Sprint04PreferenceCompatibilityFixture = {
+  fixtureId: string;
+  venueId: string;
+  viewerUserId: string;
+  targetUserId: string;
+  viewerPreference: {
+    preferredAgeMin: number;
+    preferredAgeMax: number;
+    preferredGenders: readonly UserGender[];
+  };
+  targetPreference: {
+    preferredAgeMin: number;
+    preferredAgeMax: number;
+    preferredGenders: readonly UserGender[];
+  };
+  compatibility: {
+    viewerToTarget: boolean;
+    targetToViewer: boolean;
+    mutualVisibility: boolean;
+    eligibleForDiscovery: boolean;
+    reasons: readonly Sprint04PreferenceCompatibilityReason[];
+  };
+};
+
 export type MockFixtureSet = {
   users: readonly MockFixtureUser[];
   roleContexts: readonly MockFixtureRoleContext[];
@@ -496,6 +528,78 @@ export const sprint04VenueSessionCandidateFixtures: readonly Sprint04VenueSessio
     venueId: 'v-luna-lounge',
     sessionStatus: 'expired',
     participants: Object.freeze([]),
+  }),
+]);
+
+export const sprint04PreferenceCompatibilityFixtures: readonly Sprint04PreferenceCompatibilityFixture[] = Object.freeze([
+  Object.freeze({
+    fixtureId: 's4-pref-regular-active-compatible',
+    venueId: 'v-halo-club',
+    viewerUserId: 'u-regular-1',
+    targetUserId: 'u-persona-active-1',
+    viewerPreference: Object.freeze({
+      preferredAgeMin: 24,
+      preferredAgeMax: 32,
+      preferredGenders: Object.freeze<UserGender[]>(['female', 'non_binary']),
+    }),
+    targetPreference: Object.freeze({
+      preferredAgeMin: 25,
+      preferredAgeMax: 34,
+      preferredGenders: Object.freeze<UserGender[]>(['male']),
+    }),
+    compatibility: Object.freeze({
+      viewerToTarget: true,
+      targetToViewer: true,
+      mutualVisibility: true,
+      eligibleForDiscovery: true,
+      reasons: Object.freeze<Sprint04PreferenceCompatibilityReason[]>(['age_in_range', 'gender_allowed', 'mutual_visibility_pass']),
+    }),
+  }),
+  Object.freeze({
+    fixtureId: 's4-pref-regular-owner-gender-mismatch',
+    venueId: 'v-halo-club',
+    viewerUserId: 'u-regular-1',
+    targetUserId: 'u-owner-1',
+    viewerPreference: Object.freeze({
+      preferredAgeMin: 24,
+      preferredAgeMax: 34,
+      preferredGenders: Object.freeze<UserGender[]>(['non_binary']),
+    }),
+    targetPreference: Object.freeze({
+      preferredAgeMin: 22,
+      preferredAgeMax: 35,
+      preferredGenders: Object.freeze<UserGender[]>(['male', 'non_binary']),
+    }),
+    compatibility: Object.freeze({
+      viewerToTarget: false,
+      targetToViewer: true,
+      mutualVisibility: false,
+      eligibleForDiscovery: false,
+      reasons: Object.freeze<Sprint04PreferenceCompatibilityReason[]>(['age_in_range', 'gender_blocked', 'mutual_visibility_fail']),
+    }),
+  }),
+  Object.freeze({
+    fixtureId: 's4-pref-active-owner-age-mismatch',
+    venueId: 'v-halo-club',
+    viewerUserId: 'u-persona-active-1',
+    targetUserId: 'u-owner-1',
+    viewerPreference: Object.freeze({
+      preferredAgeMin: 30,
+      preferredAgeMax: 35,
+      preferredGenders: Object.freeze<UserGender[]>(['female']),
+    }),
+    targetPreference: Object.freeze({
+      preferredAgeMin: 27,
+      preferredAgeMax: 31,
+      preferredGenders: Object.freeze<UserGender[]>(['non_binary']),
+    }),
+    compatibility: Object.freeze({
+      viewerToTarget: false,
+      targetToViewer: true,
+      mutualVisibility: false,
+      eligibleForDiscovery: false,
+      reasons: Object.freeze<Sprint04PreferenceCompatibilityReason[]>(['age_out_of_range', 'gender_allowed', 'mutual_visibility_fail']),
+    }),
   }),
 ]);
 

@@ -6,6 +6,7 @@ import {
   sprint03DiscoveryCoordinates,
   sprint03VenuePresenceParticipants,
   sprint03VenueDistanceOutputs,
+  sprint04PreferenceCompatibilityFixtures,
   sprint04VenueSessionCandidateFixtures,
 } from '../src/mocks';
 
@@ -71,6 +72,31 @@ describe('sprint01 fixtures', () => {
         expect(participant.venueId).toBe(partition.venueId);
         expect(fixtureUserIds.has(participant.userId)).toBe(true);
       }
+    }
+  });
+
+  it('includes Sprint-04 preference compatibility fixture matrix coverage', () => {
+    expect(sprint04PreferenceCompatibilityFixtures.length).toBeGreaterThanOrEqual(3);
+
+    const fixtureUserIds = new Set(sprint01Fixtures.users.map((user) => user.uid));
+    const fixtureVenueIds = new Set(sprint01Fixtures.venues.map((venue) => venue.venueId));
+
+    const hasEligibleEntry = sprint04PreferenceCompatibilityFixtures.some((fixture) => fixture.compatibility.eligibleForDiscovery);
+    const hasIneligibleEntry = sprint04PreferenceCompatibilityFixtures.some((fixture) => !fixture.compatibility.eligibleForDiscovery);
+
+    expect(hasEligibleEntry).toBe(true);
+    expect(hasIneligibleEntry).toBe(true);
+
+    for (const fixture of sprint04PreferenceCompatibilityFixtures) {
+      expect(fixtureVenueIds.has(fixture.venueId)).toBe(true);
+      expect(fixtureUserIds.has(fixture.viewerUserId)).toBe(true);
+      expect(fixtureUserIds.has(fixture.targetUserId)).toBe(true);
+      expect(fixture.viewerUserId).not.toBe(fixture.targetUserId);
+      expect(fixture.viewerPreference.preferredAgeMin).toBeGreaterThanOrEqual(18);
+      expect(fixture.viewerPreference.preferredAgeMax).toBeGreaterThanOrEqual(fixture.viewerPreference.preferredAgeMin);
+      expect(fixture.targetPreference.preferredAgeMin).toBeGreaterThanOrEqual(18);
+      expect(fixture.targetPreference.preferredAgeMax).toBeGreaterThanOrEqual(fixture.targetPreference.preferredAgeMin);
+      expect(fixture.compatibility.reasons.length).toBeGreaterThan(0);
     }
   });
 
