@@ -2,7 +2,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
-import { DiscoveryProfilePreviewScreen, NearbyVenuesScreen, VenueDetailsScreen } from '../src/screens';
+import { DiscoveryProfilePreviewScreen, MatchConfirmationScreen, NearbyVenuesScreen, VenueDetailsScreen } from '../src/screens';
 import { createMockBackendServiceLocator, ServiceLocatorProvider } from '../src/services';
 import { BackendServiceContracts } from '../src/contracts';
 import { AppStateProvider } from '../src/state';
@@ -21,6 +21,7 @@ function VenueDetailsTestNavigator({ servicesOverride }: { servicesOverride: Bac
               <Stack.Screen component={NearbyVenuesScreen} name="NearbyVenues" />
               <Stack.Screen component={VenueDetailsScreen} name="VenueDetails" />
               <Stack.Screen component={DiscoveryProfilePreviewScreen} name="DiscoveryProfilePreview" />
+              <Stack.Screen component={MatchConfirmationScreen} name="MatchConfirmation" />
             </Stack.Navigator>
           </NavigationContainer>
         </ServiceLocatorProvider>
@@ -198,5 +199,48 @@ describe('venue details screen', () => {
 
     fireEvent.press(getByText('Matches'));
     expect(await findByText('No Matches')).toBeTruthy();
+  });
+
+  it('supports flow from discovery feed to profile preview to match confirmation and back to feed', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      interactions: {
+        ...locator.services.interactions,
+        likeUser: async (request) => ({
+          status: 'SUCCESS',
+          data: {
+            status: 'SUCCESS',
+            interaction: 'LIKE',
+            interactionId: 'interaction-route-flow-1',
+            targetUserId: request.targetUserId,
+            venueId: request.venueId,
+            idempotencyKey: request.idempotencyKey,
+            decision: 'created',
+            duplicateScope: 'actor_target_venue_session',
+            matchCreated: true,
+            matchId: 'match-u-regular-1-u-persona-active-1',
+          },
+          request_id: 'req-route-flow-1',
+        }),
+      },
+    };
+
+    const screen = renderNavigator(servicesOverride);
+    const { findByText, getByText } = screen;
+
+    await enterFirstVenueDetailsViaCheckIn(screen);
+    expect(await findByText('Venue Details Screen')).toBeTruthy();
+
+    fireEvent.press(await findByText('Riley Active • 29 • non binary'));
+    expect(await findByText('Discovery Profile Preview Screen')).toBeTruthy();
+
+    fireEvent.press(getByText('Like'));
+    expect(await findByText('Match Confirmation Screen')).toBeTruthy();
+
+    fireEvent.press(getByText('Back to Venue'));
+    expect(await findByText('Venue Details Screen')).toBeTruthy();
+    expect(await findByText('Potential Matches')).toBeTruthy();
   });
 });

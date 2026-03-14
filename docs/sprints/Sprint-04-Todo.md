@@ -24,7 +24,7 @@
 - [x] Implement deterministic pagination cursor fixture generation.
 
 ## Navigation Tasks
-- [ ] Wire route flow: Discovery Feed -> Profile Preview -> Match Confirmation -> Feed return.
+- [x] Wire route flow: Discovery Feed -> Profile Preview -> Match Confirmation -> Feed return.
 - [ ] Add guard for users without active venue session.
 - [ ] Add fallback route for exhausted feed and ineligible discovery states.
 
