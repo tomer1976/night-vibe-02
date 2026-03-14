@@ -14,9 +14,14 @@ export {
 } from './responseFactory';
 
 export {
+  createSprint04DeterministicPaginationCursor,
   sprint01Fixtures,
+  sprint04DiscoveryBlockSkipFixtures,
+  sprint04MatchLifecycleFixtures,
+  sprint04PaginationCursorFixtures,
   sprint03DiscoveryCoordinates,
   sprint03VenuePresenceParticipants,
+  sprint04ReciprocalLikeScenarioFixtures,
   sprint04VenueSessionCandidateFixtures,
   sprint04PreferenceCompatibilityFixtures,
   sprint03VenueDistanceOutputs,
@@ -32,8 +37,13 @@ export {
   type MockFixtureVenue,
   type MockVenueDistanceOutput,
   type MockVenuePresenceParticipant,
+  type Sprint04DiscoveryBlockSkipFixture,
+  type Sprint04MatchLifecycleFixture,
+  type Sprint04MatchLifecycleState,
+  type Sprint04PaginationCursorFixture,
   type Sprint04PreferenceCompatibilityFixture,
   type Sprint04PreferenceCompatibilityReason,
+  type Sprint04ReciprocalLikeScenarioFixture,
   type Sprint04VenueSessionCandidatePartition,
   type Sprint02AuthPersonaFixture,
   type Sprint02PhotoFixture,

@@ -18,10 +18,10 @@
 ## Mock-Data Tasks
 - [x] Create candidate fixture datasets partitioned by venue/session context.
 - [x] Create preference compatibility fixture matrix.
-- [ ] Create block/skip fixture states to validate filtering behavior.
-- [ ] Create reciprocal-like scenario fixture packs.
-- [ ] Create match lifecycle fixture states (`matched`, `expired`, `blocked`).
-- [ ] Implement deterministic pagination cursor fixture generation.
+- [x] Create block/skip fixture states to validate filtering behavior.
+- [x] Create reciprocal-like scenario fixture packs.
+- [x] Create match lifecycle fixture states (`matched`, `expired`, `blocked`).
+- [x] Implement deterministic pagination cursor fixture generation.
 
 ## Navigation Tasks
 - [ ] Wire route flow: Discovery Feed -> Profile Preview -> Match Confirmation -> Feed return.

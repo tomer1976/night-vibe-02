@@ -134,6 +134,46 @@ export type Sprint04PreferenceCompatibilityFixture = {
   };
 };
 
+export type Sprint04DiscoveryBlockSkipFixture = {
+  fixtureId: string;
+  venueId: string;
+  viewerUserId: string;
+  blockedUserIds: readonly string[];
+  skippedUserIds: readonly string[];
+  expectedExcludedUserIds: readonly string[];
+};
+
+export type Sprint04ReciprocalLikeScenarioFixture = {
+  scenarioId: string;
+  venueId: string;
+  actorUserId: string;
+  targetUserId: string;
+  actorLikeAt: string;
+  targetLikeAt?: string;
+  expectedMatchCreated: boolean;
+  expectedMatchId?: string;
+};
+
+export type Sprint04MatchLifecycleState = 'matched' | 'expired' | 'blocked';
+
+export type Sprint04MatchLifecycleFixture = {
+  fixtureId: string;
+  matchId: string;
+  users: readonly [string, string];
+  venueId: string;
+  status: Sprint04MatchLifecycleState;
+  transitionedAt: string;
+  transitionTrigger: 'reciprocal_like' | 'co_location_ended' | 'block_applied';
+};
+
+export type Sprint04PaginationCursorFixture = {
+  fixtureId: string;
+  partitionId: string;
+  startOffset: number;
+  pageSize: number;
+  expectedCursor: string;
+};
+
 export type MockFixtureSet = {
   users: readonly MockFixtureUser[];
   roleContexts: readonly MockFixtureRoleContext[];
@@ -600,6 +640,113 @@ export const sprint04PreferenceCompatibilityFixtures: readonly Sprint04Preferenc
       eligibleForDiscovery: false,
       reasons: Object.freeze<Sprint04PreferenceCompatibilityReason[]>(['age_out_of_range', 'gender_allowed', 'mutual_visibility_fail']),
     }),
+  }),
+]);
+
+export const sprint04DiscoveryBlockSkipFixtures: readonly Sprint04DiscoveryBlockSkipFixture[] = Object.freeze([
+  Object.freeze({
+    fixtureId: 's4-blockskip-regular-halo',
+    venueId: 'v-halo-club',
+    viewerUserId: 'u-regular-1',
+    blockedUserIds: Object.freeze(['u-owner-1']),
+    skippedUserIds: Object.freeze(['u-persona-active-1']),
+    expectedExcludedUserIds: Object.freeze(['u-owner-1', 'u-persona-active-1']),
+  }),
+  Object.freeze({
+    fixtureId: 's4-blockskip-active-halo',
+    venueId: 'v-halo-club',
+    viewerUserId: 'u-persona-active-1',
+    blockedUserIds: Object.freeze([]),
+    skippedUserIds: Object.freeze(['u-owner-1']),
+    expectedExcludedUserIds: Object.freeze(['u-owner-1']),
+  }),
+]);
+
+export const sprint04ReciprocalLikeScenarioFixtures: readonly Sprint04ReciprocalLikeScenarioFixture[] = Object.freeze([
+  Object.freeze({
+    scenarioId: 's4-like-one-sided-no-match',
+    venueId: 'v-halo-club',
+    actorUserId: 'u-regular-1',
+    targetUserId: 'u-persona-active-1',
+    actorLikeAt: '2026-03-08T19:20:00.000Z',
+    expectedMatchCreated: false,
+  }),
+  Object.freeze({
+    scenarioId: 's4-like-reciprocal-match',
+    venueId: 'v-halo-club',
+    actorUserId: 'u-regular-1',
+    targetUserId: 'u-owner-1',
+    actorLikeAt: '2026-03-08T19:22:00.000Z',
+    targetLikeAt: '2026-03-08T19:23:00.000Z',
+    expectedMatchCreated: true,
+    expectedMatchId: 'match-u-owner-1-u-regular-1',
+  }),
+  Object.freeze({
+    scenarioId: 's4-like-not-colocated-no-match',
+    venueId: 'v-luna-lounge',
+    actorUserId: 'u-owner-1',
+    targetUserId: 'u-regular-1',
+    actorLikeAt: '2026-03-08T19:26:00.000Z',
+    targetLikeAt: '2026-03-08T19:27:00.000Z',
+    expectedMatchCreated: false,
+  }),
+]);
+
+export const sprint04MatchLifecycleFixtures: readonly Sprint04MatchLifecycleFixture[] = Object.freeze([
+  Object.freeze({
+    fixtureId: 's4-match-lifecycle-matched',
+    matchId: 'match-u-owner-1-u-regular-1',
+    users: Object.freeze(['u-owner-1', 'u-regular-1']) as readonly [string, string],
+    venueId: 'v-halo-club',
+    status: 'matched',
+    transitionedAt: '2026-03-08T19:23:00.000Z',
+    transitionTrigger: 'reciprocal_like',
+  }),
+  Object.freeze({
+    fixtureId: 's4-match-lifecycle-expired',
+    matchId: 'match-u-owner-1-u-persona-active-1',
+    users: Object.freeze(['u-owner-1', 'u-persona-active-1']) as readonly [string, string],
+    venueId: 'v-halo-club',
+    status: 'expired',
+    transitionedAt: '2026-03-08T23:30:00.000Z',
+    transitionTrigger: 'co_location_ended',
+  }),
+  Object.freeze({
+    fixtureId: 's4-match-lifecycle-blocked',
+    matchId: 'match-u-persona-active-1-u-regular-1',
+    users: Object.freeze(['u-persona-active-1', 'u-regular-1']) as readonly [string, string],
+    venueId: 'v-halo-club',
+    status: 'blocked',
+    transitionedAt: '2026-03-08T19:40:00.000Z',
+    transitionTrigger: 'block_applied',
+  }),
+]);
+
+export function createSprint04DeterministicPaginationCursor(partitionId: string, startOffset: number, pageSize: number) {
+  return `s4:${partitionId}:${startOffset}:${pageSize}`;
+}
+
+export const sprint04PaginationCursorFixtures: readonly Sprint04PaginationCursorFixture[] = Object.freeze([
+  Object.freeze({
+    fixtureId: 's4-cursor-halo-page-1',
+    partitionId: 's4-v-halo-club-active',
+    startOffset: 0,
+    pageSize: 2,
+    expectedCursor: createSprint04DeterministicPaginationCursor('s4-v-halo-club-active', 0, 2),
+  }),
+  Object.freeze({
+    fixtureId: 's4-cursor-halo-page-2',
+    partitionId: 's4-v-halo-club-active',
+    startOffset: 2,
+    pageSize: 2,
+    expectedCursor: createSprint04DeterministicPaginationCursor('s4-v-halo-club-active', 2, 2),
+  }),
+  Object.freeze({
+    fixtureId: 's4-cursor-luna-page-1',
+    partitionId: 's4-v-luna-lounge-active',
+    startOffset: 0,
+    pageSize: 1,
+    expectedCursor: createSprint04DeterministicPaginationCursor('s4-v-luna-lounge-active', 0, 1),
   }),
 ]);
 

@@ -1,12 +1,17 @@
 import {
+  createSprint04DeterministicPaginationCursor,
   sprint01Fixtures,
   sprint02AuthPersonaFixtures,
+  sprint04DiscoveryBlockSkipFixtures,
+  sprint04MatchLifecycleFixtures,
+  sprint04PaginationCursorFixtures,
   sprint02PhotoFixtures,
   sprint02ProfileFixtures,
   sprint03DiscoveryCoordinates,
   sprint03VenuePresenceParticipants,
   sprint03VenueDistanceOutputs,
   sprint04PreferenceCompatibilityFixtures,
+  sprint04ReciprocalLikeScenarioFixtures,
   sprint04VenueSessionCandidateFixtures,
 } from '../src/mocks';
 
@@ -98,6 +103,84 @@ describe('sprint01 fixtures', () => {
       expect(fixture.targetPreference.preferredAgeMax).toBeGreaterThanOrEqual(fixture.targetPreference.preferredAgeMin);
       expect(fixture.compatibility.reasons.length).toBeGreaterThan(0);
     }
+  });
+
+  it('includes Sprint-04 block and skip fixture states for filtering coverage', () => {
+    expect(sprint04DiscoveryBlockSkipFixtures.length).toBeGreaterThanOrEqual(2);
+
+    const fixtureUserIds = new Set(sprint01Fixtures.users.map((user) => user.uid));
+    const fixtureVenueIds = new Set(sprint01Fixtures.venues.map((venue) => venue.venueId));
+
+    for (const fixture of sprint04DiscoveryBlockSkipFixtures) {
+      expect(fixtureVenueIds.has(fixture.venueId)).toBe(true);
+      expect(fixtureUserIds.has(fixture.viewerUserId)).toBe(true);
+      expect(fixture.expectedExcludedUserIds.length).toBeGreaterThan(0);
+
+      for (const excludedUserId of fixture.expectedExcludedUserIds) {
+        expect(fixtureUserIds.has(excludedUserId)).toBe(true);
+        const isBlocked = fixture.blockedUserIds.includes(excludedUserId);
+        const isSkipped = fixture.skippedUserIds.includes(excludedUserId);
+        expect(isBlocked || isSkipped).toBe(true);
+      }
+    }
+  });
+
+  it('includes Sprint-04 reciprocal-like scenario fixture packs', () => {
+    expect(sprint04ReciprocalLikeScenarioFixtures.length).toBeGreaterThanOrEqual(3);
+
+    const fixtureUserIds = new Set(sprint01Fixtures.users.map((user) => user.uid));
+    const fixtureVenueIds = new Set(sprint01Fixtures.venues.map((venue) => venue.venueId));
+
+    const hasReciprocalMatchScenario = sprint04ReciprocalLikeScenarioFixtures.some(
+      (fixture) => fixture.expectedMatchCreated
+    );
+    const hasNoMatchScenario = sprint04ReciprocalLikeScenarioFixtures.some(
+      (fixture) => !fixture.expectedMatchCreated
+    );
+
+    expect(hasReciprocalMatchScenario).toBe(true);
+    expect(hasNoMatchScenario).toBe(true);
+
+    for (const fixture of sprint04ReciprocalLikeScenarioFixtures) {
+      expect(fixtureVenueIds.has(fixture.venueId)).toBe(true);
+      expect(fixtureUserIds.has(fixture.actorUserId)).toBe(true);
+      expect(fixtureUserIds.has(fixture.targetUserId)).toBe(true);
+      expect(fixture.actorUserId).not.toBe(fixture.targetUserId);
+
+      if (fixture.expectedMatchCreated) {
+        expect(fixture.targetLikeAt).toBeDefined();
+        expect(fixture.expectedMatchId).toBeDefined();
+      }
+    }
+  });
+
+  it('includes Sprint-04 match lifecycle fixtures across matched, expired, and blocked states', () => {
+    expect(sprint04MatchLifecycleFixtures.length).toBeGreaterThanOrEqual(3);
+
+    const fixtureUserIds = new Set(sprint01Fixtures.users.map((user) => user.uid));
+    const states = new Set(sprint04MatchLifecycleFixtures.map((fixture) => fixture.status));
+
+    expect(states).toEqual(new Set(['matched', 'expired', 'blocked']));
+
+    for (const fixture of sprint04MatchLifecycleFixtures) {
+      expect(fixture.matchId.startsWith('match-')).toBe(true);
+      expect(fixture.users).toHaveLength(2);
+      expect(fixture.users[0]).not.toBe(fixture.users[1]);
+      expect(fixtureUserIds.has(fixture.users[0])).toBe(true);
+      expect(fixtureUserIds.has(fixture.users[1])).toBe(true);
+    }
+  });
+
+  it('generates deterministic Sprint-04 pagination cursor fixtures', () => {
+    expect(sprint04PaginationCursorFixtures.length).toBeGreaterThanOrEqual(3);
+
+    for (const fixture of sprint04PaginationCursorFixtures) {
+      expect(fixture.expectedCursor).toBe(
+        createSprint04DeterministicPaginationCursor(fixture.partitionId, fixture.startOffset, fixture.pageSize)
+      );
+    }
+
+    expect(createSprint04DeterministicPaginationCursor('s4-v-halo-club-active', 0, 2)).toBe('s4:s4-v-halo-club-active:0:2');
   });
 
   it('includes required Sprint-02 auth personas', () => {
