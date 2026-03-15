@@ -61,7 +61,7 @@
 
 ## Release/Readiness Tasks (if applicable)
 - [x] Prepare demo script covering key scenario matrix (`docs/sprints/Sprint-04-Demo-Script.md`).
-- [ ] Publish QA test execution report and open issue summary.
+- [x] Publish QA test execution report and open issue summary (`docs/sprints/Sprint-04-TestReport.md`).
 - [ ] Confirm readiness gates for Sprint 05 handoff.
 
 ## Sprint Exit Checklist
