@@ -41,7 +41,7 @@
 - [x] Add selectors for same-venue eligibility and candidate visibility reasons.
 
 ## Testing Tasks
-- [ ] Add happy-path tests: feed load -> like -> reciprocal match.
+- [x] Add happy-path tests: feed load -> like -> reciprocal match.
 - [ ] Add tests for no-active-session discovery denial.
 - [ ] Add duplicate-interaction prevention tests.
 - [ ] Add preference/block/skip filter correctness tests.

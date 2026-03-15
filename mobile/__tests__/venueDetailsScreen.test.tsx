@@ -277,7 +277,7 @@ describe('venue details screen', () => {
     expect(await ineligibleScreen.findByText('Discovery Ineligible')).toBeTruthy();
   });
 
-  it('supports flow from discovery feed to profile preview to match confirmation and back to feed', async () => {
+  it('covers happy path: feed load -> like -> reciprocal match -> feed return', async () => {
     const locator = createMockBackendServiceLocator();
 
     const servicesOverride: BackendServiceContracts = {
@@ -308,16 +308,19 @@ describe('venue details screen', () => {
 
     await enterFirstVenueDetailsViaCheckIn(screen);
     expect(await findByText('Venue Details Screen')).toBeTruthy();
+    expect(await findByText('Riley Active • 29 • non binary')).toBeTruthy();
 
     fireEvent.press(await findByText('Riley Active • 29 • non binary'));
     expect(await findByText('Discovery Profile Preview Screen')).toBeTruthy();
 
     fireEvent.press(getByText('Like'));
     expect(await findByText('Match Confirmation Screen')).toBeTruthy();
+    expect(await findByText('Match State: Created')).toBeTruthy();
 
     fireEvent.press(getByText('Back to Venue'));
     expect(await findByText('Venue Details Screen')).toBeTruthy();
     expect(await findByText('Potential Matches')).toBeTruthy();
+    expect(await findByText('Liked')).toBeTruthy();
   });
 
   it('renders visual expired-state treatment for expired matches', async () => {
