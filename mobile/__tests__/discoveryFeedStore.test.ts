@@ -2,6 +2,8 @@ import { DiscoveryCandidate } from '../src/contracts';
 import {
   createInitialDiscoveryFeedStoreState,
   discoveryFeedStoreReducer,
+  selectDiscoveryCandidateVisibilityReason,
+  selectDiscoveryCandidateVisibilityReasonsByUserId,
   selectVisibleDiscoveryCandidates,
 } from '../src/state/discoveryFeedStore';
 
@@ -128,5 +130,46 @@ describe('discoveryFeedStore', () => {
     expect(reset.pagination.requestedCursors).toEqual([]);
     expect(reset.filters.venueId).toBe('v-halo-club');
     expect(reset.filters.excludedUserIds).toEqual(['u-2']);
+  });
+
+  it('returns explicit visibility reason per candidate', () => {
+    const initial = createInitialDiscoveryFeedStoreState();
+    const withCache = discoveryFeedStoreReducer(initial, {
+      type: 'APPEND_PAGE',
+      candidates: baseCandidates,
+      requestedCursor: '0',
+      nextCursor: undefined,
+      fetchedAt: '2026-03-15T21:04:00.000Z',
+    });
+    const withFilters = discoveryFeedStoreReducer(withCache, {
+      type: 'SET_FILTERS',
+      filters: {
+        venueId: 'v-halo-club',
+        genders: ['female'],
+        minAge: 18,
+        maxAge: 29,
+        excludedUserIds: ['u-1'],
+      },
+    });
+
+    expect(selectDiscoveryCandidateVisibilityReason(withFilters, baseCandidates[0]).code).toBe('excluded_user');
+    expect(selectDiscoveryCandidateVisibilityReason(withFilters, baseCandidates[1]).code).toBe('gender_filtered');
+    expect(selectDiscoveryCandidateVisibilityReason(withFilters, baseCandidates[2]).code).toBe('venue_mismatch');
+  });
+
+  it('builds visibility reason map keyed by user id', () => {
+    const initial = createInitialDiscoveryFeedStoreState();
+    const withCache = discoveryFeedStoreReducer(initial, {
+      type: 'APPEND_PAGE',
+      candidates: baseCandidates,
+      requestedCursor: '0',
+      nextCursor: undefined,
+      fetchedAt: '2026-03-15T21:05:00.000Z',
+    });
+
+    const reasonMap = selectDiscoveryCandidateVisibilityReasonsByUserId(withCache);
+
+    expect(Object.keys(reasonMap).sort()).toEqual(['u-1', 'u-2', 'u-3']);
+    expect(reasonMap['u-1'].code).toBe('visible');
   });
 });

@@ -21,12 +21,21 @@ export {
   createInitialDiscoveryFeedFilters,
   createInitialDiscoveryFeedStoreState,
   discoveryFeedStoreReducer,
+  selectDiscoveryCandidateVisibilityReason,
+  selectDiscoveryCandidateVisibilityReasonsByUserId,
   selectVisibleDiscoveryCandidates,
+  type DiscoveryCandidateVisibilityReason,
+  type DiscoveryCandidateVisibilityReasonCode,
   type DiscoveryFeedFilters,
   type DiscoveryFeedPagination,
   type DiscoveryFeedStoreAction,
   type DiscoveryFeedStoreState,
 } from './discoveryFeedStore';
+export {
+  selectSameVenueDiscoveryEligibility,
+  type SameVenueDiscoveryEligibility,
+  type SameVenueDiscoveryEligibilityCode,
+} from './discoveryEligibilitySelectors';
 export {
   createInitialInteractionQueueStoreState,
   createInteractionQueueKey,

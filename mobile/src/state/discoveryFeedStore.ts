@@ -22,6 +22,19 @@ export type DiscoveryFeedStoreState = {
   lastFetchedAt: string | null;
 };
 
+export type DiscoveryCandidateVisibilityReasonCode =
+  | 'visible'
+  | 'venue_mismatch'
+  | 'gender_filtered'
+  | 'below_min_age'
+  | 'above_max_age'
+  | 'excluded_user';
+
+export type DiscoveryCandidateVisibilityReason = {
+  code: DiscoveryCandidateVisibilityReasonCode;
+  message: string;
+};
+
 export type DiscoveryFeedStoreAction =
   | {
       type: 'RESET_FEED';
@@ -105,16 +118,65 @@ export function createInitialDiscoveryFeedStoreState(): DiscoveryFeedStoreState 
   };
 }
 
-export function selectVisibleDiscoveryCandidates(state: DiscoveryFeedStoreState): DiscoveryCandidate[] {
-  return state.cachedCandidates.filter((candidate) => {
-    const venueMatch = state.filters.venueId === null || candidate.venueId === state.filters.venueId;
-    const genderMatch = state.filters.genders.length === 0 || state.filters.genders.includes(candidate.gender);
-    const minAgeMatch = state.filters.minAge === null || candidate.age >= state.filters.minAge;
-    const maxAgeMatch = state.filters.maxAge === null || candidate.age <= state.filters.maxAge;
-    const excludedMatch = !state.filters.excludedUserIds.includes(candidate.userId);
+export function selectDiscoveryCandidateVisibilityReason(
+  state: DiscoveryFeedStoreState,
+  candidate: DiscoveryCandidate
+): DiscoveryCandidateVisibilityReason {
+  if (state.filters.venueId !== null && candidate.venueId !== state.filters.venueId) {
+    return {
+      code: 'venue_mismatch',
+      message: 'Candidate is not in the selected venue context.',
+    };
+  }
 
-    return venueMatch && genderMatch && minAgeMatch && maxAgeMatch && excludedMatch;
-  });
+  if (state.filters.genders.length > 0 && !state.filters.genders.includes(candidate.gender)) {
+    return {
+      code: 'gender_filtered',
+      message: 'Candidate does not match selected gender filters.',
+    };
+  }
+
+  if (state.filters.minAge !== null && candidate.age < state.filters.minAge) {
+    return {
+      code: 'below_min_age',
+      message: 'Candidate is younger than the configured minimum age.',
+    };
+  }
+
+  if (state.filters.maxAge !== null && candidate.age > state.filters.maxAge) {
+    return {
+      code: 'above_max_age',
+      message: 'Candidate is older than the configured maximum age.',
+    };
+  }
+
+  if (state.filters.excludedUserIds.includes(candidate.userId)) {
+    return {
+      code: 'excluded_user',
+      message: 'Candidate is excluded by block/skip-style user filters.',
+    };
+  }
+
+  return {
+    code: 'visible',
+    message: 'Candidate is eligible for the current discovery view.',
+  };
+}
+
+export function selectDiscoveryCandidateVisibilityReasonsByUserId(state: DiscoveryFeedStoreState) {
+  const reasonsByUserId: Record<string, DiscoveryCandidateVisibilityReason> = {};
+
+  for (const candidate of state.cachedCandidates) {
+    reasonsByUserId[candidate.userId] = selectDiscoveryCandidateVisibilityReason(state, candidate);
+  }
+
+  return reasonsByUserId;
+}
+
+export function selectVisibleDiscoveryCandidates(state: DiscoveryFeedStoreState): DiscoveryCandidate[] {
+  return state.cachedCandidates.filter(
+    (candidate) => selectDiscoveryCandidateVisibilityReason(state, candidate).code === 'visible'
+  );
 }
 
 export function discoveryFeedStoreReducer(

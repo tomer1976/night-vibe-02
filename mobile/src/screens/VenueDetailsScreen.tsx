@@ -7,7 +7,7 @@ import { Badge, Button, Card, DiscoveryCandidateCard, EmptyStateTemplate, ErrorS
 import { DiscoveryCandidate, MatchRecord, VenueSummary } from '../contracts';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
-import { selectCheckInEligibilityDisplayState, usePresenceSessionState } from '../state';
+import { selectCheckInEligibilityDisplayState, selectSameVenueDiscoveryEligibility, usePresenceSessionState } from '../state';
 import {
   createInitialDiscoveryFeedStoreState,
   discoveryFeedStoreReducer,
@@ -151,10 +151,12 @@ export function VenueDetailsScreen() {
     [activeSession, venue]
   );
 
-  const isCheckedIntoViewedVenue = useMemo(
-    () => Boolean(venue && activeSession?.status === 'active' && activeSession.venueId === venue.venueId),
-    [activeSession, venue]
+  const discoveryEligibility = useMemo(
+    () => selectSameVenueDiscoveryEligibility(activeSession, venue?.venueId),
+    [activeSession, venue?.venueId]
   );
+
+  const isCheckedIntoViewedVenue = discoveryEligibility.isEligible;
 
   const loadVenuePeople = useCallback(async () => {
     if (!venue) {
@@ -372,6 +374,12 @@ export function VenueDetailsScreen() {
                 {checkInEligibilityDisplay.helperMessage && !isCheckedIntoViewedVenue ? (
                   <Text style={{ color: theme.colors.warning, fontSize: theme.typography.bodySmall }}>
                     {checkInEligibilityDisplay.helperMessage}
+                  </Text>
+                ) : null}
+
+                {!isCheckedIntoViewedVenue ? (
+                  <Text style={{ color: theme.colors.warning, fontSize: theme.typography.bodySmall }}>
+                    {discoveryEligibility.helperMessage}
                   </Text>
                 ) : null}
 

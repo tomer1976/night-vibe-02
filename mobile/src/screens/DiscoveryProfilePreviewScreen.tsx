@@ -12,7 +12,7 @@ import {
   interactionQueueStoreReducer,
   selectCanSubmitInteraction,
 } from '../state/interactionQueueStore';
-import { usePresenceSessionState } from '../state';
+import { selectSameVenueDiscoveryEligibility, usePresenceSessionState } from '../state';
 import { useTheme } from '../theme';
 import { resolveUserPhotoSource } from './userPhotoSource';
 import {
@@ -70,6 +70,11 @@ export function DiscoveryProfilePreviewScreen() {
     [isPotentialLikedOverride, params.userId, venueSnapshot.likedPotentialUserIds]
   );
 
+  const sameVenueEligibility = useMemo(
+    () => selectSameVenueDiscoveryEligibility(activeSession, params.venueId),
+    [activeSession, params.venueId]
+  );
+
   useEffect(() => {
     let isMounted = true;
 
@@ -97,12 +102,10 @@ export function DiscoveryProfilePreviewScreen() {
       return;
     }
 
-    const hasActiveSessionInVenue = activeSession?.status === 'active' && activeSession.venueId === params.venueId;
-
-    if (!hasActiveSessionInVenue) {
+    if (!sameVenueEligibility.isEligible) {
       navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues));
     }
-  }, [activeSession, isPresenceSynced, navigation, params.venueId]);
+  }, [isPresenceSynced, navigation, sameVenueEligibility.isEligible]);
 
   const goBackToVenue = useCallback(() => {
     navigation.dispatch(StackActions.replace(ROUTE_NAMES.VenueDetails, { venueId: params.venueId }));
@@ -244,7 +247,7 @@ export function DiscoveryProfilePreviewScreen() {
       ? 'Interaction State: Liked'
       : 'Interaction State: Not Liked'
     : 'Interaction State: Matched';
-  const eligibilityLabel = 'Eligibility: Active in Same Venue';
+  const eligibilityLabel = sameVenueEligibility.label;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 

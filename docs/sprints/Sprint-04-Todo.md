@@ -38,7 +38,7 @@
 - [x] Implement discovery feed store with pagination and filter state.
 - [x] Implement interaction queue state with duplicate protection.
 - [x] Implement match store for lifecycle transitions and event replay.
-- [ ] Add selectors for same-venue eligibility and candidate visibility reasons.
+- [x] Add selectors for same-venue eligibility and candidate visibility reasons.
 
 ## Testing Tasks
 - [ ] Add happy-path tests: feed load -> like -> reciprocal match.
