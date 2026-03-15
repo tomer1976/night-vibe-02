@@ -55,7 +55,7 @@
 
 ## Documentation Tasks
 - [x] Document mock discovery pipeline and filtering order.
-- [ ] Document interaction idempotency behavior for Phase 2 conversion.
+- [x] Document interaction idempotency behavior for Phase 2 conversion.
 - [ ] Document match lifecycle state machine and transition triggers.
 - [ ] Capture known limitations and carry-over risks for Sprint 05.
 
