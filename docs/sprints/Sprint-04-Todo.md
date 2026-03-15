@@ -62,10 +62,10 @@
 ## Release/Readiness Tasks (if applicable)
 - [x] Prepare demo script covering key scenario matrix (`docs/sprints/Sprint-04-Demo-Script.md`).
 - [x] Publish QA test execution report and open issue summary (`docs/sprints/Sprint-04-TestReport.md`).
-- [ ] Confirm readiness gates for Sprint 05 handoff.
+- [x] Confirm readiness gates for Sprint 05 handoff (`docs/sprints/Sprint-04-Carry-Over.md`, `docs/sprints/Sprint-04-Completion-Summary.md`).
 
 ## Sprint Exit Checklist
-- [ ] Sprint-04 PRD scope delivered or formally deferred.
-- [ ] Sprint-04 TestPlan executed with evidence.
-- [ ] No blocker defects in discovery/interaction/match flows.
-- [ ] Sprint review approval completed.
+- [x] Sprint-04 PRD scope delivered or formally deferred (`docs/sprints/Sprint-04-PRD-Closure.md`).
+- [x] Sprint-04 TestPlan executed with evidence (`docs/sprints/Sprint-04-TestReport.md`, `docs/sprints/Sprint-04-TestPlan-Signoff.md`).
+- [x] No blocker defects in discovery/interaction/match flows (`docs/sprints/Sprint-04-Blocker-Defect-Status.md`).
+- [x] Sprint review approval completed (`docs/sprints/Sprint-04-Demo-Signoff.md`, `docs/sprints/Sprint-04-Completion-Summary.md`).
