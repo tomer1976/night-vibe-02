@@ -43,7 +43,7 @@
 ## Testing Tasks
 - [x] Add happy-path tests: feed load -> like -> reciprocal match.
 - [x] Add tests for no-active-session discovery denial.
-- [ ] Add duplicate-interaction prevention tests.
+- [x] Add duplicate-interaction prevention tests.
 - [ ] Add preference/block/skip filter correctness tests.
 - [ ] Add pagination tests for end-of-feed and cursor progression.
 - [ ] Add match-expiration transition tests.

@@ -75,4 +75,42 @@ describe('interaction idempotency and duplicate contract', () => {
 
     expect(response.error.code).toBe('NOT_CHECKED_IN');
   });
+
+  it('supports idempotent replay for PASS and rejects duplicate PASS with a new key', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const activeSessionResponse = await locator.services.presence.getMyActiveSession();
+    expect(activeSessionResponse.status).toBe('SUCCESS');
+
+    if (activeSessionResponse.status !== 'SUCCESS' || !activeSessionResponse.data) {
+      return;
+    }
+
+    const request = {
+      targetUserId: 'u-discovery-4',
+      venueId: activeSessionResponse.data.venueId,
+      idempotencyKey: 'idem-pass-u-discovery-4',
+    };
+
+    const first = await locator.services.interactions.passUser(request);
+    const replay = await locator.services.interactions.passUser(request);
+    const duplicate = await locator.services.interactions.passUser({
+      ...request,
+      idempotencyKey: 'idem-pass-u-discovery-4-v2',
+    });
+
+    expect(first.status).toBe('SUCCESS');
+    expect(replay.status).toBe('SUCCESS');
+    expect(duplicate.status).toBe('FAIL');
+
+    if (first.status !== 'SUCCESS' || replay.status !== 'SUCCESS' || duplicate.status !== 'FAIL') {
+      return;
+    }
+
+    expect(first.data.interaction).toBe('PASS');
+    expect(first.data.decision).toBe('created');
+    expect(replay.data.interactionId).toBe(first.data.interactionId);
+    expect(replay.data.decision).toBe('idempotent_replay');
+    expect(duplicate.error.code).toBe('DUPLICATE_INTERACTION');
+  });
 });
