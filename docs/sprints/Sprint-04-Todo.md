@@ -30,7 +30,7 @@
 
 ## UI Tasks
 - [x] Build candidate card components and action affordances.
-- [ ] Implement clear eligibility and state labels in preview UI.
+- [x] Implement clear eligibility and state labels in preview UI.
 - [ ] Add visual treatment for match-created and match-expired states.
 - [ ] Ensure dark-theme token consistency and accessibility baseline.
 

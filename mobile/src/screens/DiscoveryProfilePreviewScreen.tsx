@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, Card, TopBar } from '../components';
+import { Badge, Button, Card, TopBar } from '../components';
 import { DiscoveryCandidate } from '../contracts';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
@@ -189,6 +189,14 @@ export function DiscoveryProfilePreviewScreen() {
     failure: theme.colors.danger,
   };
 
+  const profileStateLabel = params.source === 'potential' ? 'Profile State: Potential Candidate' : 'Profile State: Match';
+  const interactionStateLabel = params.source === 'potential'
+    ? isPotentialLiked
+      ? 'Interaction State: Liked'
+      : 'Interaction State: Not Liked'
+    : 'Interaction State: Matched';
+  const eligibilityLabel = 'Eligibility: Active in Same Venue';
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
       <View style={[styles.top, { paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.lg }]}> 
@@ -204,6 +212,12 @@ export function DiscoveryProfilePreviewScreen() {
               <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
                 {params.age} • {formatGenderLabel(params.gender)}
               </Text>
+
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
+                <Badge label={eligibilityLabel} tone="success" />
+                <Badge label={profileStateLabel} tone="info" />
+                <Badge label={interactionStateLabel} tone="neutral" />
+              </View>
 
               {feedback ? (
                 <Text

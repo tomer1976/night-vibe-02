@@ -90,6 +90,38 @@ function DiscoveryProfilePreviewMatchNavigator({ matchCreated, withActiveSession
   );
 }
 
+function DiscoveryProfilePreviewAsMatchNavigator() {
+  const locator = createMockBackendServiceLocator();
+
+  return (
+    <ThemeProvider>
+      <AppStateProvider>
+        <ServiceLocatorProvider isMockModeEnabled servicesOverride={locator.services}>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName={ROUTE_NAMES.DiscoveryProfilePreview} screenOptions={{ headerShown: false }}>
+              <Stack.Screen
+                component={DiscoveryProfilePreviewScreen}
+                initialParams={{
+                  venueId: 'v-halo-club',
+                  source: 'match',
+                  userId: 'u-discovery-3',
+                  displayName: 'Sky',
+                  age: 27,
+                  gender: 'female',
+                  profilePhotoUrl: 'mock://user-photo/sky',
+                  matchId: 'match-u-regular-1-u-discovery-3',
+                }}
+                name={ROUTE_NAMES.DiscoveryProfilePreview}
+              />
+              <Stack.Screen component={NearbyVenuesGuardStub} name={ROUTE_NAMES.NearbyVenues} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </ServiceLocatorProvider>
+      </AppStateProvider>
+    </ThemeProvider>
+  );
+}
+
 describe('discovery profile preview to match confirmation', () => {
   beforeEach(() => {
     resetVenuePeopleInteractionState();
@@ -115,5 +147,13 @@ describe('discovery profile preview to match confirmation', () => {
 
     expect(await screen.findByText('Nearby Venues Guarded Route')).toBeTruthy();
     expect(screen.queryByText('Discovery Profile Preview Screen')).toBeNull();
+  });
+
+  it('shows clear eligibility and state labels for match profiles', async () => {
+    const screen = render(<DiscoveryProfilePreviewAsMatchNavigator />);
+
+    expect(await screen.findByText('Eligibility: Active in Same Venue')).toBeTruthy();
+    expect(await screen.findByText('Profile State: Match')).toBeTruthy();
+    expect(await screen.findByText('Interaction State: Matched')).toBeTruthy();
   });
 });

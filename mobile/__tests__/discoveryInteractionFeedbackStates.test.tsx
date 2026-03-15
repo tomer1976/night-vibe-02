@@ -86,12 +86,17 @@ describe('discovery interaction feedback states', () => {
     const screen = buildNavigator(servicesOverride);
     const { findByText, getByText } = screen;
 
+    expect(await findByText('Eligibility: Active in Same Venue')).toBeTruthy();
+    expect(await findByText('Profile State: Potential Candidate')).toBeTruthy();
+    expect(await findByText('Interaction State: Not Liked')).toBeTruthy();
+
     fireEvent.press(await findByText('Like'));
     expect(await findByText('Processing interaction…')).toBeTruthy();
 
     resolveLike?.();
 
     expect(await findByText('Liked Sky.')).toBeTruthy();
+    expect(await findByText('Interaction State: Liked')).toBeTruthy();
     expect(await findByText('Unlike')).toBeTruthy();
     expect(getByText('Back to Venue')).toBeTruthy();
   });
