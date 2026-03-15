@@ -46,7 +46,7 @@
 - [x] Add duplicate-interaction prevention tests.
 - [x] Add preference/block/skip filter correctness tests.
 - [x] Add pagination tests for end-of-feed and cursor progression.
-- [ ] Add match-expiration transition tests.
+- [x] Add match-expiration transition tests.
 
 ## Bugfix/Stabilization Tasks
 - [ ] Resolve rapid-tap interaction race conditions.
