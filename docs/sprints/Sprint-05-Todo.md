@@ -1,5 +1,10 @@
 # Sprint-05 Todo - Mock Chat, Safety, and Notifications
 
+## Kickoff Alignment Tasks
+- [ ] Review Sprint-04 carry-over risks (`S4-CO-001`, `S4-CO-002`, `S4-CO-003`) and map explicit mitigation checks into Sprint-05 implementation/testing.
+- [ ] Confirm Sprint-04 QA evidence baseline is attached (`docs/sprints/Sprint-04-TestReport.md`) and note `S4-CO-004` as resolved.
+- [ ] Track Sprint-04 manual platform readiness items (`MANUAL-04-AND-01`, `MANUAL-04-IOS-01`, `MANUAL-04-LAYOUT-01`) as Sprint-05 signoff risk controls.
+
 ## Frontend Tasks
 - [ ] Implement Matches List screen with active/expired match states.
 - [ ] Implement Chat Threads list with latest message and status preview.

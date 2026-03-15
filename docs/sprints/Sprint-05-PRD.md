@@ -125,6 +125,18 @@ Night Vibe requires venue-gated chat and cross-system safety enforcement to pres
 - Sprint 02 account/profile/status gating.
 - Sprint 03 session and presence simulation.
 - Sprint 04 match lifecycle and interaction outputs.
+- Sprint-04 closeout artifacts and handoff controls:
+   - `docs/sprints/Sprint-04-Completion-Summary.md`
+   - `docs/sprints/Sprint-04-Carry-Over.md`
+   - `docs/sprints/Sprint-04-TestReport.md`
+
+## Kickoff Readiness Notes
+- Sprint-04 carry-over risks that directly affect Sprint-05 implementation must be tracked during execution:
+   - `S4-CO-001` (eligibility drift under rapid state changes)
+   - `S4-CO-002` (reciprocal-like timing and exactly-once assumptions)
+   - `S4-CO-003` (match expiration/block propagation consistency)
+- `S4-CO-004` is resolved by published Sprint-04 QA evidence and is no longer an open blocker for Sprint-05 kickoff.
+- Manual platform checks from Sprint-04 (`MANUAL-04-AND-01`, `MANUAL-04-IOS-01`, `MANUAL-04-LAYOUT-01`) remain explicit readiness gates and should be tracked as risk controls during Sprint-05 signoff.
 
 ## Exclusions
 - Real-time backend listeners and production message transport.

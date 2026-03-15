@@ -7,6 +7,17 @@
 - Block/report flows and cross-surface safety enforcement.
 - Notification list, read state, preferences, dedup/rate limiting.
 
+## Sprint Kickoff Preconditions
+- Sprint-04 completion artifacts reviewed:
+	- `docs/sprints/Sprint-04-Completion-Summary.md`
+	- `docs/sprints/Sprint-04-TestReport.md`
+	- `docs/sprints/Sprint-04-Carry-Over.md`
+- Carry-over risk controls are explicitly tracked in Sprint-05 execution:
+	- `S4-CO-001`
+	- `S4-CO-002`
+	- `S4-CO-003`
+- Sprint-04 manual platform checks (`MANUAL-04-AND-01`, `MANUAL-04-IOS-01`, `MANUAL-04-LAYOUT-01`) remain risk controls for Sprint-05 signoff.
+
 ## Happy Paths
 1. User opens active match conversation and sends message successfully.
 2. Message transitions from `sent` to `delivered` to `read` in order.
@@ -49,6 +60,7 @@
 - [ ] Sprint 02 account-state gating still enforced.
 - [ ] Sprint 03 presence/session state still drives eligibility conditions.
 - [ ] Sprint 04 match lifecycle integration remains intact.
+- [ ] Sprint-04 carry-over risks (`S4-CO-001..003`) remain controlled in chat/safety/notification flows.
 - [ ] Global error/empty-state behavior unchanged and consistent.
 
 ## Acceptance Checklist
