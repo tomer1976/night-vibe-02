@@ -60,7 +60,7 @@
 - [x] Capture known limitations and carry-over risks for Sprint 05 (`docs/sprints/Sprint-04-Carry-Over.md`).
 
 ## Release/Readiness Tasks (if applicable)
-- [ ] Prepare demo script covering key scenario matrix.
+- [x] Prepare demo script covering key scenario matrix (`docs/sprints/Sprint-04-Demo-Script.md`).
 - [ ] Publish QA test execution report and open issue summary.
 - [ ] Confirm readiness gates for Sprint 05 handoff.
 
