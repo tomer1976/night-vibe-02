@@ -172,4 +172,65 @@ describe('discoveryFeedStore', () => {
     expect(Object.keys(reasonMap).sort()).toEqual(['u-1', 'u-2', 'u-3']);
     expect(reasonMap['u-1'].code).toBe('visible');
   });
+
+  it('tracks deterministic cursor progression across sequential page fetches', () => {
+    const initial = createInitialDiscoveryFeedStoreState();
+
+    const pageOne = discoveryFeedStoreReducer(initial, {
+      type: 'APPEND_PAGE',
+      candidates: [baseCandidates[0]],
+      requestedCursor: '0',
+      nextCursor: '1',
+      fetchedAt: '2026-03-15T21:06:00.000Z',
+    });
+
+    const pageTwo = discoveryFeedStoreReducer(pageOne, {
+      type: 'APPEND_PAGE',
+      candidates: [baseCandidates[1]],
+      requestedCursor: '1',
+      nextCursor: '2',
+      fetchedAt: '2026-03-15T21:07:00.000Z',
+    });
+
+    const pageThree = discoveryFeedStoreReducer(pageTwo, {
+      type: 'APPEND_PAGE',
+      candidates: [baseCandidates[2]],
+      requestedCursor: '2',
+      nextCursor: undefined,
+      fetchedAt: '2026-03-15T21:08:00.000Z',
+    });
+
+    expect(pageOne.pagination.requestedCursors).toEqual(['0']);
+    expect(pageTwo.pagination.requestedCursors).toEqual(['0', '1']);
+    expect(pageThree.pagination.requestedCursors).toEqual(['0', '1', '2']);
+    expect(pageThree.pagination.nextCursor).toBeUndefined();
+    expect(pageThree.pagination.isExhausted).toBe(true);
+    expect(pageThree.cachedCandidates.map((candidate) => candidate.userId)).toEqual(['u-1', 'u-2', 'u-3']);
+  });
+
+  it('keeps end-of-feed state stable on repeated exhausted page requests', () => {
+    const initial = createInitialDiscoveryFeedStoreState();
+
+    const exhaustedState = discoveryFeedStoreReducer(initial, {
+      type: 'APPEND_PAGE',
+      candidates: [baseCandidates[0], baseCandidates[1], baseCandidates[2]],
+      requestedCursor: '3',
+      nextCursor: undefined,
+      fetchedAt: '2026-03-15T21:09:00.000Z',
+    });
+
+    const repeatedEndRequest = discoveryFeedStoreReducer(exhaustedState, {
+      type: 'APPEND_PAGE',
+      candidates: [],
+      requestedCursor: '3',
+      nextCursor: undefined,
+      fetchedAt: '2026-03-15T21:10:00.000Z',
+    });
+
+    expect(repeatedEndRequest.pagination.isExhausted).toBe(true);
+    expect(repeatedEndRequest.pagination.nextCursor).toBeUndefined();
+    expect(repeatedEndRequest.pagination.requestedCursors).toEqual(['3']);
+    expect(repeatedEndRequest.cachedCandidates.map((candidate) => candidate.userId)).toEqual(['u-1', 'u-2', 'u-3']);
+    expect(repeatedEndRequest.lastFetchedAt).toBe('2026-03-15T21:10:00.000Z');
+  });
 });
