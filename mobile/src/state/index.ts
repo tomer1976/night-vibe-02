@@ -40,6 +40,16 @@ export {
   type InteractionQueueStoreState,
 } from './interactionQueueStore';
 export {
+  createInitialMatchStoreState,
+  matchStoreReducer,
+  selectMatchReplayEventsByVenue,
+  selectMatchesByVenue,
+  type MatchLifecycleEvent,
+  type MatchLifecycleEventType,
+  type MatchStoreAction,
+  type MatchStoreState,
+} from './matchStore';
+export {
   selectCheckInEligibilityDisplayState,
   type CheckInEligibilityDisplayState,
   type CheckInEligibilityDisplayStateCode,
