@@ -132,6 +132,7 @@ describe('discovery profile preview to match confirmation', () => {
 
     fireEvent.press(await withMatch.findByText('Like'));
     expect(await withMatch.findByText('Match Confirmation Screen')).toBeTruthy();
+    expect(await withMatch.findByText('Match State: Created')).toBeTruthy();
 
     resetVenuePeopleInteractionState();
 

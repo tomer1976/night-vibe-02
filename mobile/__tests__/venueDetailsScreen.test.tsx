@@ -314,4 +314,42 @@ describe('venue details screen', () => {
     expect(await findByText('Venue Details Screen')).toBeTruthy();
     expect(await findByText('Potential Matches')).toBeTruthy();
   });
+
+  it('renders visual expired-state treatment for expired matches', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      match: {
+        ...locator.services.match,
+        getMatches: async () => ({
+          status: 'SUCCESS',
+          data: [
+            {
+              matchId: 'match-expired-1',
+              users: ['u-regular-1', 'u-discovery-3'],
+              venueId: 'v-halo-club',
+              counterpart: {
+                userId: 'u-discovery-3',
+                displayName: 'Sky',
+                age: 27,
+                gender: 'female',
+                profilePhotoUrl: 'mock://user-photo/sky',
+              },
+              status: 'expired',
+            },
+          ],
+          request_id: 'req-expired-match-1',
+        }),
+      },
+    };
+
+    const screen = renderNavigator(servicesOverride);
+
+    await enterFirstVenueDetailsViaCheckIn(screen);
+    fireEvent.press(await screen.findByText('Matches'));
+
+    expect(await screen.findByText('Sky • 27 • female')).toBeTruthy();
+    expect(await screen.findByText('Match Status: expired')).toBeTruthy();
+  });
 });

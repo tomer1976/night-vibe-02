@@ -7,11 +7,27 @@ type DiscoveryCandidateCardProps = {
   imageSource: ImageSourcePropType;
   actionLabel: string;
   statusLabel?: string;
+  statusTone?: 'neutral' | 'success' | 'warning' | 'danger' | 'info';
   onPress: () => void;
 };
 
-export function DiscoveryCandidateCard({ actionLabel, imageSource, onPress, statusLabel, title }: DiscoveryCandidateCardProps) {
+export function DiscoveryCandidateCard({
+  actionLabel,
+  imageSource,
+  onPress,
+  statusLabel,
+  statusTone = 'info',
+  title,
+}: DiscoveryCandidateCardProps) {
   const theme = useTheme();
+
+  const statusColorByTone: Record<NonNullable<DiscoveryCandidateCardProps['statusTone']>, string> = {
+    neutral: theme.colors.textSecondary,
+    success: theme.colors.success,
+    warning: theme.colors.warning,
+    danger: theme.colors.danger,
+    info: theme.colors.info,
+  };
 
   return (
     <Pressable
@@ -40,7 +56,7 @@ export function DiscoveryCandidateCard({ actionLabel, imageSource, onPress, stat
 
       <View style={[styles.affordanceContainer, { gap: theme.spacing.xs }]}>
         {statusLabel ? (
-          <Text style={{ color: theme.colors.accentPrimary, fontSize: theme.typography.meta }}>
+          <Text style={{ color: statusColorByTone[statusTone], fontSize: theme.typography.meta }}>
             {statusLabel}
           </Text>
         ) : null}

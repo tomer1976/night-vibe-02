@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, Card, TopBar } from '../components';
+import { Badge, Button, Card, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
 import { usePresenceSessionState } from '../state';
@@ -82,6 +82,7 @@ export function MatchConfirmationScreen() {
             <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
               Match created successfully.
             </Text>
+            <Badge label="Match State: Created" tone="success" />
             {params.matchId ? (
               <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.meta }}>Match reference: {params.matchId}</Text>
             ) : null}

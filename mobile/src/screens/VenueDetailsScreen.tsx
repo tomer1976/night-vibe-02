@@ -23,6 +23,19 @@ type DiscoveryFallbackReason = 'ineligible_state' | 'feed_exhausted';
 
 const formatCategoryLabel = (category: VenueSummary['category']) => category.replaceAll('_', ' ');
 const formatGenderLabel = (gender: DiscoveryCandidate['gender']) => gender.replace('_', ' ');
+const formatMatchStatusLabel = (status: MatchRecord['status']) => status.replace('_', ' ');
+
+const toMatchStatusTone = (status: MatchRecord['status']): 'success' | 'warning' | 'danger' => {
+  if (status === 'matched') {
+    return 'success';
+  }
+
+  if (status === 'expired') {
+    return 'warning';
+  }
+
+  return 'danger';
+};
 
 export function VenueDetailsScreen() {
   const navigation = useNavigation();
@@ -478,6 +491,8 @@ export function VenueDetailsScreen() {
                                   })
                                 );
                               }}
+                              statusLabel={`Match Status: ${formatMatchStatusLabel(match.status)}`}
+                              statusTone={toMatchStatusTone(match.status)}
                               title={`${match.counterpart.displayName} • ${match.counterpart.age} • ${formatGenderLabel(match.counterpart.gender)}`}
                             />
                           );
