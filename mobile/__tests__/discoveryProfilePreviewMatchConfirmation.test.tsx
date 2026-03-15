@@ -54,12 +54,85 @@ function buildServicesOverride(matchCreated: boolean, withActiveSession: boolean
   };
 }
 
+function buildServicesOverrideWithMissingMatchId(withActiveSession: boolean): BackendServiceContracts {
+  const locator = createMockBackendServiceLocator();
+
+  return {
+    ...locator.services,
+    presence: {
+      ...locator.services.presence,
+      getMyActiveSession: async () => {
+        if (withActiveSession) {
+          return locator.services.presence.getMyActiveSession();
+        }
+
+        return {
+          status: 'SUCCESS',
+          data: null,
+          request_id: 'req-no-active-session',
+        };
+      },
+    },
+    interactions: {
+      ...locator.services.interactions,
+      likeUser: async (request) => ({
+        status: 'SUCCESS',
+        data: {
+          status: 'SUCCESS',
+          interaction: 'LIKE',
+          interactionId: 'interaction-test-1',
+          targetUserId: request.targetUserId,
+          venueId: request.venueId,
+          idempotencyKey: request.idempotencyKey,
+          decision: 'created',
+          duplicateScope: 'actor_target_venue_session',
+          matchCreated: true,
+          matchId: undefined,
+        },
+        request_id: 'req-test-1',
+      }),
+    },
+  };
+}
+
 function NearbyVenuesGuardStub() {
   return <Text>Nearby Venues Guarded Route</Text>;
 }
 
 function DiscoveryProfilePreviewMatchNavigator({ matchCreated, withActiveSession = true }: { matchCreated: boolean; withActiveSession?: boolean }) {
   const servicesOverride = buildServicesOverride(matchCreated, withActiveSession);
+
+  return (
+    <ThemeProvider>
+      <AppStateProvider>
+        <ServiceLocatorProvider isMockModeEnabled servicesOverride={servicesOverride}>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName={ROUTE_NAMES.DiscoveryProfilePreview} screenOptions={{ headerShown: false }}>
+              <Stack.Screen
+                component={DiscoveryProfilePreviewScreen}
+                initialParams={{
+                  venueId: 'v-halo-club',
+                  source: 'potential',
+                  userId: 'u-discovery-3',
+                  displayName: 'Sky',
+                  age: 27,
+                  gender: 'female',
+                  profilePhotoUrl: 'mock://user-photo/sky',
+                }}
+                name={ROUTE_NAMES.DiscoveryProfilePreview}
+              />
+              <Stack.Screen component={MatchConfirmationScreen} name={ROUTE_NAMES.MatchConfirmation} />
+              <Stack.Screen component={NearbyVenuesGuardStub} name={ROUTE_NAMES.NearbyVenues} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </ServiceLocatorProvider>
+      </AppStateProvider>
+    </ThemeProvider>
+  );
+}
+
+function DiscoveryProfilePreviewMalformedMatchNavigator() {
+  const servicesOverride = buildServicesOverrideWithMissingMatchId(true);
 
   return (
     <ThemeProvider>
@@ -141,6 +214,15 @@ describe('discovery profile preview to match confirmation', () => {
     fireEvent.press(await withoutMatch.findByText('Like'));
     expect(await withoutMatch.findByText('Liked Sky.')).toBeTruthy();
     expect(withoutMatch.queryByText('Match Confirmation Screen')).toBeNull();
+  });
+
+  it('does not open match confirmation when like response is missing match identifier', async () => {
+    const screen = render(<DiscoveryProfilePreviewMalformedMatchNavigator />);
+
+    fireEvent.press(await screen.findByText('Like'));
+
+    expect(await screen.findByText('Liked Sky.')).toBeTruthy();
+    expect(screen.queryByText('Match Confirmation Screen')).toBeNull();
   });
 
   it('redirects discovery preview to nearby venues when there is no active venue session', async () => {

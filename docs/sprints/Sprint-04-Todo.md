@@ -51,7 +51,7 @@
 ## Bugfix/Stabilization Tasks
 - [x] Resolve rapid-tap interaction race conditions.
 - [x] Fix stale candidate rendering after block/skip updates.
-- [ ] Fix incorrect match confirmation triggers from non-reciprocal scenarios.
+- [x] Fix incorrect match confirmation triggers from non-reciprocal scenarios.
 
 ## Documentation Tasks
 - [ ] Document mock discovery pipeline and filtering order.

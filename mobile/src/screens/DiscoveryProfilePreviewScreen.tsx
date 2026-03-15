@@ -41,6 +41,21 @@ type InteractionFeedbackState = {
   message: string;
 };
 
+function shouldOpenMatchConfirmation(result: {
+  interaction: 'LIKE' | 'PASS';
+  decision: 'created' | 'idempotent_replay';
+  matchCreated: boolean;
+  matchId?: string;
+}) {
+  return (
+    result.interaction === 'LIKE' &&
+    result.decision === 'created' &&
+    result.matchCreated === true &&
+    typeof result.matchId === 'string' &&
+    result.matchId.length > 0
+  );
+}
+
 const formatGenderLabel = (gender: DiscoveryCandidate['gender']) => gender.replace('_', ' ');
 
 export function DiscoveryProfilePreviewScreen() {
@@ -179,7 +194,7 @@ export function DiscoveryProfilePreviewScreen() {
       setIsPotentialLikedOverride(true);
       setFeedback({ kind: 'success', message: `Liked ${params.displayName}.` });
 
-      if (response.data.matchCreated) {
+      if (shouldOpenMatchConfirmation(response.data)) {
         navigation.dispatch(
           StackActions.push(ROUTE_NAMES.MatchConfirmation, {
             venueId: params.venueId,
