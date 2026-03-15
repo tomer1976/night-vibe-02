@@ -129,6 +129,55 @@ describe('discovery interaction feedback states', () => {
     expect(queryByText('Unlike')).toBeNull();
   });
 
+  it('blocks rapid duplicate like taps before submitting a second request', async () => {
+    const locator = createMockBackendServiceLocator();
+    let resolveLike: (() => void) | undefined;
+    let likeCallCount = 0;
+
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      interactions: {
+        ...locator.services.interactions,
+        likeUser: async (request) => {
+          likeCallCount += 1;
+
+          await new Promise<void>((resolve) => {
+            resolveLike = resolve;
+          });
+
+          return {
+            status: 'SUCCESS',
+            data: {
+              status: 'SUCCESS',
+              interaction: 'LIKE',
+              interactionId: 'interaction-feedback-rapid-tap',
+              targetUserId: request.targetUserId,
+              venueId: request.venueId,
+              idempotencyKey: request.idempotencyKey,
+              decision: 'created',
+              duplicateScope: 'actor_target_venue_session',
+              matchCreated: false,
+            },
+            request_id: 'req-feedback-rapid-tap',
+          };
+        },
+      },
+    };
+
+    const screen = buildNavigator(servicesOverride);
+    const { findByText } = screen;
+
+    const likeButton = await findByText('Like');
+
+    fireEvent.press(likeButton);
+    fireEvent.press(likeButton);
+
+    expect(await findByText('Processing interaction…')).toBeTruthy();
+    expect(likeCallCount).toBe(1);
+
+    resolveLike?.();
+  });
+
   it('shows failure feedback when like request throws', async () => {
     const locator = createMockBackendServiceLocator();
 

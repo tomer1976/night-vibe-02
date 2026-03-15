@@ -28,6 +28,18 @@ export {
   type DiscoveryFeedStoreState,
 } from './discoveryFeedStore';
 export {
+  createInitialInteractionQueueStoreState,
+  createInteractionQueueKey,
+  interactionQueueStoreReducer,
+  selectCanSubmitInteraction,
+  selectInteractionQueueEntry,
+  type InteractionQueueActionType,
+  type InteractionQueueEntry,
+  type InteractionQueueOutcome,
+  type InteractionQueueStoreAction,
+  type InteractionQueueStoreState,
+} from './interactionQueueStore';
+export {
   selectCheckInEligibilityDisplayState,
   type CheckInEligibilityDisplayState,
   type CheckInEligibilityDisplayStateCode,

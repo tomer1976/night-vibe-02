@@ -1,5 +1,5 @@
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,6 +7,11 @@ import { Badge, Button, Card, TopBar } from '../components';
 import { DiscoveryCandidate } from '../contracts';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
+import {
+  createInitialInteractionQueueStoreState,
+  interactionQueueStoreReducer,
+  selectCanSubmitInteraction,
+} from '../state/interactionQueueStore';
 import { usePresenceSessionState } from '../state';
 import { useTheme } from '../theme';
 import { resolveUserPhotoSource } from './userPhotoSource';
@@ -50,6 +55,10 @@ export function DiscoveryProfilePreviewScreen() {
   const [feedback, setFeedback] = useState<InteractionFeedbackState | undefined>();
   const [isPotentialLikedOverride, setIsPotentialLikedOverride] = useState<boolean | null>(null);
   const [isPresenceSynced, setIsPresenceSynced] = useState(false);
+  const [interactionQueueState, dispatchInteractionQueue] = useReducer(
+    interactionQueueStoreReducer,
+    createInitialInteractionQueueStoreState()
+  );
 
   const venueSnapshot = useMemo(
     () => readVenuePeopleInteractionSnapshot(params.venueId),
@@ -100,24 +109,57 @@ export function DiscoveryProfilePreviewScreen() {
   }, [navigation, params.venueId]);
 
   const submitPotentialLike = useCallback(async () => {
+    const request = {
+      targetUserId: params.userId,
+      venueId: params.venueId,
+      idempotencyKey: `profile-like-${params.userId}`,
+    } as const;
+
+    const canSubmit = selectCanSubmitInteraction(interactionQueueState, request, 'LIKE');
+
+    if (!canSubmit) {
+      setFeedback({
+        kind: 'duplicate',
+        message: 'Duplicate interaction detected for actor-target-venue-session scope.',
+      });
+      return;
+    }
+
+    dispatchInteractionQueue({
+      type: 'BEGIN_INTERACTION',
+      request,
+      action: 'LIKE',
+    });
+
     setFeedback({ kind: 'loading', message: 'Processing interaction…' });
     setIsSubmitting(true);
 
     try {
-      const response = await services.interactions.likeUser({
-        targetUserId: params.userId,
-        venueId: params.venueId,
-        idempotencyKey: `profile-like-${params.userId}`,
-      });
+      const response = await services.interactions.likeUser(request);
 
       if (response.status === 'FAIL') {
         const isDuplicate = response.error.code === 'DUPLICATE_INTERACTION';
+        dispatchInteractionQueue({
+          type: 'COMPLETE_INTERACTION',
+          request,
+          action: 'LIKE',
+          outcome: isDuplicate ? 'duplicate' : 'failure',
+          errorCode: response.error.code,
+        });
         setFeedback({
           kind: isDuplicate ? 'duplicate' : 'failure',
           message: response.error.message,
         });
         return;
       }
+
+      dispatchInteractionQueue({
+        type: 'COMPLETE_INTERACTION',
+        request,
+        action: 'LIKE',
+        outcome: response.data.decision === 'idempotent_replay' ? 'idempotent_replay' : 'created',
+        result: response.data,
+      });
 
       markPotentialLiked(params.venueId, params.userId);
       setIsPotentialLikedOverride(true);
@@ -136,11 +178,18 @@ export function DiscoveryProfilePreviewScreen() {
         );
       }
     } catch {
+      dispatchInteractionQueue({
+        type: 'COMPLETE_INTERACTION',
+        request,
+        action: 'LIKE',
+        outcome: 'failure',
+        errorCode: 'INTERNAL_ERROR',
+      });
       setFeedback({ kind: 'failure', message: 'Unable to submit like right now. Please retry.' });
     } finally {
       setIsSubmitting(false);
     }
-  }, [navigation, params.age, params.displayName, params.gender, params.profilePhotoUrl, params.userId, params.venueId, services.interactions]);
+  }, [interactionQueueState, navigation, params.age, params.displayName, params.gender, params.profilePhotoUrl, params.userId, params.venueId, services.interactions]);
 
   const submitPotentialUnlike = useCallback(async () => {
     setFeedback({ kind: 'loading', message: 'Processing interaction…' });

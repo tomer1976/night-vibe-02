@@ -36,7 +36,7 @@
 
 ## State-Management Tasks
 - [x] Implement discovery feed store with pagination and filter state.
-- [ ] Implement interaction queue state with duplicate protection.
+- [x] Implement interaction queue state with duplicate protection.
 - [ ] Implement match store for lifecycle transitions and event replay.
 - [ ] Add selectors for same-venue eligibility and candidate visibility reasons.
 
