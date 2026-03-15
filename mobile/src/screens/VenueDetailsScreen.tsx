@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, Button, Card, EmptyStateTemplate, ErrorStateTemplate, LoadingStateTemplate, TopBar } from '../components';
+import { Badge, Button, Card, DiscoveryCandidateCard, EmptyStateTemplate, ErrorStateTemplate, LoadingStateTemplate, TopBar } from '../components';
 import { DiscoveryCandidate, MatchRecord, VenueSummary } from '../contracts';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
@@ -407,8 +407,9 @@ export function VenueDetailsScreen() {
                             const isLiked = interactionSnapshot.likedPotentialUserIds.includes(candidate.userId);
 
                             return (
-                              <Pressable
-                                accessibilityRole="button"
+                              <DiscoveryCandidateCard
+                                actionLabel="View profile"
+                                imageSource={resolveUserPhotoSource(candidate)}
                                 key={candidate.userId}
                                 onPress={() => {
                                   navigation.dispatch(
@@ -423,26 +424,9 @@ export function VenueDetailsScreen() {
                                     })
                                   );
                                 }}
-                                style={{
-                                  flexDirection: 'row',
-                                  alignItems: 'center',
-                                  gap: theme.spacing.sm,
-                                  borderRadius: theme.radius.sm,
-                                  borderWidth: 1,
-                                  borderColor: theme.colors.backgroundSecondary,
-                                  backgroundColor: theme.colors.backgroundSecondary,
-                                  paddingHorizontal: theme.spacing.md,
-                                  paddingVertical: theme.spacing.sm,
-                                }}
-                              >
-                                <Image source={resolveUserPhotoSource(candidate)} style={{ width: 36, height: 36, borderRadius: 18 }} />
-                                <Text style={{ color: theme.colors.textPrimary, fontSize: theme.typography.bodySmall, flex: 1 }}>
-                                  {candidate.displayName} • {candidate.age} • {formatGenderLabel(candidate.gender)}
-                                </Text>
-                                {isLiked ? (
-                                  <Text style={{ color: theme.colors.accentPrimary, fontSize: theme.typography.meta }}>Liked</Text>
-                                ) : null}
-                              </Pressable>
+                                statusLabel={isLiked ? 'Liked' : undefined}
+                                title={`${candidate.displayName} • ${candidate.age} • ${formatGenderLabel(candidate.gender)}`}
+                              />
                             );
                           })}
                         </View>
@@ -476,8 +460,9 @@ export function VenueDetailsScreen() {
                       <View style={{ gap: theme.spacing.sm }}>
                         {visibleMatches.map((match) => {
                           return (
-                            <Pressable
-                              accessibilityRole="button"
+                            <DiscoveryCandidateCard
+                              actionLabel="View profile"
+                              imageSource={resolveUserPhotoSource(match.counterpart)}
                               key={match.matchId}
                               onPress={() => {
                                 navigation.dispatch(
@@ -493,26 +478,8 @@ export function VenueDetailsScreen() {
                                   })
                                 );
                               }}
-                              style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                gap: theme.spacing.sm,
-                                borderRadius: theme.radius.sm,
-                                borderWidth: 1,
-                                borderColor: theme.colors.backgroundSecondary,
-                                backgroundColor: theme.colors.backgroundSecondary,
-                                paddingHorizontal: theme.spacing.md,
-                                paddingVertical: theme.spacing.sm,
-                              }}
-                            >
-                              <Image
-                                source={resolveUserPhotoSource(match.counterpart)}
-                                style={{ width: 36, height: 36, borderRadius: 18 }}
-                              />
-                              <Text style={{ color: theme.colors.textPrimary, fontSize: theme.typography.bodySmall }}>
-                                {match.counterpart.displayName} • {match.counterpart.age} • {formatGenderLabel(match.counterpart.gender)}
-                              </Text>
-                            </Pressable>
+                              title={`${match.counterpart.displayName} • ${match.counterpart.age} • ${formatGenderLabel(match.counterpart.gender)}`}
+                            />
                           );
                         })}
                       </View>

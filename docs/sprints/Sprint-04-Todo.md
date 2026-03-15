@@ -29,7 +29,7 @@
 - [x] Add fallback route for exhausted feed and ineligible discovery states.
 
 ## UI Tasks
-- [ ] Build candidate card components and action affordances.
+- [x] Build candidate card components and action affordances.
 - [ ] Implement clear eligibility and state labels in preview UI.
 - [ ] Add visual treatment for match-created and match-expired states.
 - [ ] Ensure dark-theme token consistency and accessibility baseline.

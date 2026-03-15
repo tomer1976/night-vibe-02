@@ -65,7 +65,7 @@ describe('venue details screen', () => {
 
   it('opens dedicated discovery profile page when tapping a potential match bar', async () => {
     const screen = renderNavigator();
-    const { findByText, getByText, queryByText } = screen;
+    const { findByText, getByText, queryByText, getAllByText } = screen;
 
     await enterFirstVenueDetailsViaCheckIn(screen);
     expect(await findByText('Venue Details Screen')).toBeTruthy();
@@ -75,6 +75,7 @@ describe('venue details screen', () => {
     expect(await findByText('Potential Matches')).toBeTruthy();
     expect(await findByText('Matches')).toBeTruthy();
     expect(await findByText('Riley Active • 29 • non binary')).toBeTruthy();
+    expect(getAllByText('View profile').length).toBeGreaterThan(0);
     expect(queryByText('Discovery Profile Preview Screen')).toBeNull();
 
     fireEvent.press(getByText('Riley Active • 29 • non binary'));
@@ -111,11 +112,12 @@ describe('venue details screen', () => {
 
   it('unmatch removes from matches and returns profile to potential list as unliked', async () => {
     const screen = renderNavigator();
-    const { findByText, getByText, queryByText } = screen;
+    const { findByText, getByText, queryByText, getAllByText } = screen;
 
     await enterFirstVenueDetailsViaCheckIn(screen);
     expect(await findByText('Matches')).toBeTruthy();
     fireEvent.press(getByText('Matches'));
+    expect(getAllByText('View profile').length).toBeGreaterThan(0);
     fireEvent.press(await findByText('Jordan • 27 • female'));
 
     expect(await findByText('Unmatch')).toBeTruthy();

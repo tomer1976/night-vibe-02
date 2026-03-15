@@ -3,6 +3,7 @@ export { Badge } from './Badge';
 export { BottomNavShell } from './BottomNavShell';
 export { Button } from './Button';
 export { Card } from './Card';
+export { DiscoveryCandidateCard } from './DiscoveryCandidateCard';
 export { Input } from './Input';
 export { InlineErrorMessage } from './InlineErrorMessage';
 export { ListItem } from './ListItem';
