@@ -57,7 +57,7 @@
 - [x] Document mock discovery pipeline and filtering order.
 - [x] Document interaction idempotency behavior for Phase 2 conversion.
 - [x] Document match lifecycle state machine and transition triggers.
-- [ ] Capture known limitations and carry-over risks for Sprint 05.
+- [x] Capture known limitations and carry-over risks for Sprint 05 (`docs/sprints/Sprint-04-Carry-Over.md`).
 
 ## Release/Readiness Tasks (if applicable)
 - [ ] Prepare demo script covering key scenario matrix.
