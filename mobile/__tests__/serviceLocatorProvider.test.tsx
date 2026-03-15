@@ -212,6 +212,23 @@ describe('mock service locator wiring', () => {
     }
   });
 
+  it('denies discovery feed when no active venue session exists', async () => {
+    const locator = createMockBackendServiceLocator({
+      activeUserId: 'u-regular-1',
+    });
+
+    const checkoutResponse = await locator.services.presence.checkOutActiveSession();
+    expect(checkoutResponse.status).toBe('SUCCESS');
+
+    const feedResponse = await locator.services.discovery.getFeed();
+    expect(feedResponse.status).toBe('FAIL');
+
+    if (feedResponse.status === 'FAIL') {
+      expect(feedResponse.error.code).toBe('NOT_CHECKED_IN');
+      expect(feedResponse.error.message).toBe('Active venue session is required before discovery feed access is allowed.');
+    }
+  });
+
   it('expires active session deterministically when mock clock reaches timeout window', async () => {
     const clock = createMockClock({
       startAt: '2026-03-08T20:00:00.000Z',

@@ -1012,6 +1012,20 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       getFeed: async (request) => {
         applyDeterministicSessionTimeouts();
 
+        const actorSession = localSessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
+
+        if (!actorSession) {
+          return responseFactory.build({
+            key: 'discovery.getFeed',
+            data: {
+              candidates: [],
+              nextCursor: undefined,
+            },
+            scenario: 'NOT_CHECKED_IN',
+            errorMessage: 'Active venue session is required before discovery feed access is allowed.',
+          });
+        }
+
         const candidates = buildDiscoveryCandidates(currentUser.uid);
         const pageSize = request?.pageSize && request.pageSize > 0 ? request.pageSize : candidates.length;
         const startOffset = request?.cursor ? Number.parseInt(request.cursor, 10) : 0;
