@@ -35,7 +35,7 @@
 - [x] Ensure dark-theme token consistency and accessibility baseline.
 
 ## State-Management Tasks
-- [ ] Implement discovery feed store with pagination and filter state.
+- [x] Implement discovery feed store with pagination and filter state.
 - [ ] Implement interaction queue state with duplicate protection.
 - [ ] Implement match store for lifecycle transitions and event replay.
 - [ ] Add selectors for same-venue eligibility and candidate visibility reasons.

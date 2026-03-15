@@ -140,16 +140,16 @@ describe('venue details screen', () => {
 
   it('renders discovery error state and retries successfully', async () => {
     const locator = createMockBackendServiceLocator();
-    let getCandidatesAttempt = 0;
+    let getFeedAttempt = 0;
 
     const servicesOverride: BackendServiceContracts = {
       ...locator.services,
       discovery: {
         ...locator.services.discovery,
-        getCandidates: async () => {
-          getCandidatesAttempt += 1;
+        getFeed: async () => {
+          getFeedAttempt += 1;
 
-          if (getCandidatesAttempt === 1) {
+          if (getFeedAttempt === 1) {
             return {
               status: 'FAIL',
               error: {
@@ -161,7 +161,7 @@ describe('venue details screen', () => {
             };
           }
 
-          return locator.services.discovery.getCandidates();
+          return locator.services.discovery.getFeed();
         },
       },
     };
@@ -185,10 +185,11 @@ describe('venue details screen', () => {
       ...locator.services,
       discovery: {
         ...locator.services.discovery,
-        getCandidates: async () => ({
+        getFeed: async () => ({
           status: 'SUCCESS',
           data: {
-            items: [],
+            candidates: [],
+            nextCursor: undefined,
           },
           request_id: 'req-discovery-empty-1',
         }),
@@ -220,10 +221,11 @@ describe('venue details screen', () => {
       ...locator.services,
       discovery: {
         ...locator.services.discovery,
-        getCandidates: async () => ({
+        getFeed: async () => ({
           status: 'SUCCESS',
           data: {
-            items: [],
+            candidates: [],
+            nextCursor: undefined,
           },
           request_id: 'req-discovery-empty-fallback-1',
         }),

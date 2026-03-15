@@ -18,6 +18,16 @@ export {
   type VenueDiscoveryState,
 } from './AppStateProvider';
 export {
+  createInitialDiscoveryFeedFilters,
+  createInitialDiscoveryFeedStoreState,
+  discoveryFeedStoreReducer,
+  selectVisibleDiscoveryCandidates,
+  type DiscoveryFeedFilters,
+  type DiscoveryFeedPagination,
+  type DiscoveryFeedStoreAction,
+  type DiscoveryFeedStoreState,
+} from './discoveryFeedStore';
+export {
   selectCheckInEligibilityDisplayState,
   type CheckInEligibilityDisplayState,
   type CheckInEligibilityDisplayStateCode,

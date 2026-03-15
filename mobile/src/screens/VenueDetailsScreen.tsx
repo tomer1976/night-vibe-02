@@ -1,5 +1,5 @@
 import { StackActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -8,6 +8,11 @@ import { DiscoveryCandidate, MatchRecord, VenueSummary } from '../contracts';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
 import { selectCheckInEligibilityDisplayState, usePresenceSessionState } from '../state';
+import {
+  createInitialDiscoveryFeedStoreState,
+  discoveryFeedStoreReducer,
+  selectVisibleDiscoveryCandidates,
+} from '../state/discoveryFeedStore';
 import { useTheme } from '../theme';
 import { resolveUserPhotoSource } from './userPhotoSource';
 import { readVenuePeopleInteractionSnapshot } from './venuePeopleInteractionState';
@@ -55,12 +60,16 @@ export function VenueDetailsScreen() {
   const [actionFeedback, setActionFeedback] = useState<string | undefined>();
   const [isLoadingPotentialMatches, setIsLoadingPotentialMatches] = useState(false);
   const [potentialMatchesError, setPotentialMatchesError] = useState<string | undefined>();
-  const [potentialMatches, setPotentialMatches] = useState<DiscoveryCandidate[]>([]);
+  const [discoveryFeedStoreState, dispatchDiscoveryFeedStore] = useReducer(
+    discoveryFeedStoreReducer,
+    createInitialDiscoveryFeedStoreState()
+  );
   const [isLoadingMatches, setIsLoadingMatches] = useState(false);
   const [matchesError, setMatchesError] = useState<string | undefined>();
   const [matches, setMatches] = useState<MatchRecord[]>([]);
   const [activePeopleTab, setActivePeopleTab] = useState<VenuePeopleTab>('potential_matches');
   const [interactionStateVersion, setInteractionStateVersion] = useState(0);
+  const discoveryFeedPageSize = discoveryFeedStoreState.pagination.pageSize;
 
   const syncPresenceSnapshot = useCallback(async () => {
     const [sessionResponse, transitionResponse] = await Promise.all([
@@ -149,7 +158,7 @@ export function VenueDetailsScreen() {
 
   const loadVenuePeople = useCallback(async () => {
     if (!venue) {
-      setPotentialMatches([]);
+      dispatchDiscoveryFeedStore({ type: 'RESET_FEED' });
       setPotentialMatchesError(undefined);
       setMatches([]);
       setMatchesError(undefined);
@@ -157,7 +166,7 @@ export function VenueDetailsScreen() {
     }
 
     if (!isCheckedIntoViewedVenue) {
-      setPotentialMatches([]);
+      dispatchDiscoveryFeedStore({ type: 'RESET_FEED' });
       setPotentialMatchesError(undefined);
       setMatches([]);
       setMatchesError(undefined);
@@ -168,20 +177,39 @@ export function VenueDetailsScreen() {
     setIsLoadingMatches(true);
     setPotentialMatchesError(undefined);
     setMatchesError(undefined);
+    dispatchDiscoveryFeedStore({ type: 'RESET_FEED' });
+    dispatchDiscoveryFeedStore({ type: 'SET_FILTERS', filters: { venueId: venue.venueId } });
 
     try {
-      const [candidatesResponse, matchesResponse] = await Promise.all([
-        services.discovery.getCandidates(),
-        services.match.getMatches(),
-      ]);
+      let cursor: string | undefined;
+      let shouldContinuePagination = true;
+      let paginationRounds = 0;
 
-      if (candidatesResponse.status === 'FAIL') {
-        setPotentialMatches([]);
-        setPotentialMatchesError(candidatesResponse.error.message);
-      } else {
-        const venueScopedCandidates = candidatesResponse.data.items.filter((candidate) => candidate.venueId === venue.venueId);
-        setPotentialMatches(venueScopedCandidates);
+      while (shouldContinuePagination && paginationRounds < 25) {
+        const candidatesResponse = await services.discovery.getFeed({
+          pageSize: discoveryFeedPageSize,
+          cursor,
+        });
+
+        if (candidatesResponse.status === 'FAIL') {
+          dispatchDiscoveryFeedStore({ type: 'RESET_FEED' });
+          setPotentialMatchesError(candidatesResponse.error.message);
+          break;
+        }
+
+        dispatchDiscoveryFeedStore({
+          type: 'APPEND_PAGE',
+          candidates: candidatesResponse.data.candidates,
+          requestedCursor: cursor,
+          nextCursor: candidatesResponse.data.nextCursor,
+        });
+
+        cursor = candidatesResponse.data.nextCursor;
+        shouldContinuePagination = typeof cursor === 'string' && cursor.length > 0;
+        paginationRounds += 1;
       }
+
+      const matchesResponse = await services.match.getMatches();
 
       if (matchesResponse.status === 'FAIL') {
         setMatches([]);
@@ -191,7 +219,7 @@ export function VenueDetailsScreen() {
         setMatches(venueScopedMatches);
       }
     } catch {
-      setPotentialMatches([]);
+      dispatchDiscoveryFeedStore({ type: 'RESET_FEED' });
       setPotentialMatchesError('Unable to load potential matches right now. Please retry.');
       setMatches([]);
       setMatchesError('Unable to load matches right now. Please retry.');
@@ -199,7 +227,7 @@ export function VenueDetailsScreen() {
       setIsLoadingPotentialMatches(false);
       setIsLoadingMatches(false);
     }
-  }, [isCheckedIntoViewedVenue, services.discovery, services.match, venue]);
+  }, [discoveryFeedPageSize, isCheckedIntoViewedVenue, services.discovery, services.match, venue]);
 
   useEffect(() => {
     void loadVenuePeople();
@@ -228,10 +256,15 @@ export function VenueDetailsScreen() {
     return readVenuePeopleInteractionSnapshot(venue.venueId);
   }, [interactionStateVersion, venue]);
 
+  const filteredPotentialMatches = useMemo(
+    () => selectVisibleDiscoveryCandidates(discoveryFeedStoreState),
+    [discoveryFeedStoreState]
+  );
+
   const visiblePotentialMatches = useMemo(() => {
     const byUserId = new Map<string, DiscoveryCandidate>();
 
-    for (const candidate of potentialMatches) {
+    for (const candidate of filteredPotentialMatches) {
       byUserId.set(candidate.userId, candidate);
     }
 
@@ -242,7 +275,7 @@ export function VenueDetailsScreen() {
     return [...byUserId.values()].filter(
       (candidate) => !interactionSnapshot.dismissedPotentialUserIds.includes(candidate.userId)
     );
-  }, [interactionSnapshot.dismissedPotentialUserIds, interactionSnapshot.returnedPotentials, potentialMatches]);
+  }, [filteredPotentialMatches, interactionSnapshot.dismissedPotentialUserIds, interactionSnapshot.returnedPotentials]);
 
   const visibleMatches = useMemo(
     () => matches.filter((match) => !interactionSnapshot.hiddenMatchIds.includes(match.matchId)),
@@ -404,7 +437,7 @@ export function VenueDetailsScreen() {
                         onAction={() => void loadVenuePeople()}
                         title="Potential Matches Failed"
                       />
-                    ) : potentialMatches.length === 0 ? (
+                    ) : filteredPotentialMatches.length === 0 ? (
                       <EmptyStateTemplate
                         actionLabel="Open Discovery Fallback"
                         message="No potential matches are available in this venue right now."
