@@ -3,7 +3,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import {
-  DiscoveryFallbackScreen,
   DiscoveryProfilePreviewScreen,
   MatchConfirmationScreen,
   NearbyVenuesScreen,
@@ -26,7 +25,6 @@ function VenueDetailsTestNavigator({ servicesOverride }: { servicesOverride: Bac
             <Stack.Navigator initialRouteName="NearbyVenues" screenOptions={{ headerShown: false }}>
               <Stack.Screen component={NearbyVenuesScreen} name="NearbyVenues" />
               <Stack.Screen component={VenueDetailsScreen} name="VenueDetails" />
-              <Stack.Screen component={DiscoveryFallbackScreen} name="DiscoveryFallback" />
               <Stack.Screen component={DiscoveryProfilePreviewScreen} name="DiscoveryProfilePreview" />
               <Stack.Screen component={MatchConfirmationScreen} name="MatchConfirmation" />
             </Stack.Navigator>
@@ -43,20 +41,12 @@ describe('venue details screen', () => {
   };
 
   const enterFirstVenueDetailsViaCheckIn = async (screen: ReturnType<typeof renderNavigator>) => {
-    const { findByText, getAllByText, queryByText } = screen;
+    const { findByText, getByText } = screen;
 
     expect(await findByText('Nearby Venues Screen')).toBeTruthy();
-
-    const checkoutButton = queryByText('Checkout');
-    if (checkoutButton) {
-      fireEvent.press(checkoutButton);
-    }
-
-    await waitFor(() => {
-      expect(getAllByText('Check-In').length).toBeGreaterThan(0);
-    });
-
-    fireEvent.press(getAllByText('Check-In')[0]);
+    expect(await findByText('You are checked in')).toBeTruthy();
+    fireEvent.press(getByText('Halo Club'));
+    expect(await findByText('Venue Details Screen')).toBeTruthy();
   };
 
   beforeEach(() => {
@@ -214,7 +204,7 @@ describe('venue details screen', () => {
     expect(await findByText('No Matches')).toBeTruthy();
   });
 
-  it('renders exhausted fallback affordance and ineligible fallback route content', async () => {
+  it('renders exhausted-state affordance that returns to nearby venues', async () => {
     const locator = createMockBackendServiceLocator();
 
     const exhaustedServices: BackendServiceContracts = {
@@ -243,38 +233,10 @@ describe('venue details screen', () => {
     const exhaustedScreen = renderNavigator(exhaustedServices);
 
     await enterFirstVenueDetailsViaCheckIn(exhaustedScreen);
-    expect(await exhaustedScreen.findByText('Open Discovery Fallback')).toBeTruthy();
-
-    const ineligibleServices: BackendServiceContracts = {
-      ...locator.services,
-      presence: {
-        ...locator.services.presence,
-        getMyActiveSession: async () => ({
-          status: 'SUCCESS',
-          data: null,
-          request_id: 'req-no-session-fallback-1',
-        }),
-      },
-    };
-
-    const ineligibleScreen = render(
-      <ThemeProvider>
-        <AppStateProvider>
-          <ServiceLocatorProvider isMockModeEnabled servicesOverride={ineligibleServices}>
-            <NavigationContainer>
-              <Stack.Navigator initialRouteName="DiscoveryFallback" screenOptions={{ headerShown: false }}>
-                <Stack.Screen component={NearbyVenuesScreen} name="NearbyVenues" />
-                <Stack.Screen component={VenueDetailsScreen} initialParams={{ venueId: 'v-halo-club' }} name="VenueDetails" />
-                <Stack.Screen component={DiscoveryFallbackScreen} initialParams={{ reason: 'ineligible_state', venueId: 'v-halo-club' }} name="DiscoveryFallback" />
-              </Stack.Navigator>
-            </NavigationContainer>
-          </ServiceLocatorProvider>
-        </AppStateProvider>
-      </ThemeProvider>
-    );
-
-    expect(await ineligibleScreen.findByText('Discovery Fallback Screen')).toBeTruthy();
-    expect(await ineligibleScreen.findByText('Discovery Ineligible')).toBeTruthy();
+    expect((await exhaustedScreen.findAllByText('Back to Nearby Venues')).length).toBeGreaterThan(0);
+    const backButtons = exhaustedScreen.getAllByLabelText('Back to Nearby Venues');
+    fireEvent.press(backButtons[backButtons.length - 1]);
+    expect(await exhaustedScreen.findByText('Nearby Venues Screen')).toBeTruthy();
   });
 
   it('covers happy path: feed load -> like -> reciprocal match -> feed return', async () => {

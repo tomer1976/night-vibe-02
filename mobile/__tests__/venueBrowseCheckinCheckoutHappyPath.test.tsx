@@ -30,18 +30,19 @@ function VenueBrowseCheckinCheckoutNavigator() {
 }
 
 describe('venue browse to checkout happy path', () => {
-  it('completes browse -> check-in -> venue details tabs -> checkout flow', async () => {
+  it('completes browse -> venue details tabs -> checkout flow', async () => {
     const { findByText, getByText } = render(
       <VenueBrowseCheckinCheckoutNavigator />,
     );
 
     expect(await findByText('Nearby Venues Screen')).toBeTruthy();
-    fireEvent.press(getByText('Check-In'));
+    expect(await findByText('You are checked in')).toBeTruthy();
+    fireEvent.press(getByText('Halo Club'));
 
     expect(await findByText('Venue Details Screen')).toBeTruthy();
     expect(await findByText('Potential Matches')).toBeTruthy();
     fireEvent.press(getByText('Matches'));
-    expect(await findByText('No matches are available in this venue right now.')).toBeTruthy();
+    expect(await findByText('Jordan • 27 • female')).toBeTruthy();
 
     fireEvent.press(getByText('Checkout'));
     expect(await findByText('Nearby Venues Screen')).toBeTruthy();

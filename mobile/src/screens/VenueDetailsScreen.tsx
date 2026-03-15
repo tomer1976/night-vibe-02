@@ -24,7 +24,6 @@ type VenueDetailsRouteParams = {
 };
 
 type VenuePeopleTab = 'potential_matches' | 'matches';
-type DiscoveryFallbackReason = 'ineligible_state' | 'feed_exhausted';
 
 const formatCategoryLabel = (category: VenueSummary['category']) => category.replaceAll('_', ' ');
 const formatGenderLabel = (gender: DiscoveryCandidate['gender']) => gender.replace('_', ' ');
@@ -143,12 +142,7 @@ export function VenueDetailsScreen() {
     const isCheckedIntoVenue = activeSession?.status === 'active' && activeSession.venueId === venueId;
 
     if (!isCheckedIntoVenue) {
-      navigation.dispatch(
-        StackActions.replace(ROUTE_NAMES.DiscoveryFallback, {
-          reason: 'ineligible_state',
-          venueId,
-        })
-      );
+      navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues));
     }
   }, [activeSession, isPresenceSynced, navigation, venueId]);
 
@@ -330,18 +324,6 @@ export function VenueDetailsScreen() {
     return venue.status !== 'active' || !(activeSession?.status === 'active' && activeSession.venueId === venue.venueId);
   }, [activeSession, isSubmittingAction, venue]);
 
-  const openDiscoveryFallback = useCallback(
-    (reason: DiscoveryFallbackReason) => {
-      navigation.dispatch(
-        StackActions.push(ROUTE_NAMES.DiscoveryFallback, {
-          reason,
-          venueId: venue?.venueId,
-        })
-      );
-    },
-    [navigation, venue?.venueId]
-  );
-
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
       <View style={[styles.top, { paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.lg }]}> 
@@ -435,9 +417,9 @@ export function VenueDetailsScreen() {
 
                   {!isCheckedIntoViewedVenue ? (
                     <EmptyStateTemplate
-                      actionLabel="Open Discovery Fallback"
+                      actionLabel="Back to Nearby Venues"
                       message="Check in to this venue to load discovery candidates and matches."
-                      onAction={() => openDiscoveryFallback('ineligible_state')}
+                      onAction={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))}
                       title="Discovery Requires Active Session"
                     />
                   ) : activePeopleTab === 'potential_matches' ? (
@@ -452,17 +434,17 @@ export function VenueDetailsScreen() {
                       />
                     ) : filteredPotentialMatches.length === 0 ? (
                       <EmptyStateTemplate
-                        actionLabel="Open Discovery Fallback"
+                        actionLabel="Back to Nearby Venues"
                         message="No potential matches are available in this venue right now."
-                        onAction={() => openDiscoveryFallback('feed_exhausted')}
+                        onAction={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))}
                         title="No Potential Matches"
                       />
                     ) : (
                       visiblePotentialMatches.length === 0 ? (
                         <EmptyStateTemplate
-                          actionLabel="Open Discovery Fallback"
+                          actionLabel="Back to Nearby Venues"
                           message="No potential matches are available in this venue right now."
-                          onAction={() => openDiscoveryFallback('feed_exhausted')}
+                          onAction={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))}
                           title="No Potential Matches"
                         />
                       ) : (
@@ -507,17 +489,17 @@ export function VenueDetailsScreen() {
                     />
                   ) : matches.length === 0 ? (
                     <EmptyStateTemplate
-                      actionLabel="Open Discovery Fallback"
+                      actionLabel="Back to Nearby Venues"
                       message="No matches are available in this venue right now."
-                      onAction={() => openDiscoveryFallback('feed_exhausted')}
+                      onAction={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))}
                       title="No Matches"
                     />
                   ) : (
                     visibleMatches.length === 0 ? (
                       <EmptyStateTemplate
-                        actionLabel="Open Discovery Fallback"
+                        actionLabel="Back to Nearby Venues"
                         message="No matches are available in this venue right now."
-                        onAction={() => openDiscoveryFallback('feed_exhausted')}
+                        onAction={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))}
                         title="No Matches"
                       />
                     ) : (

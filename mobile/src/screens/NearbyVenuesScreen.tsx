@@ -93,6 +93,11 @@ export function NearbyVenuesScreen() {
       try {
         let didCheckIn = false;
 
+        if (activeSession?.status === 'active' && activeSession.venueId !== venue.venueId) {
+          setErrorText('Check out from your current venue before checking in to another venue.');
+          return;
+        }
+
         if (activeSession?.status === 'active' && activeSession.venueId === venue.venueId) {
           const checkoutResponse = await services.presence.checkOut(activeSession.sessionId);
 
@@ -150,7 +155,9 @@ export function NearbyVenuesScreen() {
               <View style={{ gap: theme.spacing.md }}>
                 {visibleVenues.map((venue) => {
                   const isCheckedIntoVenue = activeSession?.status === 'active' && activeSession.venueId === venue.venueId;
+                  const isCheckedIntoAnotherVenue = activeSession?.status === 'active' && activeSession.venueId !== venue.venueId;
                   const isBusy = activeVenueActionId === venue.venueId;
+                  const isVenueActionDisabled = isBusy || isCheckedIntoAnotherVenue;
 
                   return (
                     <Pressable
@@ -190,12 +197,19 @@ export function NearbyVenuesScreen() {
                           </View>
 
                         <Button
+                          disabled={isVenueActionDisabled}
                           label={isBusy ? 'Updating…' : isCheckedIntoVenue ? 'Checkout' : 'Check-In'}
                           onPress={() => {
                             suppressNextCardPressRef.current = true;
                             void performVenueAction(venue);
                           }}
                         />
+
+                        {isCheckedIntoAnotherVenue ? (
+                          <Text style={{ color: theme.colors.warning, fontSize: theme.typography.bodySmall }}>
+                            Check out from your current venue before checking in here.
+                          </Text>
+                        ) : null}
                         </View>
                       </Card>
                     </Pressable>
