@@ -351,14 +351,17 @@ export function VenueDetailsScreen() {
                 <View style={{ gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
                   <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
                     <Pressable
+                      accessibilityLabel="Potential Matches tab"
                       accessibilityRole="button"
+                      accessibilityState={{ selected: activePeopleTab === 'potential_matches' }}
                       onPress={() => setActivePeopleTab('potential_matches')}
                       style={{
                         flex: 1,
                         borderRadius: theme.radius.sm,
                         borderWidth: 1,
                         borderColor: activePeopleTab === 'potential_matches' ? theme.colors.accentPrimary : theme.colors.backgroundSecondary,
-                        backgroundColor: activePeopleTab === 'potential_matches' ? theme.colors.backgroundSecondary : 'transparent',
+                        backgroundColor:
+                          activePeopleTab === 'potential_matches' ? theme.colors.backgroundSecondary : theme.colors.backgroundPrimary,
                         paddingVertical: theme.spacing.sm,
                         alignItems: 'center',
                       }}
@@ -366,14 +369,16 @@ export function VenueDetailsScreen() {
                       <Text style={{ color: theme.colors.textPrimary, fontSize: theme.typography.body }}>Potential Matches</Text>
                     </Pressable>
                     <Pressable
+                      accessibilityLabel="Matches tab"
                       accessibilityRole="button"
+                      accessibilityState={{ selected: activePeopleTab === 'matches' }}
                       onPress={() => setActivePeopleTab('matches')}
                       style={{
                         flex: 1,
                         borderRadius: theme.radius.sm,
                         borderWidth: 1,
                         borderColor: activePeopleTab === 'matches' ? theme.colors.accentPrimary : theme.colors.backgroundSecondary,
-                        backgroundColor: activePeopleTab === 'matches' ? theme.colors.backgroundSecondary : 'transparent',
+                        backgroundColor: activePeopleTab === 'matches' ? theme.colors.backgroundSecondary : theme.colors.backgroundPrimary,
                         paddingVertical: theme.spacing.sm,
                         alignItems: 'center',
                       }}

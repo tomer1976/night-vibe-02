@@ -37,3 +37,12 @@ describe('sprint-02 ui consistency', () => {
     }
   });
 });
+
+describe('sprint-04 ui consistency', () => {
+  it('avoids transparent literal backgrounds in discovery venue details controls', () => {
+    const filePath = join(__dirname, '..', 'src', 'screens', 'VenueDetailsScreen.tsx');
+    const source = readFileSync(filePath, 'utf8');
+
+    expect(source).not.toMatch(/'transparent'/);
+  });
+});

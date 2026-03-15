@@ -65,7 +65,7 @@ describe('venue details screen', () => {
 
   it('opens dedicated discovery profile page when tapping a potential match bar', async () => {
     const screen = renderNavigator();
-    const { findByText, getByText, queryByText, getAllByText } = screen;
+    const { findByLabelText, findByText, getByText, queryByText, getAllByText } = screen;
 
     await enterFirstVenueDetailsViaCheckIn(screen);
     expect(await findByText('Venue Details Screen')).toBeTruthy();
@@ -74,8 +74,11 @@ describe('venue details screen', () => {
     expect(await findByText('Status: Active')).toBeTruthy();
     expect(await findByText('Potential Matches')).toBeTruthy();
     expect(await findByText('Matches')).toBeTruthy();
+    expect(await findByLabelText('Potential Matches tab')).toBeTruthy();
+    expect(await findByLabelText('Matches tab')).toBeTruthy();
     expect(await findByText('Riley Active • 29 • non binary')).toBeTruthy();
     expect(getAllByText('View profile').length).toBeGreaterThan(0);
+    expect(await findByLabelText('Riley Active • 29 • non binary. View profile')).toBeTruthy();
     expect(queryByText('Discovery Profile Preview Screen')).toBeNull();
 
     fireEvent.press(getByText('Riley Active • 29 • non binary'));

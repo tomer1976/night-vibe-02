@@ -31,7 +31,8 @@ export function DiscoveryCandidateCard({
 
   return (
     <Pressable
-      accessibilityLabel={title}
+      accessibilityHint="Opens discovery profile preview"
+      accessibilityLabel={`${title}. ${actionLabel}`}
       accessibilityRole="button"
       onPress={onPress}
       style={[
@@ -63,6 +64,7 @@ export function DiscoveryCandidateCard({
 
         <View
           style={{
+            backgroundColor: theme.colors.backgroundPrimary,
             borderRadius: theme.radius.sm,
             borderWidth: 1,
             borderColor: theme.colors.accentPrimary,
@@ -70,7 +72,7 @@ export function DiscoveryCandidateCard({
             paddingVertical: 4,
           }}
         >
-          <Text style={{ color: theme.colors.accentPrimary, fontSize: theme.typography.meta }}>
+          <Text style={{ color: theme.colors.textPrimary, fontSize: theme.typography.meta }}>
             {actionLabel}
           </Text>
         </View>

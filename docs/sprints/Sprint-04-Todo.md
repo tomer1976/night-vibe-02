@@ -32,7 +32,7 @@
 - [x] Build candidate card components and action affordances.
 - [x] Implement clear eligibility and state labels in preview UI.
 - [x] Add visual treatment for match-created and match-expired states.
-- [ ] Ensure dark-theme token consistency and accessibility baseline.
+- [x] Ensure dark-theme token consistency and accessibility baseline.
 
 ## State-Management Tasks
 - [ ] Implement discovery feed store with pagination and filter state.
