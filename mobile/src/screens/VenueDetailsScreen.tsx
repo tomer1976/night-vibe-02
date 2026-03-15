@@ -15,7 +15,7 @@ import {
 } from '../state/discoveryFeedStore';
 import { useTheme } from '../theme';
 import { resolveUserPhotoSource } from './userPhotoSource';
-import { readVenuePeopleInteractionSnapshot } from './venuePeopleInteractionState';
+import { readVenuePeopleInteractionSnapshot, subscribeToVenuePeopleInteractionStateChanges } from './venuePeopleInteractionState';
 import { formatLiveStatusLabel, formatVenueStatusLabel, toVenueStatusTone } from './venueStatusPresentation';
 import { resolveVenuePhotoSource } from './venuePhotoSource';
 
@@ -70,6 +70,12 @@ export function VenueDetailsScreen() {
   const [activePeopleTab, setActivePeopleTab] = useState<VenuePeopleTab>('potential_matches');
   const [interactionStateVersion, setInteractionStateVersion] = useState(0);
   const discoveryFeedPageSize = discoveryFeedStoreState.pagination.pageSize;
+
+  useEffect(() => {
+    return subscribeToVenuePeopleInteractionStateChanges(() => {
+      setInteractionStateVersion((version) => version + 1);
+    });
+  }, []);
 
   const syncPresenceSnapshot = useCallback(async () => {
     const [sessionResponse, transitionResponse] = await Promise.all([
@@ -238,7 +244,6 @@ export function VenueDetailsScreen() {
   useFocusEffect(
     useCallback(() => {
       void loadVenuePeople();
-      setInteractionStateVersion((version) => version + 1);
     }, [loadVenuePeople])
   );
 

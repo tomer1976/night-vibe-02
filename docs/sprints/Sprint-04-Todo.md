@@ -50,7 +50,7 @@
 
 ## Bugfix/Stabilization Tasks
 - [x] Resolve rapid-tap interaction race conditions.
-- [ ] Fix stale candidate rendering after block/skip updates.
+- [x] Fix stale candidate rendering after block/skip updates.
 - [ ] Fix incorrect match confirmation triggers from non-reciprocal scenarios.
 
 ## Documentation Tasks

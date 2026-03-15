@@ -1,6 +1,6 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { fireEvent, render, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import {
   DiscoveryFallbackScreen,
@@ -13,7 +13,7 @@ import { createMockBackendServiceLocator, ServiceLocatorProvider } from '../src/
 import { BackendServiceContracts } from '../src/contracts';
 import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
-import { resetVenuePeopleInteractionState } from '../src/screens/venuePeopleInteractionState';
+import { dismissPotential, resetVenuePeopleInteractionState } from '../src/screens/venuePeopleInteractionState';
 
 const Stack = createNativeStackNavigator();
 
@@ -359,5 +359,21 @@ describe('venue details screen', () => {
 
     expect(await screen.findByText('Sky • 27 • female')).toBeTruthy();
     expect(await screen.findByText('Match Status: expired')).toBeTruthy();
+  });
+
+  it('updates potential list immediately when block/skip-style dismissal state changes', async () => {
+    const screen = renderNavigator();
+
+    await enterFirstVenueDetailsViaCheckIn(screen);
+    expect(await screen.findByText('Venue Details Screen')).toBeTruthy();
+    expect(await screen.findByText('Riley Active • 29 • non binary')).toBeTruthy();
+
+    act(() => {
+      dismissPotential('v-halo-club', 'u-persona-active-1');
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText('Riley Active • 29 • non binary')).toBeNull();
+    });
   });
 });
