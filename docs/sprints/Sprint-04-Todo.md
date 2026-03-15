@@ -49,7 +49,7 @@
 - [x] Add match-expiration transition tests.
 
 ## Bugfix/Stabilization Tasks
-- [ ] Resolve rapid-tap interaction race conditions.
+- [x] Resolve rapid-tap interaction race conditions.
 - [ ] Fix stale candidate rendering after block/skip updates.
 - [ ] Fix incorrect match confirmation triggers from non-reciprocal scenarios.
 

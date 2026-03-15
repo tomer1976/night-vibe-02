@@ -171,11 +171,14 @@ describe('discovery interaction feedback states', () => {
 
     fireEvent.press(likeButton);
     fireEvent.press(likeButton);
+    fireEvent.press(likeButton);
 
     expect(await findByText('Processing interaction…')).toBeTruthy();
     expect(likeCallCount).toBe(1);
 
     resolveLike?.();
+
+    expect(await findByText('Liked Sky.')).toBeTruthy();
   });
 
   it('shows failure feedback when like request throws', async () => {

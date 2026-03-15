@@ -1,5 +1,5 @@
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
-import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -55,6 +55,7 @@ export function DiscoveryProfilePreviewScreen() {
   const [feedback, setFeedback] = useState<InteractionFeedbackState | undefined>();
   const [isPotentialLikedOverride, setIsPotentialLikedOverride] = useState<boolean | null>(null);
   const [isPresenceSynced, setIsPresenceSynced] = useState(false);
+  const likeSubmissionInFlightRef = useRef(false);
   const [interactionQueueState, dispatchInteractionQueue] = useReducer(
     interactionQueueStoreReducer,
     createInitialInteractionQueueStoreState()
@@ -112,6 +113,14 @@ export function DiscoveryProfilePreviewScreen() {
   }, [navigation, params.venueId]);
 
   const submitPotentialLike = useCallback(async () => {
+    if (likeSubmissionInFlightRef.current) {
+      setFeedback({
+        kind: 'duplicate',
+        message: 'Duplicate interaction detected for actor-target-venue-session scope.',
+      });
+      return;
+    }
+
     const request = {
       targetUserId: params.userId,
       venueId: params.venueId,
@@ -127,6 +136,8 @@ export function DiscoveryProfilePreviewScreen() {
       });
       return;
     }
+
+    likeSubmissionInFlightRef.current = true;
 
     dispatchInteractionQueue({
       type: 'BEGIN_INTERACTION',
@@ -190,6 +201,7 @@ export function DiscoveryProfilePreviewScreen() {
       });
       setFeedback({ kind: 'failure', message: 'Unable to submit like right now. Please retry.' });
     } finally {
+      likeSubmissionInFlightRef.current = false;
       setIsSubmitting(false);
     }
   }, [interactionQueueState, navigation, params.age, params.displayName, params.gender, params.profilePhotoUrl, params.userId, params.venueId, services.interactions]);
