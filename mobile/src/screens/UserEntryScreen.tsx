@@ -96,6 +96,12 @@ export function UserEntryScreen() {
             trailingText="Open"
           />
           <ListItem
+            onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.MatchesList))}
+            subtitle="Review active and expired matches"
+            title="Matches List Screen"
+            trailingText="Open"
+          />
+          <ListItem
             onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.UserProfile, { draft: DEFAULT_PROFILE_DRAFT }))}
             subtitle="View profile details and completion status"
             title="User Profile Screen"

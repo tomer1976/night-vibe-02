@@ -30,7 +30,7 @@
 	- `MANUAL-04-LAYOUT-01`: retained as open portrait-layout validation control for Sprint-05 signoff.
 
 ## Frontend Tasks
-- [ ] Implement Matches List screen with active/expired match states.
+- [x] Implement Matches List screen with active/expired match states.
 - [ ] Implement Chat Threads list with latest message and status preview.
 - [ ] Implement Chat Conversation UI with composer, bubbles, and message states.
 - [ ] Implement Report User and Block Confirmation flows.
