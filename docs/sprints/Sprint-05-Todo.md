@@ -1,17 +1,27 @@
 # Sprint-05 Todo - Mock Chat, Safety, and Notifications
 
 ## Kickoff Alignment Tasks
-
-- [x] Review Sprint-04 carry-over risks (`S4-CO-001`, `S4-CO-002`, `S4-CO-003`) and map explicit mitigation checks into Sprint-05 implementation/testing. (completed: see findings below)
+- [x] Review Sprint-04 carry-over risks (`S4-CO-001`, `S4-CO-002`, `S4-CO-003`) and map explicit mitigation checks into Sprint-05 implementation/testing.
 - [ ] Confirm Sprint-04 QA evidence baseline is attached (`docs/sprints/Sprint-04-TestReport.md`) and note `S4-CO-004` as resolved.
 - [ ] Track Sprint-04 manual platform readiness items (`MANUAL-04-AND-01`, `MANUAL-04-IOS-01`, `MANUAL-04-LAYOUT-01`) as Sprint-05 signoff risk controls.
 
-## Kickoff Alignment Findings
-- **Sprint-04 TestReport attached:** `docs/sprints/Sprint-04-TestReport.md` (automated Lint/Typecheck/Tests: PASS). See evidence in Sprint-04 TestReport.
-- **Automated coverage status:** eligibility gating, match lifecycle transitions, and duplicate-interaction prevention are reported as **PASS** in the Sprint-04 Test Report; these reduce but do not eliminate the carry-over risks.
-- **Manual checks pending:** `MANUAL-04-AND-01`, `MANUAL-04-IOS-01`, `MANUAL-04-LAYOUT-01` remain open and are tracked as Sprint-05 readiness gates.
-- **Carry-over risks (S4-CO-001..003):** treated as active risks — mitigation checks have been mapped to Sprint-05 tasks (see Testing and Bugfix/Stabilization sections). Immediate focus areas: eligibility drift under rapid state changes, timing/race behavior in reciprocal-like flows, and propagation consistency for match expiration/blocking.
+### Task 1 Mitigation Mapping (`S4-CO-001..003`)
+- `S4-CO-001` eligibility drift mitigation checks:
+	- Add deterministic eligibility selector tests that recompute composer state from match + active session + block state on each relevant event.
+	- Add navigation guard checks so ineligible chat transitions route to disabled/error state without stale composer enablement.
+- `S4-CO-002` reciprocal-like timing mitigation checks:
+	- Preserve Sprint-04 exactly-once match identity usage (`match_id`) when creating/retrieving mock chat sessions.
+	- Add dedup verification in notifications for repeated match/message events within dedup window.
+- `S4-CO-003` expiration/block propagation mitigation checks:
+	- Add cross-surface propagation tests that block/expire events disable chat and remove discovery visibility in the same scenario tick.
+	- Add regression checks for blocked-user consistency across conversation, thread list, and blocked-users screens.
 
+### Task 1 Verification Notes
+- Baseline references reviewed:
+	- `docs/sprints/Sprint-04-Carry-Over.md`
+	- `docs/sprints/Sprint-04-TestReport.md`
+	- `mobile/docs/sprint-04-match-lifecycle-state-machine-and-triggers.md`
+	- `mobile/docs/sprint-04-interaction-idempotency-phase-2-conversion.md`
 
 ## Frontend Tasks
 - [ ] Implement Matches List screen with active/expired match states.

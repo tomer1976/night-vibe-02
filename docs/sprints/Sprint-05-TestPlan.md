@@ -18,6 +18,17 @@
 	- `S4-CO-003`
 - Sprint-04 manual platform checks (`MANUAL-04-AND-01`, `MANUAL-04-IOS-01`, `MANUAL-04-LAYOUT-01`) remain risk controls for Sprint-05 signoff.
 
+## Carry-Over Risk Control Matrix (`S4-CO-001..003`)
+- `S4-CO-001` (eligibility drift under rapid state changes)
+	- Implementation control: recompute chat eligibility from canonical match/session/block state on each state update.
+	- Test control: transition tests for `match_expired`, `left_venue`, and `blocked` while conversation is open, including rapid toggles.
+- `S4-CO-002` (reciprocal-like timing and exactly-once assumptions)
+	- Implementation control: derive chat thread identity from deterministic match identity and treat duplicate lifecycle events as idempotent replays.
+	- Test control: duplicate event replay tests for chat session creation and notification emission dedup behavior.
+- `S4-CO-003` (match expiration/block propagation consistency)
+	- Implementation control: enforce shared event-bus propagation from safety/match updates to chat/discovery projections.
+	- Test control: cross-surface assertions that block/expire events immediately disable composer and remove discovery visibility.
+
 ## Happy Paths
 1. User opens active match conversation and sends message successfully.
 2. Message transitions from `sent` to `delivered` to `read` in order.
