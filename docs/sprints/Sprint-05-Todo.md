@@ -29,8 +29,33 @@
 	- `MANUAL-04-IOS-01`: retained as open manual iOS validation control for Sprint-05 signoff.
 	- `MANUAL-04-LAYOUT-01`: retained as open portrait-layout validation control for Sprint-05 signoff.
 
+## Navigation Realignment Tasks (Production UX)
+
+### P0 - Required Flow and Shell
+- [x] Remove production startup dependency on any User Entry hub screen; app starts at Login.
+- [ ] Route authenticated + profile-complete users directly to Nearby Venues screen.
+- [ ] Implement persistent top banner (logo + app name) on all main-tab pages.
+- [ ] Implement persistent bottom tabs: Venues, Chats, Settings, Profile.
+- [ ] Ensure Potential Matches and Matches are rendered only inside Venue Details tabs.
+
+### P1 - Main Flow Completion
+- [ ] Wire main path end-to-end: Login -> Nearby Venues -> Check-In -> Venue Details tabs.
+- [ ] Wire Chats tab to thread list and conversation flow from venue-scoped matches.
+- [ ] Wire Settings and Profile tabs with consistent shell behavior.
+- [ ] Add route guards so `NOT_CHECKED_IN` and eligibility failures return users to venue/check-in flow.
+
+### P1 - Back Navigation Standards
+- [ ] Enforce back arrow in top bar for all non-main pages.
+- [ ] Remove/avoid text-style "Back to ..." primary controls.
+- [ ] Preserve previous tab context on back navigation where applicable.
+
+### P2 - Regression and Cleanup
+- [ ] Remove or deprecate standalone regular-user Matches screen entry points.
+- [ ] Sweep docs/code labels to remove ambiguous Home/User Entry references from production flow.
+- [ ] Add regression tests for startup route, tab persistence, venue-only matches placement, and back-arrow behavior.
+
 ## Frontend Tasks
-- [x] Implement Matches List screen with active/expired match states.
+- [ ] Refactor matches UI into Venue Details -> Matches tab (active/expired states).
 - [x] Implement Chat Threads list with latest message and status preview.
 - [ ] Implement Chat Conversation UI with composer, bubbles, and message states.
 - [ ] Implement Report User and Block Confirmation flows.
@@ -54,7 +79,7 @@
 - [ ] Add deterministic scenario packs for chat eligibility transitions.
 
 ## Navigation Tasks
-- [ ] Wire flow: Matches -> Threads -> Conversation.
+- [ ] Wire flow: Venue Details (Matches tab) -> Threads -> Conversation.
 - [ ] Wire report/block entry from conversation and profile preview contexts.
 - [ ] Wire notification entry points and return paths.
 - [ ] Add route guards for ineligible chat sessions.
@@ -65,6 +90,7 @@
 - [ ] Build safety status banners and confirmation modals.
 - [ ] Build notification item variants by type and read status.
 - [ ] Ensure dark-theme consistency and accessibility contrast.
+- [ ] Implement top banner variant for main pages and back-arrow variant for non-main pages.
 
 ## State-Management Tasks
 - [ ] Implement chat store for threads, messages, and eligibility state.
