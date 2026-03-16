@@ -35,7 +35,7 @@
 - [x] Remove production startup dependency on any User Entry hub screen; app starts at Login.
 - [x] Route authenticated + profile-complete users directly to Nearby Venues screen.
 - [x] Implement persistent top banner (logo + app name) on all main-tab pages.
-- [ ] Implement persistent bottom tabs: Venues, Chats, Settings, Profile.
+- [x] Implement persistent bottom tabs: Venues, Chats, Settings, Profile.
 - [ ] Ensure Potential Matches and Matches are rendered only inside Venue Details tabs.
 
 ### P1 - Main Flow Completion

@@ -108,6 +108,10 @@ describe('chat threads screen', () => {
 
     expect(await screen.findByText('Chat Threads Screen')).toBeTruthy();
     expect(screen.getByTestId('top-bar-main-tab-logo')).toBeTruthy();
+    expect(screen.getByTestId('bottom-nav-venues')).toBeTruthy();
+    expect(screen.getByTestId('bottom-nav-chats')).toBeTruthy();
+    expect(screen.getByTestId('bottom-nav-settings')).toBeTruthy();
+    expect(screen.getByTestId('bottom-nav-profile')).toBeTruthy();
     expect(await screen.findByText('Jordan • 27 • female')).toBeTruthy();
     expect(await screen.findByText('Avery • 31 • male')).toBeTruthy();
     expect(await screen.findByText('Leaving soon, where are you? (delivered)')).toBeTruthy();

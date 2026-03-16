@@ -4,27 +4,19 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge, BottomNavShell, Button, Card, EmptyStateTemplate, ListItem, TopBar } from '../components';
-import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
+import { isMainTabKey, MAIN_TAB_ITEMS, resolveMainTabRouteName } from '../navigation/mainTabs';
+import { shouldReplaceRoute } from '../navigation/replaceRouteGuard';
+import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useProfileDraftState } from '../state';
-import { useRouteAccessSelectors } from '../state/routeSelectors';
 import { useTheme } from '../theme';
 import { DEFAULT_ACCOUNT_SETTINGS_DRAFT } from './accountSettingsDraft';
 import { areProfileDraftsEqual, DEFAULT_PROFILE_DRAFT, readProfileDraftFromParams } from './profileDraft';
-
-const navItems = [
-  { key: 'auth', label: 'Auth' },
-  { key: 'user', label: 'User' },
-  { key: 'owner', label: 'Owner' },
-  { key: 'moderator', label: 'Mod' },
-  { key: 'admin', label: 'Admin' },
-];
 
 export function UserProfileScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
   const route = useRoute();
   const { replaceProfileDraft, savedDraft: draft } = useProfileDraftState();
-  const { resolve } = useRouteAccessSelectors();
   const hasSeededFromParamsRef = useRef(false);
 
   useEffect(() => {
@@ -53,52 +45,6 @@ export function UserProfileScreen() {
     draft.bio.trim().length > 0 ||
     draft.preferredGenders.trim().length > 0 ||
     draft.photos.length > 0;
-
-  const routeNameFromNavKey = (key: string): AppRouteName | null => {
-    if (key === 'auth') {
-      return ROUTE_NAMES.AuthGroup;
-    }
-
-    if (key === 'user') {
-      return ROUTE_NAMES.UserGroup;
-    }
-
-    if (key === 'owner') {
-      return ROUTE_NAMES.OwnerGroup;
-    }
-
-    if (key === 'moderator') {
-      return ROUTE_NAMES.ModeratorGroup;
-    }
-
-    if (key === 'admin') {
-      return ROUTE_NAMES.AdminGroup;
-    }
-
-    return null;
-  };
-
-  const handleItemPress = (item: { key: string }) => {
-    const requestedRoute = routeNameFromNavKey(item.key);
-
-    if (!requestedRoute) {
-      return;
-    }
-
-    const safeRoute = resolve(requestedRoute);
-
-    if (safeRoute === ROUTE_NAMES.UnknownRouteFallback) {
-      navigation.dispatch(
-        StackActions.replace(ROUTE_NAMES.UnknownRouteFallback, {
-          requestedRouteName: requestedRoute,
-        })
-      );
-
-      return;
-    }
-
-    navigation.dispatch(StackActions.replace(safeRoute));
-  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
@@ -158,7 +104,23 @@ export function UserProfileScreen() {
       </View>
 
       <View style={[styles.bottom, { paddingHorizontal: theme.spacing.lg, paddingBottom: theme.spacing.lg }]}> 
-        <BottomNavShell activeKey="user" items={navItems} onItemPress={handleItemPress} />
+        <BottomNavShell
+          activeKey="profile"
+          items={MAIN_TAB_ITEMS}
+          onItemPress={(item) => {
+            if (!isMainTabKey(item.key)) {
+              return;
+            }
+
+            const targetRouteName = resolveMainTabRouteName(item.key);
+
+            if (!shouldReplaceRoute(ROUTE_NAMES.UserProfile, targetRouteName, undefined, undefined)) {
+              return;
+            }
+
+            navigation.dispatch(StackActions.replace(targetRouteName));
+          }}
+        />
       </View>
     </SafeAreaView>
   );

@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import { BackendServiceContracts } from '../src/contracts';
-import { NearbyVenuesScreen, UserEntryScreen, VenueDetailsScreen } from '../src/screens';
+import { AccountSettingsScreen, ChatThreadsScreen, NearbyVenuesScreen, UserEntryScreen, UserProfileScreen, VenueDetailsScreen } from '../src/screens';
 import { createMockBackendServiceLocator, ServiceLocatorProvider } from '../src/services';
 import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
@@ -20,6 +20,9 @@ function NearbyVenuesTestNavigator({ servicesOverride }: { servicesOverride?: Ba
               <Stack.Screen component={UserEntryScreen} name="UserGroup" />
               <Stack.Screen component={NearbyVenuesScreen} name="NearbyVenues" />
               <Stack.Screen component={VenueDetailsScreen} name="VenueDetails" />
+              <Stack.Screen component={ChatThreadsScreen} name="ChatThreads" />
+              <Stack.Screen component={AccountSettingsScreen} name="AccountSettings" />
+              <Stack.Screen component={UserProfileScreen} name="UserProfile" />
             </Stack.Navigator>
           </NavigationContainer>
         </ServiceLocatorProvider>
@@ -64,6 +67,10 @@ describe('nearby venues screen', () => {
 
     expect(await findByText('Nearby Venues Screen')).toBeTruthy();
     expect(getByTestId('top-bar-main-tab-logo')).toBeTruthy();
+    expect(getByTestId('bottom-nav-venues')).toBeTruthy();
+    expect(getByTestId('bottom-nav-chats')).toBeTruthy();
+    expect(getByTestId('bottom-nav-settings')).toBeTruthy();
+    expect(getByTestId('bottom-nav-profile')).toBeTruthy();
     expect(await findByText('Halo Club')).toBeTruthy();
     expect(await findByText('Luna Lounge')).toBeTruthy();
     expect(await findByText('Category: club')).toBeTruthy();
@@ -183,5 +190,16 @@ describe('nearby venues screen', () => {
 
     expect(await findByText('Venue Details Screen')).toBeTruthy();
     expect(await findByText('Luna Lounge')).toBeTruthy();
+  });
+
+  it('switches from venues to chats using the persistent main tabs', async () => {
+    const { findByText, getByText, getByTestId } = render(<NearbyVenuesTestNavigator />);
+
+    fireEvent.press(getByText('Nearby Venues Screen'));
+    expect(await findByText('Nearby Venues Screen')).toBeTruthy();
+
+    fireEvent.press(getByTestId('bottom-nav-chats'));
+
+    expect(await findByText('Chat Threads Screen')).toBeTruthy();
   });
 });

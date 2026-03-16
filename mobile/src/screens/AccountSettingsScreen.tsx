@@ -3,7 +3,9 @@ import { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, Button, Card, ListItem, TopBar } from '../components';
+import { Badge, BottomNavShell, Button, Card, ListItem, TopBar } from '../components';
+import { isMainTabKey, MAIN_TAB_ITEMS, resolveMainTabRouteName } from '../navigation/mainTabs';
+import { shouldReplaceRoute } from '../navigation/replaceRouteGuard';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useAccountLifecycleState } from '../state';
 import { useTheme } from '../theme';
@@ -90,6 +92,26 @@ export function AccountSettingsScreen() {
 
         <Button label="Back to Profile" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserProfile))} variant="secondary" />
       </View>
+
+      <View style={[styles.bottom, { paddingHorizontal: theme.spacing.lg, paddingBottom: theme.spacing.lg }]}> 
+        <BottomNavShell
+          activeKey="settings"
+          items={MAIN_TAB_ITEMS}
+          onItemPress={(item) => {
+            if (!isMainTabKey(item.key)) {
+              return;
+            }
+
+            const targetRouteName = resolveMainTabRouteName(item.key);
+
+            if (!shouldReplaceRoute(ROUTE_NAMES.AccountSettings, targetRouteName, undefined, undefined)) {
+              return;
+            }
+
+            navigation.dispatch(StackActions.replace(targetRouteName));
+          }}
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -103,6 +125,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  bottom: {
+    width: '100%',
   },
   row: {
     alignItems: 'center',

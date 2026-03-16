@@ -35,6 +35,10 @@ describe('profile screens', () => {
     const { getByTestId } = render(<ProfileTestNavigator />);
 
     expect(getByTestId('top-bar-main-tab-logo')).toBeTruthy();
+    expect(getByTestId('bottom-nav-venues')).toBeTruthy();
+    expect(getByTestId('bottom-nav-chats')).toBeTruthy();
+    expect(getByTestId('bottom-nav-settings')).toBeTruthy();
+    expect(getByTestId('bottom-nav-profile')).toBeTruthy();
   });
 
   it('opens edit profile and validates required display name', () => {

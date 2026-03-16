@@ -9,7 +9,7 @@ export type BottomNavItem = {
 
 type BottomNavShellProps = {
   activeKey?: string;
-  items: BottomNavItem[];
+  items: readonly BottomNavItem[];
   onItemPress?: (item: BottomNavItem) => void;
 };
 

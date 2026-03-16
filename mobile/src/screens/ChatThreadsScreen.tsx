@@ -3,8 +3,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, Button, Card, EmptyStateTemplate, ErrorStateTemplate, ListItem, LoadingStateTemplate, TopBar } from '../components';
+import { Badge, BottomNavShell, Button, Card, EmptyStateTemplate, ErrorStateTemplate, ListItem, LoadingStateTemplate, TopBar } from '../components';
 import { ChatThread } from '../contracts';
+import { isMainTabKey, MAIN_TAB_ITEMS, resolveMainTabRouteName } from '../navigation/mainTabs';
+import { shouldReplaceRoute } from '../navigation/replaceRouteGuard';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
 import { useTheme } from '../theme';
@@ -112,6 +114,26 @@ export function ChatThreadsScreen() {
           )}
         </Card>
       </View>
+
+      <View style={[styles.bottom, { paddingHorizontal: theme.spacing.lg, paddingBottom: theme.spacing.lg }]}> 
+        <BottomNavShell
+          activeKey="chats"
+          items={MAIN_TAB_ITEMS}
+          onItemPress={(item) => {
+            if (!isMainTabKey(item.key)) {
+              return;
+            }
+
+            const targetRouteName = resolveMainTabRouteName(item.key);
+
+            if (!shouldReplaceRoute(ROUTE_NAMES.ChatThreads, targetRouteName, undefined, undefined)) {
+              return;
+            }
+
+            navigation.dispatch(StackActions.replace(targetRouteName));
+          }}
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -125,6 +147,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  bottom: {
+    width: '100%',
   },
   summaryRow: {
     flexDirection: 'row',
