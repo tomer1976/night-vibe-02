@@ -20,7 +20,7 @@ describe('deep link routing', () => {
     expect(resolveRouteFromDeepLinkPath('/settings/account?ref=qa')).toBe(ROUTE_NAMES.AccountSettings);
     expect(resolveRouteFromDeepLinkPath('/venues/details')).toBe(ROUTE_NAMES.VenueDetails);
     expect(resolveRouteFromDeepLinkPath('/discovery/profile-preview')).toBe(ROUTE_NAMES.DiscoveryProfilePreview);
-    expect(resolveRouteFromDeepLinkPath('/matches')).toBe(ROUTE_NAMES.MatchesList);
+    expect(resolveRouteFromDeepLinkPath('/matches')).toBeNull();
     expect(resolveRouteFromDeepLinkPath('/chat/threads')).toBe(ROUTE_NAMES.ChatThreads);
     expect(resolveRouteFromDeepLinkPath('/venues/check-in-confirmation')).toBe(ROUTE_NAMES.CheckInConfirmation);
     expect(resolveRouteFromDeepLinkPath('/venues/checkout-confirmation')).toBe(ROUTE_NAMES.CheckoutConfirmation);
@@ -79,7 +79,6 @@ describe('deep link routing', () => {
       '/user',
       '/venues/details',
       '/discovery/profile-preview',
-      '/matches',
       '/chat/threads',
       '/venues/check-in-confirmation',
       '/venues/checkout-confirmation',

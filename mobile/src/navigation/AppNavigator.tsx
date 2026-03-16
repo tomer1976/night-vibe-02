@@ -13,7 +13,6 @@ import { DiscoveryFallbackScreen } from '../screens/DiscoveryFallbackScreen';
 import { DeleteAccountScreen } from '../screens/DeleteAccountScreen';
 import { DiscoveryProfilePreviewScreen } from '../screens/DiscoveryProfilePreviewScreen';
 import { MatchConfirmationScreen } from '../screens/MatchConfirmationScreen';
-import { MatchesListScreen } from '../screens/MatchesListScreen';
 import { ChatThreadsScreen } from '../screens/ChatThreadsScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { LinkedAccountsScreen } from '../screens/LinkedAccountsScreen';
@@ -160,7 +159,6 @@ export function AppNavigator() {
           {() => renderProtectedRoute('DiscoveryProfilePreview', DiscoveryProfilePreviewScreen)}
         </Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.MatchConfirmation}>{() => renderProtectedRoute('MatchConfirmation', MatchConfirmationScreen)}</Stack.Screen>
-        <Stack.Screen name={ROUTE_NAMES.MatchesList}>{() => renderProtectedRoute('MatchesList', MatchesListScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.ChatThreads}>{() => renderProtectedRoute('ChatThreads', ChatThreadsScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.CheckInConfirmation}>{() => renderProtectedRoute('CheckInConfirmation', CheckInConfirmationScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.CheckoutConfirmation}>{() => renderProtectedRoute('CheckoutConfirmation', CheckoutConfirmationScreen)}</Stack.Screen>

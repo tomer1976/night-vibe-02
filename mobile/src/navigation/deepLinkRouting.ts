@@ -30,7 +30,6 @@ const DEEP_LINK_PATH_TO_ROUTE: Record<string, AppRouteName> = {
   user: ROUTE_NAMES.UserGroup,
   'venues/details': ROUTE_NAMES.VenueDetails,
   'discovery/profile-preview': ROUTE_NAMES.DiscoveryProfilePreview,
-  matches: ROUTE_NAMES.MatchesList,
   'chat/threads': ROUTE_NAMES.ChatThreads,
   'venues/check-in-confirmation': ROUTE_NAMES.CheckInConfirmation,
   'venues/checkout-confirmation': ROUTE_NAMES.CheckoutConfirmation,

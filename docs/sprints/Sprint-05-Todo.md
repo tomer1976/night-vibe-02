@@ -36,7 +36,7 @@
 - [x] Route authenticated + profile-complete users directly to Nearby Venues screen.
 - [x] Implement persistent top banner (logo + app name) on all main-tab pages.
 - [x] Implement persistent bottom tabs: Venues, Chats, Settings, Profile.
-- [ ] Ensure Potential Matches and Matches are rendered only inside Venue Details tabs.
+- [x] Ensure Potential Matches and Matches are rendered only inside Venue Details tabs.
 
 ### P1 - Main Flow Completion
 - [ ] Wire main path end-to-end: Login -> Nearby Venues -> Check-In -> Venue Details tabs.

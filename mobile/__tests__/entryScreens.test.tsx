@@ -88,4 +88,18 @@ describe('entry screens', () => {
 
     expect(getByText('ACTIVE')).toBeTruthy();
   });
+
+  it('does not expose standalone matches entry in user shell', () => {
+    const { queryByText } = render(
+      <ThemeProvider>
+        <AppStateProvider>
+          <NavigationContainer>
+            <UserEntryScreen />
+          </NavigationContainer>
+        </AppStateProvider>
+      </ThemeProvider>
+    );
+
+    expect(queryByText('Matches List Screen')).toBeNull();
+  });
 });

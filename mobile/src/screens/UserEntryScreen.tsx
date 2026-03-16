@@ -96,12 +96,6 @@ export function UserEntryScreen() {
             trailingText="Open"
           />
           <ListItem
-            onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.MatchesList))}
-            subtitle="Review active and expired matches"
-            title="Matches List Screen"
-            trailingText="Open"
-          />
-          <ListItem
             onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.ChatThreads))}
             subtitle="Review latest chat previews and thread states"
             title="Chat Threads Screen"
