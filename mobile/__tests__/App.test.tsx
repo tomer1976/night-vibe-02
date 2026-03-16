@@ -20,7 +20,7 @@ describe('App', () => {
     expect(getAllByText('Application shell bootstrap route.').length).toBeGreaterThan(0);
   });
 
-  it('opens on Splash and transitions to Login', () => {
+  it('opens on Splash and transitions to Nearby Venues for authenticated profile-complete users', () => {
     const { getByText, queryByText } = render(<App />);
 
     expect(getByText('Splash')).toBeTruthy();
@@ -29,8 +29,9 @@ describe('App', () => {
       jest.advanceTimersByTime(500);
     });
 
-    expect(getByText('Login Screen')).toBeTruthy();
+    expect(getByText('Fetching Nearby Venues')).toBeTruthy();
     expect(queryByText('Splash')).toBeNull();
     expect(queryByText('User Entry')).toBeNull();
+    expect(queryByText('Login Screen')).toBeNull();
   });
 });

@@ -3,13 +3,14 @@ import { useEffect } from 'react';
 
 import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
 import { resolveAuthEntryRoute } from '../navigation/authEntryRouting';
-import { useAuthState, useFeatureFlagsState } from '../state';
+import { useAuthState, useFeatureFlagsState, useOnboardingState } from '../state';
 import { ShellEntryScreen } from './ShellEntryScreen';
 
 export function SplashScreen() {
   const navigation = useNavigation();
   const { accountStatus, isAuthenticated } = useAuthState();
   const { isStateHydrated } = useFeatureFlagsState();
+  const { profileCompleted } = useOnboardingState();
 
   useEffect(() => {
     if (!isStateHydrated && process.env.NODE_ENV !== 'test') {
@@ -22,7 +23,12 @@ export function SplashScreen() {
       isNewUser: false,
     });
 
-    const startupRoute = targetRoute === ROUTE_NAMES.UserGroup ? ROUTE_NAMES.Login : targetRoute;
+    const startupRoute =
+      targetRoute === ROUTE_NAMES.UserGroup
+        ? profileCompleted
+          ? ROUTE_NAMES.NearbyVenues
+          : ROUTE_NAMES.ProfileCompletionRequired
+        : targetRoute;
 
     const timeoutId = setTimeout(() => {
       navigation.dispatch(StackActions.replace(startupRoute));
@@ -31,7 +37,7 @@ export function SplashScreen() {
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [accountStatus, isAuthenticated, isStateHydrated, navigation]);
+  }, [accountStatus, isAuthenticated, isStateHydrated, navigation, profileCompleted]);
 
   return <ShellEntryScreen title="Splash" subtitle="Application shell bootstrap route." stateTemplate="loading" />;
 }
