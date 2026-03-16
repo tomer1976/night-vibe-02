@@ -1144,11 +1144,53 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
     chat: {
       getThreads: async () => {
         const matches = computeMatchRecords(currentUser.uid);
+
+        const toThreadStatus = (status: (typeof matches)[number]['status']): ChatThread['status'] => {
+          if (status === 'matched') {
+            return 'active';
+          }
+
+          if (status === 'expired') {
+            return 'expired';
+          }
+
+          return 'blocked';
+        };
+
+        const buildLatestMessage = (matchId: string, status: ChatThread['status']): ChatThread['latestMessage'] => {
+          const statusToDelivery: Record<ChatThread['status'], ChatThread['latestMessage']['deliveryStatus']> = {
+            active: 'delivered',
+            expired: 'read',
+            blocked: 'sent',
+          };
+
+          const statusToText: Record<ChatThread['status'], string> = {
+            active: 'See you near the dance floor.',
+            expired: 'Looks like the venue session ended.',
+            blocked: 'This conversation is currently restricted.',
+          };
+
+          return {
+            messageId: `msg-${matchId}-latest`,
+            text: statusToText[status],
+            sentAt: clock.now(),
+            deliveryStatus: statusToDelivery[status],
+          };
+        };
+
         const threads: ChatThread[] = matches.map((match) => ({
           chatId: `chat-${match.matchId}`,
           matchId: match.matchId,
           participants: [match.users[0], match.users[1]],
-          status: 'active',
+          counterpart: {
+            userId: match.counterpart.userId,
+            displayName: match.counterpart.displayName,
+            age: match.counterpart.age,
+            gender: match.counterpart.gender,
+          },
+          latestMessage: buildLatestMessage(match.matchId, toThreadStatus(match.status)),
+          unreadCount: match.status === 'matched' ? 1 : 0,
+          status: toThreadStatus(match.status),
         }));
 
         return responseFactory.build({ key: 'chat.getThreads', data: threads });

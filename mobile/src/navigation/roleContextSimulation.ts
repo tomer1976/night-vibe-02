@@ -135,6 +135,7 @@ export function canAccessRoute(routeName: AppRouteName, context: SimulatedRoleCo
     case ROUTE_NAMES.DiscoveryProfilePreview:
     case ROUTE_NAMES.MatchConfirmation:
     case ROUTE_NAMES.MatchesList:
+    case ROUTE_NAMES.ChatThreads:
     case ROUTE_NAMES.CheckInConfirmation:
     case ROUTE_NAMES.CheckoutConfirmation:
     case ROUTE_NAMES.UserProfile:

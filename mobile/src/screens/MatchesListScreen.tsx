@@ -114,6 +114,7 @@ export function MatchesListScreen() {
               {activeMatches.length > 0 ? <ActiveMatchesSection matches={activeMatches} titleColor={theme.colors.textPrimary} /> : null}
               {expiredMatches.length > 0 ? <ExpiredMatchesSection matches={expiredMatches} titleColor={theme.colors.textPrimary} /> : null}
 
+              <Button label="Open Chat Threads" onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.ChatThreads))} />
               <Button label="Back to User Entry" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserGroup))} variant="secondary" />
             </ScrollView>
           )}

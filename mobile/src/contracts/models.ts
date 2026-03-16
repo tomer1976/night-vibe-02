@@ -68,6 +68,19 @@ export type ChatThread = {
   chatId: string;
   matchId: string;
   participants: [string, string];
+  counterpart: {
+    userId: string;
+    displayName: string;
+    age: number;
+    gender: UserGender;
+  };
+  latestMessage: {
+    messageId: string;
+    text: string;
+    sentAt: string;
+    deliveryStatus: 'sent' | 'delivered' | 'read' | 'failed';
+  };
+  unreadCount: number;
   status: 'active' | 'expired' | 'blocked';
 };
 

@@ -31,7 +31,7 @@
 
 ## Frontend Tasks
 - [x] Implement Matches List screen with active/expired match states.
-- [ ] Implement Chat Threads list with latest message and status preview.
+- [x] Implement Chat Threads list with latest message and status preview.
 - [ ] Implement Chat Conversation UI with composer, bubbles, and message states.
 - [ ] Implement Report User and Block Confirmation flows.
 - [ ] Implement Blocked Users and Safety Center screens.

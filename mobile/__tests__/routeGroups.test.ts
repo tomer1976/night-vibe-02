@@ -23,6 +23,7 @@ describe('route groups', () => {
       'DiscoveryProfilePreview',
       'MatchConfirmation',
       'MatchesList',
+      'ChatThreads',
       'CheckInConfirmation',
       'CheckoutConfirmation',
       'UserProfile',
@@ -72,6 +73,7 @@ describe('route groups', () => {
       DiscoveryProfilePreview: 'user',
       MatchConfirmation: 'user',
       MatchesList: 'user',
+      ChatThreads: 'user',
       CheckInConfirmation: 'user',
       CheckoutConfirmation: 'user',
       UserProfile: 'user',
@@ -103,6 +105,7 @@ describe('route groups', () => {
     expect(canAccessRoute(ROUTE_NAMES.DiscoveryProfilePreview, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.MatchConfirmation, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.MatchesList, regularUser)).toBe(true);
+    expect(canAccessRoute(ROUTE_NAMES.ChatThreads, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.CheckInConfirmation, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.CheckoutConfirmation, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.OwnerGroup, venueOwner)).toBe(true);

@@ -102,6 +102,12 @@ export function UserEntryScreen() {
             trailingText="Open"
           />
           <ListItem
+            onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.ChatThreads))}
+            subtitle="Review latest chat previews and thread states"
+            title="Chat Threads Screen"
+            trailingText="Open"
+          />
+          <ListItem
             onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.UserProfile, { draft: DEFAULT_PROFILE_DRAFT }))}
             subtitle="View profile details and completion status"
             title="User Profile Screen"

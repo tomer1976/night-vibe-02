@@ -25,6 +25,7 @@ function RouteSelectorProbe() {
   const discoveryProfilePreviewResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.DiscoveryProfilePreview);
   const matchConfirmationResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.MatchConfirmation);
   const matchesListResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.MatchesList);
+  const chatThreadsResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.ChatThreads);
   const checkInConfirmationResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.CheckInConfirmation);
   const checkoutConfirmationResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.CheckoutConfirmation);
   const userProfileResolution = routeAccess.resolveWithAccess(ROUTE_NAMES.UserProfile);
@@ -46,6 +47,8 @@ function RouteSelectorProbe() {
       <Text>{`matchConfirmationResolved:${matchConfirmationResolution.resolvedRoute}`}</Text>
       <Text>{`matchesListAllowed:${matchesListResolution.isAllowed}`}</Text>
       <Text>{`matchesListResolved:${matchesListResolution.resolvedRoute}`}</Text>
+      <Text>{`chatThreadsAllowed:${chatThreadsResolution.isAllowed}`}</Text>
+      <Text>{`chatThreadsResolved:${chatThreadsResolution.resolvedRoute}`}</Text>
       <Text>{`checkInConfirmationAllowed:${checkInConfirmationResolution.isAllowed}`}</Text>
       <Text>{`checkInConfirmationResolved:${checkInConfirmationResolution.resolvedRoute}`}</Text>
       <Text>{`checkoutConfirmationAllowed:${checkoutConfirmationResolution.isAllowed}`}</Text>
@@ -169,6 +172,8 @@ describe('route state selectors', () => {
     expect(getByText(`matchConfirmationResolved:${ROUTE_NAMES.MatchConfirmation}`)).toBeTruthy();
     expect(getByText('matchesListAllowed:true')).toBeTruthy();
     expect(getByText(`matchesListResolved:${ROUTE_NAMES.MatchesList}`)).toBeTruthy();
+    expect(getByText('chatThreadsAllowed:true')).toBeTruthy();
+    expect(getByText(`chatThreadsResolved:${ROUTE_NAMES.ChatThreads}`)).toBeTruthy();
     expect(getByText('checkInConfirmationAllowed:true')).toBeTruthy();
     expect(getByText(`checkInConfirmationResolved:${ROUTE_NAMES.CheckInConfirmation}`)).toBeTruthy();
     expect(getByText('checkoutConfirmationAllowed:true')).toBeTruthy();
@@ -192,6 +197,8 @@ describe('route state selectors', () => {
     expect(getByText(`matchConfirmationResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
     expect(getByText('matchesListAllowed:false')).toBeTruthy();
     expect(getByText(`matchesListResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
+    expect(getByText('chatThreadsAllowed:false')).toBeTruthy();
+    expect(getByText(`chatThreadsResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
     expect(getByText('checkInConfirmationAllowed:false')).toBeTruthy();
     expect(getByText(`checkInConfirmationResolved:${ROUTE_NAMES.ProfileCompletionRequired}`)).toBeTruthy();
     expect(getByText('checkoutConfirmationAllowed:false')).toBeTruthy();
@@ -215,6 +222,8 @@ describe('route state selectors', () => {
     expect(getByText(`matchConfirmationResolved:${ROUTE_NAMES.MatchConfirmation}`)).toBeTruthy();
     expect(getByText('matchesListAllowed:true')).toBeTruthy();
     expect(getByText(`matchesListResolved:${ROUTE_NAMES.MatchesList}`)).toBeTruthy();
+    expect(getByText('chatThreadsAllowed:true')).toBeTruthy();
+    expect(getByText(`chatThreadsResolved:${ROUTE_NAMES.ChatThreads}`)).toBeTruthy();
     expect(getByText('checkInConfirmationAllowed:true')).toBeTruthy();
     expect(getByText(`checkInConfirmationResolved:${ROUTE_NAMES.CheckInConfirmation}`)).toBeTruthy();
     expect(getByText('checkoutConfirmationAllowed:true')).toBeTruthy();

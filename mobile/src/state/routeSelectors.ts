@@ -37,6 +37,7 @@ export function useRouteAccessSelectors() {
         routeName === ROUTE_NAMES.VenueDetails ||
         routeName === ROUTE_NAMES.DiscoveryProfilePreview ||
         routeName === ROUTE_NAMES.MatchConfirmation ||
+        routeName === ROUTE_NAMES.ChatThreads ||
         routeName === ROUTE_NAMES.CheckInConfirmation ||
         routeName === ROUTE_NAMES.CheckoutConfirmation;
 
@@ -47,6 +48,7 @@ export function useRouteAccessSelectors() {
         routeName === ROUTE_NAMES.DiscoveryProfilePreview ||
         routeName === ROUTE_NAMES.MatchConfirmation ||
         routeName === ROUTE_NAMES.MatchesList ||
+        routeName === ROUTE_NAMES.ChatThreads ||
         routeName === ROUTE_NAMES.CheckInConfirmation ||
         routeName === ROUTE_NAMES.CheckoutConfirmation ||
         routeName === ROUTE_NAMES.UserProfile ||

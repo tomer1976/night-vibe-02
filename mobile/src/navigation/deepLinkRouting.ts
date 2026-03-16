@@ -31,6 +31,7 @@ const DEEP_LINK_PATH_TO_ROUTE: Record<string, AppRouteName> = {
   'venues/details': ROUTE_NAMES.VenueDetails,
   'discovery/profile-preview': ROUTE_NAMES.DiscoveryProfilePreview,
   matches: ROUTE_NAMES.MatchesList,
+  'chat/threads': ROUTE_NAMES.ChatThreads,
   'venues/check-in-confirmation': ROUTE_NAMES.CheckInConfirmation,
   'venues/checkout-confirmation': ROUTE_NAMES.CheckoutConfirmation,
   profile: ROUTE_NAMES.UserProfile,
@@ -59,6 +60,7 @@ function isPostOnboardingRoute(routeName: AppRouteName) {
     routeName === ROUTE_NAMES.VenueDetails ||
     routeName === ROUTE_NAMES.DiscoveryProfilePreview ||
     routeName === ROUTE_NAMES.MatchesList ||
+    routeName === ROUTE_NAMES.ChatThreads ||
     routeName === ROUTE_NAMES.CheckInConfirmation ||
     routeName === ROUTE_NAMES.CheckoutConfirmation ||
     routeName === ROUTE_NAMES.UserProfile ||
