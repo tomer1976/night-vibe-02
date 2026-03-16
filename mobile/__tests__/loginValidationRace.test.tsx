@@ -70,6 +70,8 @@ function renderLoginScreen() {
         <NavigationContainer>
           <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
             <Stack.Screen component={LoginScreen} name="Login" />
+            <Stack.Screen name="NearbyVenues">{() => <TestRouteScreen title="Nearby Venues Screen" />}</Stack.Screen>
+            <Stack.Screen name="ProfileCompletionRequired">{() => <TestRouteScreen title="Profile Completion Required Screen" />}</Stack.Screen>
             <Stack.Screen name="UserGroup">{() => <TestRouteScreen title="User Entry" />}</Stack.Screen>
             <Stack.Screen name="OnboardingName">{() => <TestRouteScreen title="Onboarding Step 1: Name" />}</Stack.Screen>
             <Stack.Screen name="AccessDenied">{() => <TestRouteScreen title="Account Access Denied Screen" />}</Stack.Screen>
@@ -141,5 +143,16 @@ describe('login validation and submit race handling', () => {
       expect(getByText('Unable to sign in right now. Please try again.')).toBeTruthy();
       expect(getByText('Login Failed')).toBeTruthy();
     });
+  });
+
+  it('routes successful active returning login to nearby venues startup route', async () => {
+    mockUseServiceLocator.mockReturnValue(createLoginServiceMock());
+
+    const { getByLabelText, getByTestId, findByText } = renderLoginScreen();
+
+    fireEvent.changeText(getByTestId('login-identity-input'), 'active-user@example.com');
+    fireEvent.press(getByLabelText('Sign In'));
+
+    expect(await findByText('Nearby Venues Screen')).toBeTruthy();
   });
 });

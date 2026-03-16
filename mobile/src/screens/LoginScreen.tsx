@@ -80,7 +80,14 @@ export function LoginScreen() {
         isNewUser: loginResponse.data.isNewUser,
       });
 
-      navigation.dispatch(StackActions.replace(targetRoute));
+      const startupRoute =
+        targetRoute === ROUTE_NAMES.UserGroup
+          ? isProfileCompleted
+            ? ROUTE_NAMES.NearbyVenues
+            : ROUTE_NAMES.ProfileCompletionRequired
+          : targetRoute;
+
+      navigation.dispatch(StackActions.replace(startupRoute));
     } catch {
       resetAuthState('active', false);
       setProfileCompleted(false);

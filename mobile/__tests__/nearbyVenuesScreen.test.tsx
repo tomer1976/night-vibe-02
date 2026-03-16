@@ -3,7 +3,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import { BackendServiceContracts } from '../src/contracts';
-import { AccountSettingsScreen, ChatThreadsScreen, NearbyVenuesScreen, UserEntryScreen, UserProfileScreen, VenueDetailsScreen } from '../src/screens';
+import {
+  AccountSettingsScreen,
+  ChatThreadsScreen,
+  CheckInConfirmationScreen,
+  NearbyVenuesScreen,
+  UserEntryScreen,
+  UserProfileScreen,
+  VenueDetailsScreen,
+} from '../src/screens';
 import { createMockBackendServiceLocator, ServiceLocatorProvider } from '../src/services';
 import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
@@ -19,6 +27,7 @@ function NearbyVenuesTestNavigator({ servicesOverride }: { servicesOverride?: Ba
             <Stack.Navigator initialRouteName="UserGroup" screenOptions={{ headerShown: false }}>
               <Stack.Screen component={UserEntryScreen} name="UserGroup" />
               <Stack.Screen component={NearbyVenuesScreen} name="NearbyVenues" />
+              <Stack.Screen component={CheckInConfirmationScreen} name="CheckInConfirmation" />
               <Stack.Screen component={VenueDetailsScreen} name="VenueDetails" />
               <Stack.Screen component={ChatThreadsScreen} name="ChatThreads" />
               <Stack.Screen component={AccountSettingsScreen} name="AccountSettings" />
@@ -201,5 +210,17 @@ describe('nearby venues screen', () => {
     fireEvent.press(getByTestId('bottom-nav-chats'));
 
     expect(await findByText('Chat Threads Screen')).toBeTruthy();
+  });
+
+  it('routes check-in action through check-in confirmation before venue details', async () => {
+    const servicesOverride = createServicesWithActiveSession(null);
+    const { findByText, getAllByText, getByTestId } = render(<NearbyVenuesTestNavigator servicesOverride={servicesOverride} />);
+
+    fireEvent.press(getAllByText('Nearby Venues Screen')[0]);
+    expect(await findByText('Nearby Venues Screen')).toBeTruthy();
+    expect(getByTestId('bottom-nav-venues')).toBeTruthy();
+    fireEvent.press(getAllByText('Check-In')[0]);
+
+    expect(await findByText('Venue Check-In Confirmation Screen')).toBeTruthy();
   });
 });

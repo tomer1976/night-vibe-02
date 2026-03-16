@@ -93,8 +93,6 @@ export function NearbyVenuesScreen() {
       setActiveVenueActionId(venue.venueId);
 
       try {
-        let didCheckIn = false;
-
         if (activeSession?.status === 'active' && activeSession.venueId !== venue.venueId) {
           setErrorText('Check out from your current venue before checking in to another venue.');
           return;
@@ -108,28 +106,23 @@ export function NearbyVenuesScreen() {
             return;
           }
         } else {
-          const checkinResponse = await services.presence.checkIn(venue.venueId);
-
-          if (checkinResponse.status === 'FAIL') {
-            setErrorText(checkinResponse.error.message);
-            return;
-          }
-
-          didCheckIn = true;
+          navigation.dispatch(
+            StackActions.push(ROUTE_NAMES.CheckInConfirmation, {
+              venueId: venue.venueId,
+              venueName: venue.name,
+            })
+          );
+          return;
         }
 
         await syncPresenceSnapshot();
-
-        if (didCheckIn) {
-          openVenueDetails(venue.venueId);
-        }
       } catch {
         setErrorText('Unable to update venue session right now. Please retry.');
       } finally {
         setActiveVenueActionId(null);
       }
     },
-    [activeSession, activeVenueActionId, openVenueDetails, services.presence, syncPresenceSnapshot]
+    [activeSession, activeVenueActionId, navigation, services.presence, syncPresenceSnapshot]
   );
 
   return (
