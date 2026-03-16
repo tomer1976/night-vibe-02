@@ -3,7 +3,7 @@
 ## Kickoff Alignment Tasks
 - [x] Review Sprint-04 carry-over risks (`S4-CO-001`, `S4-CO-002`, `S4-CO-003`) and map explicit mitigation checks into Sprint-05 implementation/testing.
 - [x] Confirm Sprint-04 QA evidence baseline is attached (`docs/sprints/Sprint-04-TestReport.md`) and note `S4-CO-004` as resolved.
-- [ ] Track Sprint-04 manual platform readiness items (`MANUAL-04-AND-01`, `MANUAL-04-IOS-01`, `MANUAL-04-LAYOUT-01`) as Sprint-05 signoff risk controls.
+- [x] Track Sprint-04 manual platform readiness items (`MANUAL-04-AND-01`, `MANUAL-04-IOS-01`, `MANUAL-04-LAYOUT-01`) as Sprint-05 signoff risk controls.
 
 ### Task 1 Mitigation Mapping (`S4-CO-001..003`)
 - `S4-CO-001` eligibility drift mitigation checks:
@@ -24,6 +24,10 @@
 	- `mobile/docs/sprint-04-interaction-idempotency-phase-2-conversion.md`
 - Resolution confirmation:
 	- `S4-CO-004` is resolved based on published Sprint-04 QA evidence in `docs/sprints/Sprint-04-TestReport.md` and reflected in Sprint-04 closeout artifacts.
+- Signoff risk controls tracked for Sprint-05:
+	- `MANUAL-04-AND-01`: retained as open manual Android validation control for Sprint-05 signoff.
+	- `MANUAL-04-IOS-01`: retained as open manual iOS validation control for Sprint-05 signoff.
+	- `MANUAL-04-LAYOUT-01`: retained as open portrait-layout validation control for Sprint-05 signoff.
 
 ## Frontend Tasks
 - [ ] Implement Matches List screen with active/expired match states.
