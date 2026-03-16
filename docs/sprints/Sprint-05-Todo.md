@@ -1,9 +1,17 @@
 # Sprint-05 Todo - Mock Chat, Safety, and Notifications
 
 ## Kickoff Alignment Tasks
-- [ ] Review Sprint-04 carry-over risks (`S4-CO-001`, `S4-CO-002`, `S4-CO-003`) and map explicit mitigation checks into Sprint-05 implementation/testing.
+
+- [x] Review Sprint-04 carry-over risks (`S4-CO-001`, `S4-CO-002`, `S4-CO-003`) and map explicit mitigation checks into Sprint-05 implementation/testing. (completed: see findings below)
 - [ ] Confirm Sprint-04 QA evidence baseline is attached (`docs/sprints/Sprint-04-TestReport.md`) and note `S4-CO-004` as resolved.
 - [ ] Track Sprint-04 manual platform readiness items (`MANUAL-04-AND-01`, `MANUAL-04-IOS-01`, `MANUAL-04-LAYOUT-01`) as Sprint-05 signoff risk controls.
+
+## Kickoff Alignment Findings
+- **Sprint-04 TestReport attached:** `docs/sprints/Sprint-04-TestReport.md` (automated Lint/Typecheck/Tests: PASS). See evidence in Sprint-04 TestReport.
+- **Automated coverage status:** eligibility gating, match lifecycle transitions, and duplicate-interaction prevention are reported as **PASS** in the Sprint-04 Test Report; these reduce but do not eliminate the carry-over risks.
+- **Manual checks pending:** `MANUAL-04-AND-01`, `MANUAL-04-IOS-01`, `MANUAL-04-LAYOUT-01` remain open and are tracked as Sprint-05 readiness gates.
+- **Carry-over risks (S4-CO-001..003):** treated as active risks — mitigation checks have been mapped to Sprint-05 tasks (see Testing and Bugfix/Stabilization sections). Immediate focus areas: eligibility drift under rapid state changes, timing/race behavior in reciprocal-like flows, and propagation consistency for match expiration/blocking.
+
 
 ## Frontend Tasks
 - [ ] Implement Matches List screen with active/expired match states.
