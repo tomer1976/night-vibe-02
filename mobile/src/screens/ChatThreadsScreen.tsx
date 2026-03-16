@@ -70,7 +70,7 @@ export function ChatThreadsScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
       <View style={[styles.top, { paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.lg }]}> 
-        <TopBar subtitle="Thread previews with latest message and status." title="Night Vibe" />
+        <TopBar subtitle="Thread previews with latest message and status." title="Night Vibe" variant="main-tab" />
       </View>
 
       <View style={[styles.content, { paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.lg }]}> 

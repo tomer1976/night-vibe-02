@@ -56,13 +56,14 @@ describe('nearby venues screen', () => {
 
   it('renders venue list with category/status/activity metadata from mock discovery', async () => {
     const servicesOverride = createServicesWithActiveSession(null);
-    const { getByText, findAllByText, findByText, queryByText } = render(
+    const { getByText, getByTestId, findAllByText, findByText, queryByText } = render(
       <NearbyVenuesTestNavigator servicesOverride={servicesOverride} />
     );
 
     fireEvent.press(getByText('Nearby Venues Screen'));
 
     expect(await findByText('Nearby Venues Screen')).toBeTruthy();
+    expect(getByTestId('top-bar-main-tab-logo')).toBeTruthy();
     expect(await findByText('Halo Club')).toBeTruthy();
     expect(await findByText('Luna Lounge')).toBeTruthy();
     expect(await findByText('Category: club')).toBeTruthy();

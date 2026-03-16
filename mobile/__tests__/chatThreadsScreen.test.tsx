@@ -107,6 +107,7 @@ describe('chat threads screen', () => {
     const screen = render(<ChatThreadsTestNavigator servicesOverride={servicesOverride} />);
 
     expect(await screen.findByText('Chat Threads Screen')).toBeTruthy();
+    expect(screen.getByTestId('top-bar-main-tab-logo')).toBeTruthy();
     expect(await screen.findByText('Jordan • 27 • female')).toBeTruthy();
     expect(await screen.findByText('Avery • 31 • male')).toBeTruthy();
     expect(await screen.findByText('Leaving soon, where are you? (delivered)')).toBeTruthy();

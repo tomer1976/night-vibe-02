@@ -103,7 +103,7 @@ export function UserProfileScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
       <View style={[styles.top, { paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.lg }]}> 
-        <TopBar subtitle="View and manage your mock profile." title="Night Vibe" />
+        <TopBar subtitle="View and manage your mock profile." title="Night Vibe" variant="main-tab" />
       </View>
 
       <View style={[styles.content, { gap: theme.spacing.md, paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.lg }]}> 

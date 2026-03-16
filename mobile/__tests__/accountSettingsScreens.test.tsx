@@ -32,6 +32,12 @@ function AccountSettingsTestNavigator() {
 }
 
 describe('account/settings screens', () => {
+  it('renders main-tab top banner with logo', () => {
+    const { getByTestId } = render(<AccountSettingsTestNavigator />);
+
+    expect(getByTestId('top-bar-main-tab-logo')).toBeTruthy();
+  });
+
   it('prevents unlinking the final linked provider', () => {
     const { getByText } = render(<AccountSettingsTestNavigator />);
 

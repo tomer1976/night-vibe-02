@@ -160,6 +160,18 @@ describe('primitive components', () => {
     expect(getByText('Mock Mode')).toBeTruthy();
   });
 
+  it('renders TopBar main-tab variant with logo and without status tag', () => {
+    const { getByTestId, getByText, queryByText } = render(
+      <ThemeProvider>
+        <TopBar subtitle="Nearby venues" title="Night Vibe" variant="main-tab" />
+      </ThemeProvider>
+    );
+
+    expect(getByText('Night Vibe')).toBeTruthy();
+    expect(getByTestId('top-bar-main-tab-logo')).toBeTruthy();
+    expect(queryByText('Mock Mode')).toBeNull();
+  });
+
   it('renders BottomNavShell and handles tab press', () => {
     const onItemPress = jest.fn();
     const { getByTestId } = render(

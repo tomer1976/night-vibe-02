@@ -133,7 +133,7 @@ export function NearbyVenuesScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
       <View style={[styles.top, { paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.lg }]}> 
-        <TopBar subtitle="Nearby venues" title="Night Vibe" />
+        <TopBar subtitle="Nearby venues" title="Night Vibe" variant="main-tab" />
       </View>
 
       <View style={[styles.content, { paddingHorizontal: theme.spacing.lg, paddingVertical: theme.spacing.lg }]}> 

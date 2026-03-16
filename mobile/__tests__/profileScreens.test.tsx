@@ -31,6 +31,12 @@ function ProfileTestNavigator({ initialDraft = DEFAULT_PROFILE_DRAFT }: ProfileT
 }
 
 describe('profile screens', () => {
+  it('renders main-tab top banner with logo', () => {
+    const { getByTestId } = render(<ProfileTestNavigator />);
+
+    expect(getByTestId('top-bar-main-tab-logo')).toBeTruthy();
+  });
+
   it('opens edit profile and validates required display name', () => {
     const { getByText, getByTestId } = render(<ProfileTestNavigator />);
 
