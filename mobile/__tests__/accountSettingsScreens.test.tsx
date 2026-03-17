@@ -8,6 +8,7 @@ import {
   DEFAULT_ACCOUNT_SETTINGS_DRAFT,
   DeleteAccountScreen,
   LinkedAccountsScreen,
+  UserProfileScreen,
 } from '../src/screens';
 import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
@@ -24,6 +25,7 @@ function AccountSettingsTestNavigator() {
             <Stack.Screen component={LinkedAccountsScreen} name="LinkedAccounts" />
             <Stack.Screen component={DeleteAccountScreen} name="DeleteAccount" />
             <Stack.Screen component={AccountDeletionRecoveryScreen} name="AccountDeletionRecovery" />
+            <Stack.Screen component={UserProfileScreen} name="UserProfile" />
           </Stack.Navigator>
         </NavigationContainer>
       </AppStateProvider>
@@ -40,6 +42,16 @@ describe('account/settings screens', () => {
     expect(getByTestId('bottom-nav-chats')).toBeTruthy();
     expect(getByTestId('bottom-nav-settings')).toBeTruthy();
     expect(getByTestId('bottom-nav-profile')).toBeTruthy();
+  });
+
+  it('navigates to profile tab from account settings shell', () => {
+    const { getByTestId, getByText } = render(<AccountSettingsTestNavigator />);
+
+    fireEvent.press(getByTestId('bottom-nav-profile'));
+
+    expect(getByText('User Profile Screen')).toBeTruthy();
+    expect(getByTestId('top-bar-main-tab-logo')).toBeTruthy();
+    expect(getByTestId('bottom-nav-profile').props.accessibilityState?.selected).toBe(true);
   });
 
   it('prevents unlinking the final linked provider', () => {

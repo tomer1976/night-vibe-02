@@ -2,7 +2,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fireEvent, render } from '@testing-library/react-native';
 
-import { EditProfileScreen, ProfilePhotosManagementScreen, UserProfileScreen } from '../src/screens';
+import { AccountSettingsScreen, EditProfileScreen, ProfilePhotosManagementScreen, UserProfileScreen } from '../src/screens';
 import { DEFAULT_PROFILE_DRAFT } from '../src/screens/profileDraft';
 import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
@@ -22,6 +22,7 @@ function ProfileTestNavigator({ initialDraft = DEFAULT_PROFILE_DRAFT }: ProfileT
             <Stack.Screen component={UserProfileScreen} initialParams={{ draft: initialDraft }} name="UserProfile" />
             <Stack.Screen component={EditProfileScreen} name="EditProfile" />
             <Stack.Screen component={ProfilePhotosManagementScreen} name="ProfilePhotosManagement" />
+            <Stack.Screen component={AccountSettingsScreen} name="AccountSettings" />
             <Stack.Screen component={UserProfileScreen} name="UserGroup" />
           </Stack.Navigator>
         </NavigationContainer>
@@ -39,6 +40,16 @@ describe('profile screens', () => {
     expect(getByTestId('bottom-nav-chats')).toBeTruthy();
     expect(getByTestId('bottom-nav-settings')).toBeTruthy();
     expect(getByTestId('bottom-nav-profile')).toBeTruthy();
+  });
+
+  it('navigates to settings tab from profile shell', () => {
+    const { getByTestId, getByText } = render(<ProfileTestNavigator />);
+
+    fireEvent.press(getByTestId('bottom-nav-settings'));
+
+    expect(getByText('Account Settings Screen')).toBeTruthy();
+    expect(getByTestId('top-bar-main-tab-logo')).toBeTruthy();
+    expect(getByTestId('bottom-nav-settings').props.accessibilityState?.selected).toBe(true);
   });
 
   it('opens edit profile and validates required display name', () => {
