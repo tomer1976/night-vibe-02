@@ -148,16 +148,19 @@ describe('primitive components', () => {
     expect(onRetry).toHaveBeenCalledTimes(1);
   });
 
-  it('renders TopBar with title and status tag', () => {
-    const { getByText } = render(
+  it('renders TopBar with title, status tag, and back arrow for non-main pages', () => {
+    const onBackPress = jest.fn();
+    const { getByTestId, getByText } = render(
       <ThemeProvider>
-        <TopBar subtitle="Authentication route group shell." title="Night Vibe" />
+        <TopBar onBackPress={onBackPress} subtitle="Authentication route group shell." title="Night Vibe" />
       </ThemeProvider>
     );
 
+    fireEvent.press(getByTestId('top-bar-back-button'));
     expect(getByText('Night Vibe')).toBeTruthy();
     expect(getByText('Authentication route group shell.')).toBeTruthy();
     expect(getByText('Mock Mode')).toBeTruthy();
+    expect(onBackPress).toHaveBeenCalledTimes(1);
   });
 
   it('renders TopBar main-tab variant with logo and without status tag', () => {

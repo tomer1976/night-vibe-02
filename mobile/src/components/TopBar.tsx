@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Image, StyleSheet, Text, View } from 'react-native';
 
 import { getSurfaceElevationStyle, useTheme } from '../theme';
 
@@ -7,9 +7,10 @@ type TopBarProps = {
   subtitle?: string;
   statusTag?: string;
   variant?: 'default' | 'main-tab';
+  onBackPress?: () => void;
 };
 
-export function TopBar({ title, subtitle, statusTag = 'Mock Mode', variant = 'default' }: TopBarProps) {
+export function TopBar({ title, subtitle, statusTag = 'Mock Mode', variant = 'default', onBackPress }: TopBarProps) {
   const theme = useTheme();
   const isMainTabVariant = variant === 'main-tab';
 
@@ -28,6 +29,17 @@ export function TopBar({ title, subtitle, statusTag = 'Mock Mode', variant = 'de
     >
       <View style={styles.row}>
         <View style={styles.brandRow}>
+          {!isMainTabVariant ? (
+            <Pressable
+              accessibilityLabel="Go back"
+              accessibilityRole="button"
+              onPress={onBackPress}
+              style={[styles.backButton, { borderColor: theme.colors.backgroundPrimary, borderRadius: theme.radius.sm }]}
+              testID="top-bar-back-button"
+            >
+              <Text style={[styles.backButtonText, { color: theme.colors.textPrimary, fontSize: theme.typography.body }]}>‹</Text>
+            </Pressable>
+          ) : null}
           {isMainTabVariant ? (
             <Image
               accessibilityLabel="Night Vibe logo"
@@ -62,6 +74,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     gap: 8,
+  },
+  backButton: {
+    alignItems: 'center',
+    borderWidth: 1,
+    height: 28,
+    justifyContent: 'center',
+    width: 28,
+  },
+  backButtonText: {
+    fontWeight: '700',
+    lineHeight: 20,
   },
   title: {
     fontWeight: '700',

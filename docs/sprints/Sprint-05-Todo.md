@@ -45,7 +45,7 @@
 - [x] Add route guards so `NOT_CHECKED_IN` and eligibility failures return users to venue/check-in flow.
 
 ### P1 - Back Navigation Standards
-- [ ] Enforce back arrow in top bar for all non-main pages.
+- [x] Enforce back arrow in top bar for all non-main pages.
 - [ ] Remove/avoid text-style "Back to ..." primary controls.
 - [ ] Preserve previous tab context on back navigation where applicable.
 
