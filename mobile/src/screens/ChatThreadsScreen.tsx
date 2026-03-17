@@ -1,4 +1,4 @@
-import { StackActions, useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -29,8 +29,12 @@ const toThreadStatusTone = (status: ChatThread['status']): 'success' | 'warning'
 
 export function ChatThreadsScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
   const services = useServiceLocator();
   const theme = useTheme();
+
+  const routeParams =
+    (route.params as { venueId?: string; matchId?: string; openConversation?: boolean } | undefined) ?? {};
 
   const [isLoading, setIsLoading] = useState(true);
   const [errorText, setErrorText] = useState<string | undefined>();
@@ -69,6 +73,35 @@ export function ChatThreadsScreen() {
 
   const activeThreadCount = useMemo(() => threads.filter((thread) => thread.status === 'active').length, [threads]);
 
+  const openConversation = useCallback(
+    (thread: ChatThread) => {
+      navigation.dispatch(
+        StackActions.push(ROUTE_NAMES.ChatConversation, {
+          chatId: thread.chatId,
+          matchId: thread.matchId,
+          counterpartName: thread.counterpart.displayName,
+          threadStatus: thread.status,
+          venueId: routeParams.venueId,
+        })
+      );
+    },
+    [navigation, routeParams.venueId]
+  );
+
+  useEffect(() => {
+    if (!routeParams.openConversation || !routeParams.matchId || orderedThreads.length === 0) {
+      return;
+    }
+
+    const matchedThread = orderedThreads.find((thread) => thread.matchId === routeParams.matchId);
+
+    if (!matchedThread) {
+      return;
+    }
+
+    openConversation(matchedThread);
+  }, [openConversation, orderedThreads, routeParams.matchId, routeParams.openConversation]);
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
       <View style={[styles.top, { paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.lg }]}> 
@@ -93,6 +126,7 @@ export function ChatThreadsScreen() {
               <View style={styles.summaryRow}>
                 <Badge label={`Threads: ${orderedThreads.length}`} tone="info" />
                 <Badge label={`Active: ${activeThreadCount}`} tone="success" />
+                {routeParams.venueId ? <Badge label={`Venue scope: ${routeParams.venueId}`} tone="info" /> : null}
               </View>
 
               {orderedThreads.map((thread) => (
@@ -101,6 +135,7 @@ export function ChatThreadsScreen() {
                     subtitle={`${thread.latestMessage.text} (${formatDeliveryLabel(thread.latestMessage.deliveryStatus)})`}
                     title={`${thread.counterpart.displayName} • ${thread.counterpart.age} • ${formatGenderLabel(thread.counterpart.gender)}`}
                     trailingText={thread.unreadCount > 0 ? `${thread.unreadCount} new` : 'Open'}
+                    onPress={() => openConversation(thread)}
                   />
                   <View style={styles.threadMetaRow}>
                     <Badge label={`Status: ${formatThreadStatusLabel(thread.status)}`} tone={toThreadStatusTone(thread.status)} />

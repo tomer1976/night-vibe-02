@@ -4,7 +4,7 @@ import { fireEvent, render } from '@testing-library/react-native';
 
 import { BackendServiceContracts, ChatThread } from '../src/contracts';
 import { ROUTE_NAMES } from '../src/navigation';
-import { ChatThreadsScreen, UserEntryScreen } from '../src/screens';
+import { ChatConversationScreen, ChatThreadsScreen, UserEntryScreen } from '../src/screens';
 import { createMockBackendServiceLocator, ServiceLocatorProvider } from '../src/services';
 import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
@@ -34,14 +34,21 @@ function buildThread(overrides: Partial<ChatThread>): ChatThread {
   };
 }
 
-function ChatThreadsTestNavigator({ servicesOverride }: { servicesOverride: BackendServiceContracts }) {
+function ChatThreadsTestNavigator({
+  servicesOverride,
+  initialThreadParams,
+}: {
+  servicesOverride: BackendServiceContracts;
+  initialThreadParams?: { venueId?: string; matchId?: string; openConversation?: boolean };
+}) {
   return (
     <ThemeProvider>
       <AppStateProvider>
         <ServiceLocatorProvider isMockModeEnabled servicesOverride={servicesOverride}>
           <NavigationContainer>
             <Stack.Navigator initialRouteName={ROUTE_NAMES.ChatThreads} screenOptions={{ headerShown: false }}>
-              <Stack.Screen component={ChatThreadsScreen} name={ROUTE_NAMES.ChatThreads} />
+              <Stack.Screen component={ChatThreadsScreen} initialParams={initialThreadParams} name={ROUTE_NAMES.ChatThreads} />
+              <Stack.Screen component={ChatConversationScreen} name={ROUTE_NAMES.ChatConversation} />
               <Stack.Screen component={UserEntryScreen} name={ROUTE_NAMES.UserGroup} />
             </Stack.Navigator>
           </NavigationContainer>
@@ -205,5 +212,81 @@ describe('chat threads screen', () => {
 
     expect(await screen.findByText('Quinn • 26 • female')).toBeTruthy();
     expect(await screen.findByText('Finally connected. (sent)')).toBeTruthy();
+  });
+
+  it('opens chat conversation when a thread row is pressed', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      chat: {
+        ...locator.services.chat,
+        getThreads: async () => ({
+          status: 'SUCCESS',
+          data: [
+            buildThread({
+              chatId: 'chat-open',
+              matchId: 'match-open',
+              counterpart: {
+                userId: 'u-99',
+                displayName: 'Casey',
+                age: 28,
+                gender: 'female',
+              },
+            }),
+          ],
+          request_id: 'req-chat-open-1',
+        }),
+      },
+    };
+
+    const screen = render(<ChatThreadsTestNavigator servicesOverride={servicesOverride} />);
+
+    const row = await screen.findByLabelText('Casey • 28 • female, See you near the dance floor. (delivered)');
+    fireEvent.press(row);
+
+    expect(await screen.findByText('Casey Conversation')).toBeTruthy();
+    expect(await screen.findByText('Match: match-open')).toBeTruthy();
+  });
+
+  it('auto-opens conversation for a venue-scoped match handoff', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      chat: {
+        ...locator.services.chat,
+        getThreads: async () => ({
+          status: 'SUCCESS',
+          data: [
+            buildThread({
+              chatId: 'chat-focused',
+              matchId: 'match-focused',
+              counterpart: {
+                userId: 'u-55',
+                displayName: 'Taylor',
+                age: 30,
+                gender: 'male',
+              },
+            }),
+          ],
+          request_id: 'req-chat-open-focused',
+        }),
+      },
+    };
+
+    const screen = render(
+      <ChatThreadsTestNavigator
+        initialThreadParams={{
+          venueId: 'venue-abc',
+          matchId: 'match-focused',
+          openConversation: true,
+        }}
+        servicesOverride={servicesOverride}
+      />
+    );
+
+    expect(await screen.findByText('Taylor Conversation')).toBeTruthy();
+    expect(await screen.findByText('Venue: venue-abc')).toBeTruthy();
   });
 });

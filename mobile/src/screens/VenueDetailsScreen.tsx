@@ -506,28 +506,42 @@ export function VenueDetailsScreen() {
                       <View style={{ gap: theme.spacing.sm }}>
                         {visibleMatches.map((match) => {
                           return (
-                            <DiscoveryCandidateCard
-                              actionLabel="View profile"
-                              imageSource={resolveUserPhotoSource(match.counterpart)}
-                              key={match.matchId}
-                              onPress={() => {
-                                navigation.dispatch(
-                                  StackActions.push(ROUTE_NAMES.DiscoveryProfilePreview, {
-                                    venueId: match.venueId,
-                                    source: 'match',
-                                    userId: match.counterpart.userId,
-                                    displayName: match.counterpart.displayName,
-                                    age: match.counterpart.age,
-                                    gender: match.counterpart.gender,
-                                    profilePhotoUrl: match.counterpart.profilePhotoUrl,
-                                    matchId: match.matchId,
-                                  })
-                                );
-                              }}
-                              statusLabel={`Match Status: ${formatMatchStatusLabel(match.status)}`}
-                              statusTone={toMatchStatusTone(match.status)}
-                              title={`${match.counterpart.displayName} • ${match.counterpart.age} • ${formatGenderLabel(match.counterpart.gender)}`}
-                            />
+                            <View key={match.matchId} style={{ gap: theme.spacing.xs }}>
+                              <DiscoveryCandidateCard
+                                actionLabel="View profile"
+                                imageSource={resolveUserPhotoSource(match.counterpart)}
+                                onPress={() => {
+                                  navigation.dispatch(
+                                    StackActions.push(ROUTE_NAMES.DiscoveryProfilePreview, {
+                                      venueId: match.venueId,
+                                      source: 'match',
+                                      userId: match.counterpart.userId,
+                                      displayName: match.counterpart.displayName,
+                                      age: match.counterpart.age,
+                                      gender: match.counterpart.gender,
+                                      profilePhotoUrl: match.counterpart.profilePhotoUrl,
+                                      matchId: match.matchId,
+                                    })
+                                  );
+                                }}
+                                statusLabel={`Match Status: ${formatMatchStatusLabel(match.status)}`}
+                                statusTone={toMatchStatusTone(match.status)}
+                                title={`${match.counterpart.displayName} • ${match.counterpart.age} • ${formatGenderLabel(match.counterpart.gender)}`}
+                              />
+                              <Button
+                                label="Open chat"
+                                onPress={() => {
+                                  navigation.dispatch(
+                                    StackActions.push(ROUTE_NAMES.ChatThreads, {
+                                      venueId: match.venueId,
+                                      matchId: match.matchId,
+                                      openConversation: true,
+                                    })
+                                  );
+                                }}
+                                variant="secondary"
+                              />
+                            </View>
                           );
                         })}
                       </View>
