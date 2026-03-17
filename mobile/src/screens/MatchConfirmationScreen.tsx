@@ -88,7 +88,7 @@ export function MatchConfirmationScreen() {
             ) : null}
 
             <Button
-              label="Back to Venue"
+              label="Open Venue"
               onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.VenueDetails, { venueId: params.venueId }))}
             />
           </View>

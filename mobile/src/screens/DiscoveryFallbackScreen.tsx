@@ -18,7 +18,7 @@ const fallbackCopyByReason: Record<DiscoveryFallbackReason, { title: string; sub
     title: 'Discovery Ineligible',
     subtitle: 'Discovery requires an active venue session in the same venue.',
     helper: 'Check in again from Nearby Venues to unlock potential matches.',
-    actionLabel: 'Back to Nearby Venues',
+    actionLabel: 'Open Nearby Venues',
   },
   feed_exhausted: {
     title: 'Discovery Feed Exhausted',
@@ -59,7 +59,7 @@ export function DiscoveryFallbackScreen() {
             <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>{copy.helper}</Text>
 
             <Button label={copy.actionLabel} onPress={handlePrimaryAction} />
-            <Button label="Back to Nearby Venues" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))} variant="secondary" />
+            <Button label="Open Nearby Venues" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))} variant="secondary" />
           </View>
         </Card>
       </View>

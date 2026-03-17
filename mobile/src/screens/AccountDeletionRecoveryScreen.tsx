@@ -44,7 +44,7 @@ export function AccountDeletionRecoveryScreen() {
 
         <View style={[styles.actions, { gap: theme.spacing.md }]}> 
           {isPendingDeletion ? <Button label="Recover Account" onPress={handleRecoverAccount} /> : null}
-          <Button label="Back to Account Settings" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.AccountSettings))} variant="secondary" />
+          <Button label="Open Account Settings" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.AccountSettings))} variant="secondary" />
         </View>
       </View>
     </SafeAreaView>

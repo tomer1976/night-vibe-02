@@ -78,7 +78,7 @@ describe('venue details screen', () => {
     expect(queryByText('Pass')).toBeNull();
     expect(queryByText('Unmatch')).toBeNull();
 
-    fireEvent.press(getByText('Back to Venue'));
+    fireEvent.press(getByText('Open Venue'));
     expect(await findByText('Venue Details Screen')).toBeTruthy();
   });
 
@@ -233,8 +233,8 @@ describe('venue details screen', () => {
     const exhaustedScreen = renderNavigator(exhaustedServices);
 
     await enterFirstVenueDetailsViaCheckIn(exhaustedScreen);
-    expect((await exhaustedScreen.findAllByText('Back to Nearby Venues')).length).toBeGreaterThan(0);
-    const backButtons = exhaustedScreen.getAllByLabelText('Back to Nearby Venues');
+    expect((await exhaustedScreen.findAllByText('Open Nearby Venues')).length).toBeGreaterThan(0);
+    const backButtons = exhaustedScreen.getAllByLabelText('Open Nearby Venues');
     fireEvent.press(backButtons[backButtons.length - 1]);
     expect(await exhaustedScreen.findByText('Nearby Venues Screen')).toBeTruthy();
   });
@@ -279,7 +279,7 @@ describe('venue details screen', () => {
     expect(await findByText('Match Confirmation Screen')).toBeTruthy();
     expect(await findByText('Match State: Created')).toBeTruthy();
 
-    fireEvent.press(getByText('Back to Venue'));
+    fireEvent.press(getByText('Open Venue'));
     expect(await findByText('Venue Details Screen')).toBeTruthy();
     expect(await findByText('Potential Matches')).toBeTruthy();
     expect(await findByText('Liked')).toBeTruthy();

@@ -146,7 +146,7 @@ export function LoginScreen() {
                 Persona hints: use new, suspended, banned, pending, or deleted in the value.
               </Text>
               <Button disabled={isSubmitting} label="Sign In" onPress={handleLogin} />
-              <Button label="Back to Welcome" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.Welcome))} variant="secondary" />
+              <Button label="Open Welcome" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.Welcome))} variant="secondary" />
             </View>
           </Card>
         )}

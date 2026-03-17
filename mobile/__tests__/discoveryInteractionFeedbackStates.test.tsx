@@ -98,7 +98,7 @@ describe('discovery interaction feedback states', () => {
     expect(await findByText('Liked Sky.')).toBeTruthy();
     expect(await findByText('Interaction State: Liked')).toBeTruthy();
     expect(await findByText('Unlike')).toBeTruthy();
-    expect(getByText('Back to Venue')).toBeTruthy();
+    expect(getByText('Open Venue')).toBeTruthy();
   });
 
   it('shows duplicate feedback when duplicate interaction is returned', async () => {

@@ -417,7 +417,7 @@ export function VenueDetailsScreen() {
 
                   {!isCheckedIntoViewedVenue ? (
                     <EmptyStateTemplate
-                      actionLabel="Back to Nearby Venues"
+                      actionLabel="Open Nearby Venues"
                       message="Check in to this venue to load discovery candidates and matches."
                       onAction={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))}
                       title="Discovery Requires Active Session"
@@ -434,7 +434,7 @@ export function VenueDetailsScreen() {
                       />
                     ) : filteredPotentialMatches.length === 0 ? (
                       <EmptyStateTemplate
-                        actionLabel="Back to Nearby Venues"
+                        actionLabel="Open Nearby Venues"
                         message="No potential matches are available in this venue right now."
                         onAction={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))}
                         title="No Potential Matches"
@@ -442,7 +442,7 @@ export function VenueDetailsScreen() {
                     ) : (
                       visiblePotentialMatches.length === 0 ? (
                         <EmptyStateTemplate
-                          actionLabel="Back to Nearby Venues"
+                          actionLabel="Open Nearby Venues"
                           message="No potential matches are available in this venue right now."
                           onAction={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))}
                           title="No Potential Matches"
@@ -489,7 +489,7 @@ export function VenueDetailsScreen() {
                     />
                   ) : matches.length === 0 ? (
                     <EmptyStateTemplate
-                      actionLabel="Back to Nearby Venues"
+                      actionLabel="Open Nearby Venues"
                       message="No matches are available in this venue right now."
                       onAction={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))}
                       title="No Matches"
@@ -497,7 +497,7 @@ export function VenueDetailsScreen() {
                   ) : (
                     visibleMatches.length === 0 ? (
                       <EmptyStateTemplate
-                        actionLabel="Back to Nearby Venues"
+                        actionLabel="Open Nearby Venues"
                         message="No matches are available in this venue right now."
                         onAction={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))}
                         title="No Matches"
@@ -550,7 +550,7 @@ export function VenueDetailsScreen() {
 
                 </View>
 
-                <Button label="Back to Nearby Venues" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))} variant="secondary" />
+                <Button label="Open Nearby Venues" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))} variant="secondary" />
               </View>
             </Card>
           </ScrollView>

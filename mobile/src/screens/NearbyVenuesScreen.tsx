@@ -215,7 +215,7 @@ export function NearbyVenuesScreen() {
                   List is mock-backed, deterministic, and sorted by configured mock distance.
                 </Text>
 
-                <Button label="Back to User Entry" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserGroup))} variant="secondary" />
+                <Button label="Open User Entry" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserGroup))} variant="secondary" />
               </View>
             </Card>
           </ScrollView>

@@ -46,7 +46,7 @@
 
 ### P1 - Back Navigation Standards
 - [x] Enforce back arrow in top bar for all non-main pages.
-- [ ] Remove/avoid text-style "Back to ..." primary controls.
+- [x] Remove/avoid text-style "Back to ..." primary controls.
 - [ ] Preserve previous tab context on back navigation where applicable.
 
 ### P2 - Regression and Cleanup

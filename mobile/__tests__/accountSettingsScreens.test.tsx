@@ -117,7 +117,7 @@ describe('account/settings screens', () => {
     expect(getByText('Account Deletion Recovery Screen')).toBeTruthy();
     expect(getByText('ACTIVE')).toBeTruthy();
     expect(queryByText('Recover Account')).toBeNull();
-    expect(getByText('Back to Account Settings')).toBeTruthy();
+    expect(getByText('Open Account Settings')).toBeTruthy();
   });
 
   it('discards unsaved linked account edits when cancel is pressed', () => {

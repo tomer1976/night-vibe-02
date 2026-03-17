@@ -162,7 +162,7 @@ export function ChatConversationScreen() {
             <View style={styles.actionRow}>
               <Button disabled={!canSend} label="Send" onPress={() => void handleSend()} />
               <Button
-                label="Back to Threads"
+                label="Open Threads"
                 onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.ChatThreads))}
                 variant="secondary"
               />

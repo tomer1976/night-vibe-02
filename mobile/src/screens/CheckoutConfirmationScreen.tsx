@@ -100,7 +100,7 @@ export function CheckoutConfirmationScreen() {
                 onPress={() => void handleConfirmCheckout()}
               />
               <Button
-                label="Back to Venue Page"
+                label="Open Venue Page"
                 onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.VenueDetails, { venueId: activeSession.venueId }))}
                 variant="secondary"
               />

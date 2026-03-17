@@ -90,7 +90,7 @@ export function AccountSettingsScreen() {
           trailingText="Open"
         />
 
-        <Button label="Back to Profile" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserProfile))} variant="secondary" />
+        <Button label="Open Profile" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserProfile))} variant="secondary" />
       </View>
 
       <View style={[styles.bottom, { paddingHorizontal: theme.spacing.lg, paddingBottom: theme.spacing.lg }]}> 

@@ -39,7 +39,7 @@ export function AccessDeniedScreen() {
         >
           <View style={{ gap: theme.spacing.md }}>
             <Button
-              label="Back to Welcome"
+              label="Open Welcome"
               onPress={() => {
                 resetAuthState('active', false);
                 navigation.dispatch(StackActions.replace(ROUTE_NAMES.Welcome));

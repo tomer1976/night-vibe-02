@@ -244,7 +244,7 @@ export function CheckInConfirmationScreen() {
               />
             ) : null}
 
-              <Button label="Back to Venue Details" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.VenueDetails, { venueId }))} variant="secondary" />
+              <Button label="Open Venue Details" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.VenueDetails, { venueId }))} variant="secondary" />
             </View>
           </Card>
         </ScrollView>

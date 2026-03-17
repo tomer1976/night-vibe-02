@@ -325,7 +325,7 @@ export function DiscoveryProfilePreviewScreen() {
                 />
               )}
 
-              <Button label="Back to Venue" onPress={goBackToVenue} variant="secondary" />
+              <Button label="Open Venue" onPress={goBackToVenue} variant="secondary" />
             </View>
           </Card>
         </ScrollView>
