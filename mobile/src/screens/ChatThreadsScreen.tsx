@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge, BottomNavShell, Button, Card, EmptyStateTemplate, ErrorStateTemplate, ListItem, LoadingStateTemplate, TopBar } from '../components';
 import { ChatThread } from '../contracts';
+import { isChatEligibilityFailureCode, resolveChatEligibilityFallbackRoute } from '../navigation/chatEligibilityRouteGuard';
 import { isMainTabKey, MAIN_TAB_ITEMS, resolveMainTabRouteName } from '../navigation/mainTabs';
 import { shouldReplaceRoute } from '../navigation/replaceRouteGuard';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
@@ -48,6 +49,23 @@ export function ChatThreadsScreen() {
       const response = await services.chat.getThreads();
 
       if (response.status === 'FAIL') {
+        if (isChatEligibilityFailureCode(response.error.code)) {
+          const fallbackRoute = resolveChatEligibilityFallbackRoute(response.error.code, routeParams.venueId);
+
+          if (
+            shouldReplaceRoute(
+              ROUTE_NAMES.ChatThreads,
+              fallbackRoute.routeName,
+              undefined,
+              fallbackRoute.params
+            )
+          ) {
+            navigation.dispatch(StackActions.replace(fallbackRoute.routeName, fallbackRoute.params));
+          }
+
+          return;
+        }
+
         setThreads([]);
         setErrorText(response.error.message);
         return;
@@ -60,7 +78,7 @@ export function ChatThreadsScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [services.chat]);
+  }, [navigation, routeParams.venueId, services.chat]);
 
   useEffect(() => {
     void loadThreads();

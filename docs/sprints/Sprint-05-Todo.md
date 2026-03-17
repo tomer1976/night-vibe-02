@@ -42,7 +42,7 @@
 - [x] Wire main path end-to-end: Login -> Nearby Venues -> Check-In -> Venue Details tabs.
 - [x] Wire Chats tab to thread list and conversation flow from venue-scoped matches.
 - [x] Wire Settings and Profile tabs with consistent shell behavior.
-- [ ] Add route guards so `NOT_CHECKED_IN` and eligibility failures return users to venue/check-in flow.
+- [x] Add route guards so `NOT_CHECKED_IN` and eligibility failures return users to venue/check-in flow.
 
 ### P1 - Back Navigation Standards
 - [ ] Enforce back arrow in top bar for all non-main pages.

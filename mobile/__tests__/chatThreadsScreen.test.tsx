@@ -1,6 +1,7 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fireEvent, render } from '@testing-library/react-native';
+import { Text } from 'react-native';
 
 import { BackendServiceContracts, ChatThread } from '../src/contracts';
 import { ROUTE_NAMES } from '../src/navigation';
@@ -50,6 +51,8 @@ function ChatThreadsTestNavigator({
               <Stack.Screen component={ChatThreadsScreen} initialParams={initialThreadParams} name={ROUTE_NAMES.ChatThreads} />
               <Stack.Screen component={ChatConversationScreen} name={ROUTE_NAMES.ChatConversation} />
               <Stack.Screen component={UserEntryScreen} name={ROUTE_NAMES.UserGroup} />
+              <Stack.Screen component={() => <Text>Nearby Venues Screen Stub</Text>} name={ROUTE_NAMES.NearbyVenues} />
+              <Stack.Screen component={() => <Text>Venue Details Screen Stub</Text>} name={ROUTE_NAMES.VenueDetails} />
             </Stack.Navigator>
           </NavigationContainer>
         </ServiceLocatorProvider>
@@ -288,5 +291,82 @@ describe('chat threads screen', () => {
 
     expect(await screen.findByText('Taylor Conversation')).toBeTruthy();
     expect(await screen.findByText('Venue: venue-abc')).toBeTruthy();
+  });
+
+  it('redirects to nearby venues when threads fail with NOT_CHECKED_IN', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      chat: {
+        ...locator.services.chat,
+        getThreads: async () => ({
+          status: 'FAIL',
+          error: {
+            code: 'NOT_CHECKED_IN',
+            message: 'No active venue session.',
+          },
+          request_id: 'req-chat-threads-not-checked-in',
+        }),
+      },
+    };
+
+    const screen = render(<ChatThreadsTestNavigator servicesOverride={servicesOverride} />);
+
+    expect(await screen.findByText('Nearby Venues Screen Stub')).toBeTruthy();
+  });
+
+  it('redirects to venue details when send fails with CHAT_EXPIRED and venue context exists', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      chat: {
+        ...locator.services.chat,
+        getThreads: async () => ({
+          status: 'SUCCESS',
+          data: [
+            buildThread({
+              chatId: 'chat-eligibility',
+              matchId: 'match-eligibility',
+              counterpart: {
+                userId: 'u-100',
+                displayName: 'Devon',
+                age: 32,
+                gender: 'female',
+              },
+            }),
+          ],
+          request_id: 'req-chat-threads-eligibility',
+        }),
+        sendMessage: async () => ({
+          status: 'FAIL',
+          error: {
+            code: 'CHAT_EXPIRED',
+            message: 'Chat is no longer active.',
+          },
+          request_id: 'req-chat-send-expired',
+        }),
+      },
+    };
+
+    const screen = render(
+      <ChatThreadsTestNavigator
+        initialThreadParams={{
+          venueId: 'v-halo-club',
+        }}
+        servicesOverride={servicesOverride}
+      />
+    );
+
+    const row = await screen.findByLabelText('Devon • 32 • female, See you near the dance floor. (delivered)');
+    fireEvent.press(row);
+
+    expect(await screen.findByText('Devon Conversation')).toBeTruthy();
+
+    fireEvent.changeText(screen.getByLabelText('Message'), 'Still there?');
+    fireEvent.press(screen.getByText('Send'));
+
+    expect(await screen.findByText('Venue Details Screen Stub')).toBeTruthy();
   });
 });

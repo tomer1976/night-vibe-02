@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge, BottomNavShell, Button, Card, Input, ListItem, TopBar } from '../components';
+import { isChatEligibilityFailureCode, resolveChatEligibilityFallbackRoute } from '../navigation/chatEligibilityRouteGuard';
 import { isMainTabKey, MAIN_TAB_ITEMS, resolveMainTabRouteName } from '../navigation/mainTabs';
 import { shouldReplaceRoute } from '../navigation/replaceRouteGuard';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
@@ -97,6 +98,23 @@ export function ChatConversationScreen() {
     const response = await services.chat.sendMessage(chatId, trimmedMessage);
 
     if (response.status === 'FAIL') {
+      if (isChatEligibilityFailureCode(response.error.code)) {
+        const fallbackRoute = resolveChatEligibilityFallbackRoute(response.error.code, params.venueId);
+
+        if (
+          shouldReplaceRoute(
+            ROUTE_NAMES.ChatConversation,
+            fallbackRoute.routeName,
+            undefined,
+            fallbackRoute.params
+          )
+        ) {
+          navigation.dispatch(StackActions.replace(fallbackRoute.routeName, fallbackRoute.params));
+        }
+
+        return;
+      }
+
       setSendStateText(response.error.message);
       return;
     }
