@@ -369,4 +369,42 @@ describe('chat threads screen', () => {
 
     expect(await screen.findByText('Venue Details Screen Stub')).toBeTruthy();
   });
+
+  it('returns to chat threads when pressing the top-bar back button in conversation', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      chat: {
+        ...locator.services.chat,
+        getThreads: async () => ({
+          status: 'SUCCESS',
+          data: [
+            buildThread({
+              chatId: 'chat-back',
+              matchId: 'match-back',
+              counterpart: {
+                userId: 'u-201',
+                displayName: 'Morgan',
+                age: 27,
+                gender: 'female',
+              },
+            }),
+          ],
+          request_id: 'req-chat-threads-back',
+        }),
+      },
+    };
+
+    const screen = render(<ChatThreadsTestNavigator servicesOverride={servicesOverride} />);
+
+    const row = await screen.findByLabelText('Morgan • 27 • female, See you near the dance floor. (delivered)');
+    fireEvent.press(row);
+
+    expect(await screen.findByText('Morgan Conversation')).toBeTruthy();
+    fireEvent.press(screen.getByTestId('top-bar-back-button'));
+
+    expect(await screen.findByText('Chat Threads Screen')).toBeTruthy();
+    expect(screen.getByTestId('bottom-nav-chats')).toBeTruthy();
+  });
 });

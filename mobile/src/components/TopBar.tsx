@@ -1,3 +1,5 @@
+import { NavigationContext } from '@react-navigation/native';
+import { useContext } from 'react';
 import { Pressable, Image, StyleSheet, Text, View } from 'react-native';
 
 import { getSurfaceElevationStyle, useTheme } from '../theme';
@@ -12,7 +14,19 @@ type TopBarProps = {
 
 export function TopBar({ title, subtitle, statusTag = 'Mock Mode', variant = 'default', onBackPress }: TopBarProps) {
   const theme = useTheme();
+  const navigation = useContext(NavigationContext);
   const isMainTabVariant = variant === 'main-tab';
+
+  const handleBackPress = () => {
+    if (onBackPress) {
+      onBackPress();
+      return;
+    }
+
+    if (navigation?.canGoBack()) {
+      navigation.goBack();
+    }
+  };
 
   return (
     <View
@@ -33,7 +47,7 @@ export function TopBar({ title, subtitle, statusTag = 'Mock Mode', variant = 'de
             <Pressable
               accessibilityLabel="Go back"
               accessibilityRole="button"
-              onPress={onBackPress}
+              onPress={handleBackPress}
               style={[styles.backButton, { borderColor: theme.colors.backgroundPrimary, borderRadius: theme.radius.sm }]}
               testID="top-bar-back-button"
             >

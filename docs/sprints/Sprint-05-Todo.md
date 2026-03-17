@@ -47,7 +47,7 @@
 ### P1 - Back Navigation Standards
 - [x] Enforce back arrow in top bar for all non-main pages.
 - [x] Remove/avoid text-style "Back to ..." primary controls.
-- [ ] Preserve previous tab context on back navigation where applicable.
+- [x] Preserve previous tab context on back navigation where applicable.
 
 ### P2 - Regression and Cleanup
 - [ ] Remove or deprecate standalone regular-user Matches screen entry points.
