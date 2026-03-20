@@ -134,9 +134,9 @@ export function ChatThreadsScreen() {
             <ErrorStateTemplate actionLabel="Retry" message={errorText} onAction={() => void loadThreads()} title="Threads Failed" />
           ) : orderedThreads.length === 0 ? (
             <EmptyStateTemplate
-              actionLabel="Open User Entry"
+              actionLabel="Open Nearby Venues"
               message="No chat threads are available yet."
-              onAction={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserGroup))}
+              onAction={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))}
               title="No Chat Threads"
             />
           ) : (
@@ -162,7 +162,7 @@ export function ChatThreadsScreen() {
                 </View>
               ))}
 
-              <Button label="Open User Entry" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserGroup))} variant="secondary" />
+              <Button label="Open Nearby Venues" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))} variant="secondary" />
             </ScrollView>
           )}
         </Card>

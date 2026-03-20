@@ -28,7 +28,7 @@ Scope includes authentication, onboarding, venue discovery, check-in, user disco
 ### 3.1 Login and Session Flow
 
 #### 3.1.1 Description
-User signs in, receives an authenticated session, and is routed to onboarding or home.
+User signs in, receives an authenticated session, and is routed to onboarding or Nearby Venues.
 
 #### 3.1.2 Preconditions
 - User has installed the mobile app.
@@ -43,7 +43,7 @@ User signs in, receives an authenticated session, and is routed to onboarding or
 2. User session is established.
    - System checks account status (`active`, `suspended`, `banned`, etc.).
 3. System evaluates onboarding state.
-   - If onboarding complete, user is routed to Home.
+   - If onboarding complete, user is routed to Nearby Venues.
    - If incomplete, user is routed to Onboarding Step 1.
 
 #### 3.1.5 Decision Points
@@ -57,7 +57,7 @@ User signs in, receives an authenticated session, and is routed to onboarding or
 - Network interruption -> show retry state; keep user logged out until success.
 
 #### 3.1.7 End State
-- User is authenticated and placed in either onboarding or home flow.
+- User is authenticated and placed in either onboarding or Nearby Venues flow.
 
 ---
 
@@ -88,7 +88,7 @@ New user completes required profile steps before venue and discovery access is g
    - System validates age range and preferred genders.
 7. User accepts terms.
    - System marks profile as completed.
-8. User is routed to Home.
+8. User is routed to Nearby Venues.
 
 #### 3.2.5 Decision Points
 - Is user 18+?
@@ -115,7 +115,7 @@ User updates profile details and preferences after onboarding.
 - Profile exists.
 
 #### 3.3.3 Entry Point
-- Home -> User Profile Screen -> Edit Profile Screen.
+- Nearby Venues -> User Profile Screen -> Edit Profile Screen.
 
 #### 3.3.4 Main Flow
 1. User opens profile edit.
@@ -151,7 +151,7 @@ User finds nearby active venues and checks into one venue.
 - GPS permission is granted.
 
 #### 3.4.3 Entry Point
-- Home -> Nearby Venues Screen.
+- Nearby Venues Screen (main-tab landing route).
 
 #### 3.4.4 Main Flow
 1. User requests nearby venues.
@@ -194,7 +194,7 @@ Active venue presence is maintained, timed out, or ended by user checkout.
    - System keeps session active until checkout or timeout.
 2. User taps checkout from Venue Details.
    - System closes session and records checkout time.
-3. User returns to Home/Nearby Venues.
+3. User returns to Nearby Venues.
 
 #### 3.5.5 Decision Points
 - Did user explicitly checkout?
@@ -428,7 +428,7 @@ Venue Owner submits venues, manages approved venues, and views venue analytics.
 - User has Venue Owner role (or is eligible to gain it through process).
 
 #### 3.12.3 Entry Point
-- Home -> Venue Owner Dashboard Screen.
+- Nearby Venues -> Venue Owner Dashboard Screen.
 
 #### 3.12.4 Main Flow
 1. Owner submits new venue details.

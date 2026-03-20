@@ -31,7 +31,7 @@ describe('App', () => {
 
     expect(getByText('Fetching Nearby Venues')).toBeTruthy();
     expect(queryByText('Splash')).toBeNull();
-    expect(queryByText('User Entry')).toBeNull();
+    expect(queryByText('User Shell')).toBeNull();
     expect(queryByText('Login Screen')).toBeNull();
   });
 });

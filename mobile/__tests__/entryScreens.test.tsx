@@ -24,7 +24,7 @@ describe('entry screens', () => {
     [SessionRecoveryScreen, 'Session Recovery Screen'],
     [AccessDeniedScreen, 'Account Access Denied Screen'],
     [ProfileCompletionRequiredScreen, 'Profile Completion Required Screen'],
-    [UserEntryScreen, 'User Entry'],
+    [UserEntryScreen, 'User Shell'],
     [OwnerEntryScreen, 'Owner Entry'],
     [ModeratorEntryScreen, 'Moderator Entry'],
     [AdminEntryScreen, 'Admin Entry'],

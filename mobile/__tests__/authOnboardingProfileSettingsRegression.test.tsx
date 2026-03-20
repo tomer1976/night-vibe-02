@@ -96,7 +96,7 @@ describe('regression flow: login to settings', () => {
     expect(getByText('Profile Completion Required Screen')).toBeTruthy();
     fireEvent.press(getByLabelText('Continue'));
 
-    expect(getByText('User Entry')).toBeTruthy();
+    expect(getByText('User Shell')).toBeTruthy();
     fireEvent.press(getByText('User Profile Screen'));
 
     expect(getByText('User Profile Screen')).toBeTruthy();

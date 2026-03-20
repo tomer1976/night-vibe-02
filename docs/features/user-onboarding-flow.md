@@ -40,7 +40,7 @@ Implements the 'User Onboarding Flow' capability according to Section 5 – User
 ## Acceptance Criteria
 - New users are routed to onboarding on first login.
 - Incomplete onboarding blocks venue discovery/check-in/matching.
-- Completed onboarding unlocks home and venue flows.
+- Completed onboarding unlocks Nearby Venues and venue flows.
 
 
 ## Edge Cases

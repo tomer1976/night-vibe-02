@@ -72,7 +72,7 @@ function renderLoginScreen() {
             <Stack.Screen component={LoginScreen} name="Login" />
             <Stack.Screen name="NearbyVenues">{() => <TestRouteScreen title="Nearby Venues Screen" />}</Stack.Screen>
             <Stack.Screen name="ProfileCompletionRequired">{() => <TestRouteScreen title="Profile Completion Required Screen" />}</Stack.Screen>
-            <Stack.Screen name="UserGroup">{() => <TestRouteScreen title="User Entry" />}</Stack.Screen>
+            <Stack.Screen name="UserGroup">{() => <TestRouteScreen title="User Shell" />}</Stack.Screen>
             <Stack.Screen name="OnboardingName">{() => <TestRouteScreen title="Onboarding Step 1: Name" />}</Stack.Screen>
             <Stack.Screen name="AccessDenied">{() => <TestRouteScreen title="Account Access Denied Screen" />}</Stack.Screen>
             <Stack.Screen name="SessionRecovery">{() => <TestRouteScreen title="Session Recovery Screen" />}</Stack.Screen>

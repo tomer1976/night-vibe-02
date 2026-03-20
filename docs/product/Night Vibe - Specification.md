@@ -2715,7 +2715,7 @@ Logic:
 IF profile\_completed \== false  
    redirect onboarding  
 ELSE  
-   redirect home
+  redirect nearby_venues
 
 ---
 
@@ -2725,7 +2725,7 @@ Client navigation event:
 
 route \= onboarding  
 OR  
-route \= home
+route \= nearby_venues
 
 ---
 

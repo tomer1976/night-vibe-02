@@ -11,7 +11,7 @@
 - Onboarding Step 6: Preferences
 - Onboarding Step 7: Terms Acceptance
 - Profile Completion Required Screen
-- Home Screen
+- Nearby Venues Screen (main landing flow)
 - Role Context Selector Screen
 - User Profile Screen
 - Edit Profile Screen

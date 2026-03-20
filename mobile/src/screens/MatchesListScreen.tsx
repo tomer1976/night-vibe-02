@@ -99,9 +99,9 @@ export function MatchesListScreen() {
             <ErrorStateTemplate actionLabel="Retry" message={errorText} onAction={() => void loadMatches()} title="Matches Failed" />
           ) : activeMatches.length === 0 && expiredMatches.length === 0 ? (
             <EmptyStateTemplate
-              actionLabel="Open User Entry"
+              actionLabel="Open Nearby Venues"
               message="No active or expired matches are available yet."
-              onAction={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserGroup))}
+              onAction={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))}
               title="No Matches"
             />
           ) : (
@@ -115,7 +115,7 @@ export function MatchesListScreen() {
               {expiredMatches.length > 0 ? <ExpiredMatchesSection matches={expiredMatches} titleColor={theme.colors.textPrimary} /> : null}
 
               <Button label="Open Chat Threads" onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.ChatThreads))} />
-              <Button label="Open User Entry" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.UserGroup))} variant="secondary" />
+              <Button label="Open Nearby Venues" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))} variant="secondary" />
             </ScrollView>
           )}
         </Card>
