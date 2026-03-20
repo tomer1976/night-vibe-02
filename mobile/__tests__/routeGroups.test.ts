@@ -22,7 +22,6 @@ describe('route groups', () => {
       'DiscoveryFallback',
       'DiscoveryProfilePreview',
       'MatchConfirmation',
-      'MatchesList',
       'ChatThreads',
       'ChatConversation',
       'CheckInConfirmation',
@@ -73,7 +72,6 @@ describe('route groups', () => {
       DiscoveryFallback: 'user',
       DiscoveryProfilePreview: 'user',
       MatchConfirmation: 'user',
-      MatchesList: 'user',
       ChatThreads: 'user',
       ChatConversation: 'user',
       CheckInConfirmation: 'user',
@@ -106,7 +104,6 @@ describe('route groups', () => {
     expect(canAccessRoute(ROUTE_NAMES.DiscoveryFallback, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.DiscoveryProfilePreview, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.MatchConfirmation, regularUser)).toBe(true);
-    expect(canAccessRoute(ROUTE_NAMES.MatchesList, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.ChatThreads, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.ChatConversation, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.CheckInConfirmation, regularUser)).toBe(true);

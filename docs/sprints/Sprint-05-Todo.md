@@ -50,7 +50,7 @@
 - [x] Preserve previous tab context on back navigation where applicable.
 
 ### P2 - Regression and Cleanup
-- [ ] Remove or deprecate standalone regular-user Matches screen entry points.
+- [x] Remove or deprecate standalone regular-user Matches screen entry points.
 - [ ] Sweep docs/code labels to remove ambiguous Home/User Entry references from production flow.
 - [ ] Add regression tests for startup route, tab persistence, venue-only matches placement, and back-arrow behavior.
 

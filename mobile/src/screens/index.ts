@@ -9,7 +9,6 @@ export { DeleteAccountScreen } from './DeleteAccountScreen';
 export { DiscoveryFallbackScreen } from './DiscoveryFallbackScreen';
 export { DiscoveryProfilePreviewScreen } from './DiscoveryProfilePreviewScreen';
 export { MatchConfirmationScreen } from './MatchConfirmationScreen';
-export { MatchesListScreen } from './MatchesListScreen';
 export { ChatThreadsScreen } from './ChatThreadsScreen';
 export { ChatConversationScreen } from './ChatConversationScreen';
 export { EditProfileScreen } from './EditProfileScreen';
