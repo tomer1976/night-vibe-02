@@ -52,7 +52,7 @@
 ### P2 - Regression and Cleanup
 - [x] Remove or deprecate standalone regular-user Matches screen entry points.
 - [x] Sweep docs/code labels to remove ambiguous Home/User Entry references from production flow.
-- [ ] Add regression tests for startup route, tab persistence, venue-only matches placement, and back-arrow behavior.
+- [x] Add regression tests for startup route, tab persistence, venue-only matches placement, and back-arrow behavior.
 
 ## Frontend Tasks
 - [ ] Refactor matches UI into Venue Details -> Matches tab (active/expired states).
