@@ -1,9 +1,9 @@
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, BottomNavShell, Button, Card, Input, ListItem, TopBar } from '../components';
+import { Badge, BottomNavShell, Button, Card, Input, TopBar } from '../components';
 import { isChatEligibilityFailureCode, resolveChatEligibilityFallbackRoute } from '../navigation/chatEligibilityRouteGuard';
 import { isMainTabKey, MAIN_TAB_ITEMS, resolveMainTabRouteName } from '../navigation/mainTabs';
 import { shouldReplaceRoute } from '../navigation/replaceRouteGuard';
@@ -24,6 +24,45 @@ type LocalMessage = {
   sender: 'me' | 'them';
   text: string;
   deliveryStatus: 'sent' | 'delivered' | 'read' | 'failed';
+  sentAtIso: string;
+};
+
+const DELIVERY_LABEL: Record<LocalMessage['deliveryStatus'], string> = {
+  sent: 'Sent',
+  delivered: 'Delivered',
+  read: 'Read',
+  failed: 'Failed',
+};
+
+const DELIVERY_TONE: Record<LocalMessage['deliveryStatus'], 'info' | 'success' | 'warning' | 'danger'> = {
+  sent: 'info',
+  delivered: 'info',
+  read: 'success',
+  failed: 'danger',
+};
+
+const getDisabledReasonLabel = (status: ChatConversationRouteParams['threadStatus']) => {
+  if (status === 'blocked') {
+    return 'Chat is disabled because a safety block is active.';
+  }
+
+  if (status === 'expired') {
+    return 'Chat is disabled because venue co-location or match eligibility ended.';
+  }
+
+  return 'Send a mock message.';
+};
+
+const formatMessageTime = (isoTimestamp: string) => {
+  const timestamp = new Date(isoTimestamp);
+  if (Number.isNaN(timestamp.getTime())) {
+    return '--:--';
+  }
+
+  return timestamp.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 };
 
 const toStatusTone = (status: ChatConversationRouteParams['threadStatus']): 'success' | 'warning' | 'danger' => {
@@ -68,8 +107,10 @@ export function ChatConversationScreen() {
       sender: 'them',
       text: `Hey, it's ${counterpartName}.`,
       deliveryStatus: 'read',
+      sentAtIso: new Date(Date.now() - 60_000).toISOString(),
     },
   ]);
+  const activeDeliveryTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const composerDisabled = isComposerDisabled(threadStatus);
 
@@ -77,6 +118,41 @@ export function ChatConversationScreen() {
     () => !composerDisabled && draftMessage.trim().length > 0,
     [composerDisabled, draftMessage]
   );
+
+  useEffect(
+    () => () => {
+      for (const timer of activeDeliveryTimers.current) {
+        clearTimeout(timer);
+      }
+
+      activeDeliveryTimers.current = [];
+    },
+    []
+  );
+
+  const scheduleDeliveryTransitions = (messageId: string) => {
+    const deliveredTimer = setTimeout(() => {
+      setLocalMessages((current) =>
+        current.map((message) =>
+          message.id === messageId && message.deliveryStatus === 'sent'
+            ? { ...message, deliveryStatus: 'delivered' }
+            : message
+        )
+      );
+    }, 600);
+
+    const readTimer = setTimeout(() => {
+      setLocalMessages((current) =>
+        current.map((message) =>
+          message.id === messageId && message.deliveryStatus === 'delivered'
+            ? { ...message, deliveryStatus: 'read' }
+            : message
+        )
+      );
+    }, 1400);
+
+    activeDeliveryTimers.current.push(deliveredTimer, readTimer);
+  };
 
   const handleSend = async () => {
     if (!canSend) {
@@ -89,6 +165,7 @@ export function ChatConversationScreen() {
       sender: 'me',
       text: trimmedMessage,
       deliveryStatus: 'sent',
+      sentAtIso: new Date().toISOString(),
     };
 
     setLocalMessages((current) => [...current, pendingMessage]);
@@ -115,11 +192,17 @@ export function ChatConversationScreen() {
         return;
       }
 
+      setLocalMessages((current) =>
+        current.map((message) =>
+          message.id === pendingMessage.id ? { ...message, deliveryStatus: 'failed' } : message
+        )
+      );
       setSendStateText(response.error.message);
       return;
     }
 
-    setSendStateText('Message sent in mock mode.');
+    scheduleDeliveryTransitions(pendingMessage.id);
+    setSendStateText('Message sent in mock mode. Delivery state will update automatically.');
   };
 
   return (
@@ -139,17 +222,44 @@ export function ChatConversationScreen() {
 
             <ScrollView contentContainerStyle={{ gap: theme.spacing.sm }} style={styles.messagesScroll}>
               {localMessages.map((message) => (
-                <ListItem
+                <View
                   key={message.id}
-                  subtitle={`Delivery: ${message.deliveryStatus}`}
-                  title={`${message.sender === 'me' ? 'You' : counterpartName}: ${message.text}`}
-                />
+                  style={[
+                    styles.messageRow,
+                    message.sender === 'me' ? styles.messageRowMine : styles.messageRowTheirs,
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.messageBubble,
+                      {
+                        backgroundColor:
+                          message.sender === 'me' ? theme.colors.accentPrimary : theme.colors.backgroundSecondary,
+                        borderRadius: theme.radius.md,
+                        borderColor: theme.colors.surfaceCard,
+                      },
+                    ]}
+                  >
+                    <Text style={{ color: theme.colors.textPrimary, fontSize: theme.typography.body }}>{message.text}</Text>
+                    <View style={styles.messageMetaRow}>
+                      <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.meta }}>
+                        {formatMessageTime(message.sentAtIso)}
+                      </Text>
+                      {message.sender === 'me' ? (
+                        <Badge
+                          label={DELIVERY_LABEL[message.deliveryStatus]}
+                          tone={DELIVERY_TONE[message.deliveryStatus]}
+                        />
+                      ) : null}
+                    </View>
+                  </View>
+                </View>
               ))}
             </ScrollView>
 
             <Input
               editable={!composerDisabled}
-              helperText={composerDisabled ? 'Chat is disabled due to eligibility state.' : 'Send a mock message.'}
+              helperText={getDisabledReasonLabel(threadStatus)}
               label="Message"
               multiline
               onChangeText={setDraftMessage}
@@ -214,6 +324,28 @@ const styles = StyleSheet.create({
   },
   messagesScroll: {
     maxHeight: 280,
+  },
+  messageRow: {
+    width: '100%',
+  },
+  messageRowMine: {
+    alignItems: 'flex-end',
+  },
+  messageRowTheirs: {
+    alignItems: 'flex-start',
+  },
+  messageBubble: {
+    borderWidth: 1,
+    gap: 6,
+    maxWidth: '88%',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  messageMetaRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 8,
+    justifyContent: 'space-between',
   },
   actionRow: {
     flexDirection: 'row',
