@@ -16,6 +16,9 @@ import {
   PresenceCheckOutResult,
   PresenceStateTransition,
   Role,
+  SafetyEnforcementAction,
+  SafetyEnforcementCallback,
+  SafetyEnforcementEvent,
   SafetyReport,
   UserProfile,
   VenueAnalyticsSnapshot,
@@ -262,6 +265,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
   const localSessions: MockFixtureSession[] = sprint01Fixtures.sessions.map((session) => ({ ...session }));
   const interactionRecords: MockInteractionRecord[] = [];
   const chatMessagesByChatId = new Map<string, ChatMessageRecord[]>();
+  const safetyEnforcementSubscribers = new Set<SafetyEnforcementCallback>();
 
   if (!Number.isInteger(accessTokenTtlMs) || accessTokenTtlMs <= 0) {
     throw new Error('Invalid accessTokenTtlMs. Use a positive integer milliseconds value.');
@@ -739,6 +743,28 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
     uid: currentUser.uid,
     displayName: seededProfile?.displayName ?? currentUser.displayName,
     profileCompleted: seededProfile?.profileCompleted ?? true,
+  };
+
+  const emitSafetyEnforcementEvent = (
+    action: SafetyEnforcementAction,
+    targetUserId: string,
+    options?: { relatedReportId?: string }
+  ) => {
+    const occurredAt = clock.now();
+    const event: SafetyEnforcementEvent = {
+      eventId: `safety-${action}-${occurredAt}-${targetUserId}`,
+      action,
+      actorUserId: currentUser.uid,
+      targetUserId,
+      occurredAt,
+      chatAccessRevoked: true,
+      discoveryVisibilityRevoked: true,
+      relatedReportId: options?.relatedReportId,
+    };
+
+    for (const subscriber of safetyEnforcementSubscribers) {
+      subscriber(event);
+    }
   };
 
   const services: BackendServiceContracts = {
@@ -1426,7 +1452,11 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       },
     },
     safety: {
-      blockUser: async (targetUserId) => responseFactory.build({ key: 'safety.blockUser', data: { blocked: true, targetUserId } }),
+      blockUser: async (targetUserId) => {
+        emitSafetyEnforcementEvent('block_applied', targetUserId);
+
+        return responseFactory.build({ key: 'safety.blockUser', data: { blocked: true, targetUserId } });
+      },
       reportUser: async (targetUserId) => {
         const report: SafetyReport = {
           reportId: `report-${clock.now()}`,
@@ -1435,7 +1465,16 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
           status: 'pending',
         };
 
+        emitSafetyEnforcementEvent('report_submitted', targetUserId, { relatedReportId: report.reportId });
+
         return responseFactory.build({ key: 'safety.reportUser', data: report });
+      },
+      onEnforcementEvent: (callback) => {
+        safetyEnforcementSubscribers.add(callback);
+
+        return () => {
+          safetyEnforcementSubscribers.delete(callback);
+        };
       },
     },
     notifications: {

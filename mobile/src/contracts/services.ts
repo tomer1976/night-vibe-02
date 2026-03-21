@@ -295,7 +295,23 @@ export interface ChatService {
 export interface SafetyService {
   blockUser(targetUserId: string): Promise<ApiResponse<{ blocked: true; targetUserId: string }>>;
   reportUser(targetUserId: string, reason: string): Promise<ApiResponse<SafetyReport>>;
+  onEnforcementEvent(callback: SafetyEnforcementCallback): () => void;
 }
+
+export type SafetyEnforcementAction = 'block_applied' | 'report_submitted' | 'moderation_action_applied';
+
+export type SafetyEnforcementEvent = {
+  eventId: string;
+  action: SafetyEnforcementAction;
+  actorUserId: string;
+  targetUserId: string;
+  occurredAt: string;
+  chatAccessRevoked: boolean;
+  discoveryVisibilityRevoked: boolean;
+  relatedReportId?: string;
+};
+
+export type SafetyEnforcementCallback = (event: SafetyEnforcementEvent) => void;
 
 export interface NotificationsService {
   getNotifications(): Promise<ApiResponse<NotificationRecord[]>>;

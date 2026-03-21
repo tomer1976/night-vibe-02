@@ -192,6 +192,7 @@ describe('backend service contracts', () => {
       safety: {
         blockUser: async () => ({ status: 'SUCCESS', request_id: 'req-18', data: { blocked: true, targetUserId: 'u2' } }),
         reportUser: async () => ({ status: 'SUCCESS', request_id: 'req-19', data: { reportId: 'r1', reporterId: 'u1', reportedUserId: 'u2', status: 'pending' } }),
+        onEnforcementEvent: () => () => {},
       },
       notifications: {
         getNotifications: async () => ({ status: 'SUCCESS', request_id: 'req-20', data: [] }),
