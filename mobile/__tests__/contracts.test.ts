@@ -155,6 +155,38 @@ describe('backend service contracts', () => {
       },
       chat: {
         getThreads: async () => ({ status: 'SUCCESS', request_id: 'req-16', data: [] }),
+        getEligibility: async (chatId) => ({ status: 'SUCCESS', request_id: 'req-16a', data: { chatId, eligible: true, evaluatedAt: '2026-03-18T00:00:00Z' } }),
+        listMessages: async () => ({ status: 'SUCCESS', request_id: 'req-16b', data: [] }),
+        sendMessageWithLifecycle: async (request) => ({
+          status: 'SUCCESS',
+          request_id: 'req-16c',
+          data: {
+            chatId: request.chatId,
+            messageId: 'msg-1',
+            status: 'sent',
+            sentAt: '2026-03-18T00:00:00Z',
+          },
+        }),
+        markMessageDelivered: async (chatId, messageId) => ({
+          status: 'SUCCESS',
+          request_id: 'req-16d',
+          data: { chatId, messageId, status: 'delivered', updatedAt: '2026-03-18T00:00:01Z' },
+        }),
+        markMessageRead: async (chatId, messageId) => ({
+          status: 'SUCCESS',
+          request_id: 'req-16e',
+          data: { chatId, messageId, status: 'read', updatedAt: '2026-03-18T00:00:02Z' },
+        }),
+        setTypingIndicator: async (chatId, typing) => ({
+          status: 'SUCCESS',
+          request_id: 'req-16f',
+          data: {
+            chatId,
+            userId: 'u1',
+            typing,
+            expiresAt: '2026-03-18T00:00:05Z',
+          },
+        }),
         sendMessage: async () => ({ status: 'SUCCESS', request_id: 'req-17', data: { chatId: 'c1', sent: true } }),
       },
       safety: {

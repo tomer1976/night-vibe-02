@@ -63,7 +63,7 @@
 - [x] Implement Notification Center and Notification Preferences screens.
 
 ## Backend Tasks (if applicable)
-- [ ] Define `ChatService` interface including eligibility checks and message lifecycle methods.
+- [x] Define `ChatService` interface including eligibility checks and message lifecycle methods.
 - [ ] Define `SafetyService` interface for block/report actions and enforcement callbacks.
 - [ ] Define `NotificationService` interface for list/read/preferences/dedup operations.
 

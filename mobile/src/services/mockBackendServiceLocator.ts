@@ -1,7 +1,13 @@
 import {
   AccountStatus,
   BackendServiceContracts,
+  ChatEligibilityResult,
+  ChatMessageLifecycleResult,
+  ChatMessageRecord,
+  ChatSendMessageRequest,
+  ChatSendMessageResult,
   ChatThread,
+  ChatTypingIndicatorResult,
   DiscoveryCandidate,
   MatchRecord,
   NotificationRecord,
@@ -255,6 +261,7 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
   const refreshTokenTtlMs = options?.sessionSimulation?.refreshTokenTtlMs ?? DEFAULT_REFRESH_TOKEN_TTL_MS;
   const localSessions: MockFixtureSession[] = sprint01Fixtures.sessions.map((session) => ({ ...session }));
   const interactionRecords: MockInteractionRecord[] = [];
+  const chatMessagesByChatId = new Map<string, ChatMessageRecord[]>();
 
   if (!Number.isInteger(accessTokenTtlMs) || accessTokenTtlMs <= 0) {
     throw new Error('Invalid accessTokenTtlMs. Use a positive integer milliseconds value.');
@@ -384,6 +391,232 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
     duplicateScope: INTERACTION_IDEMPOTENCY_CONTRACT.duplicateScope,
     matchCreated: false,
   });
+
+  const getChatThreads = (): ChatThread[] => {
+    const matches = computeMatchRecords(currentUser.uid);
+
+    const toThreadStatus = (status: (typeof matches)[number]['status']): ChatThread['status'] => {
+      if (status === 'matched') {
+        return 'active';
+      }
+
+      if (status === 'expired') {
+        return 'expired';
+      }
+
+      return 'blocked';
+    };
+
+    const buildLatestMessage = (matchId: string, status: ChatThread['status']): ChatThread['latestMessage'] => {
+      const statusToDelivery: Record<ChatThread['status'], ChatThread['latestMessage']['deliveryStatus']> = {
+        active: 'delivered',
+        expired: 'read',
+        blocked: 'sent',
+      };
+
+      const statusToText: Record<ChatThread['status'], string> = {
+        active: 'See you near the dance floor.',
+        expired: 'Looks like the venue session ended.',
+        blocked: 'This conversation is currently restricted.',
+      };
+
+      return {
+        messageId: `msg-${matchId}-latest`,
+        text: statusToText[status],
+        sentAt: clock.now(),
+        deliveryStatus: statusToDelivery[status],
+      };
+    };
+
+    return matches.map((match) => ({
+      chatId: `chat-${match.matchId}`,
+      matchId: match.matchId,
+      participants: [match.users[0], match.users[1]],
+      counterpart: {
+        userId: match.counterpart.userId,
+        displayName: match.counterpart.displayName,
+        age: match.counterpart.age,
+        gender: match.counterpart.gender,
+      },
+      latestMessage: buildLatestMessage(match.matchId, toThreadStatus(match.status)),
+      unreadCount: match.status === 'matched' ? 1 : 0,
+      status: toThreadStatus(match.status),
+    }));
+  };
+
+  const resolveChatEligibility = (chatId: string): ChatEligibilityResult => {
+    applyDeterministicSessionTimeouts();
+
+    const activeSession = localSessions.find((entry) => entry.userId === currentUser.uid && entry.status === 'active');
+    if (!activeSession) {
+      return {
+        chatId,
+        eligible: false,
+        reason: 'not_checked_in',
+        evaluatedAt: clock.now(),
+      };
+    }
+
+    const thread = getChatThreads().find((entry) => entry.chatId === chatId);
+    if (!thread) {
+      return {
+        chatId,
+        eligible: false,
+        reason: 'match_expired',
+        evaluatedAt: clock.now(),
+      };
+    }
+
+    if (thread.status === 'blocked') {
+      return {
+        chatId,
+        eligible: false,
+        reason: 'blocked',
+        evaluatedAt: clock.now(),
+      };
+    }
+
+    if (thread.status === 'expired') {
+      return {
+        chatId,
+        eligible: false,
+        reason: 'match_expired',
+        evaluatedAt: clock.now(),
+      };
+    }
+
+    return {
+      chatId,
+      eligible: true,
+      evaluatedAt: clock.now(),
+    };
+  };
+
+  const listChatMessages = (chatId: string): ChatMessageRecord[] => {
+    const existingMessages = chatMessagesByChatId.get(chatId);
+    if (existingMessages) {
+      return existingMessages;
+    }
+
+    const seededMessages: ChatMessageRecord[] = [
+      {
+        messageId: `${chatId}-seed-1`,
+        chatId,
+        senderUserId: currentUser.uid,
+        text: 'Mock seeded message.',
+        sentAt: clock.now(),
+        deliveryStatus: 'read',
+        deliveredAt: clock.now(),
+        readAt: clock.now(),
+      },
+    ];
+
+    chatMessagesByChatId.set(chatId, seededMessages);
+    return seededMessages;
+  };
+
+  const sendLifecycleMessage = (request: ChatSendMessageRequest) => {
+    const eligibility = resolveChatEligibility(request.chatId);
+    const failureScenario = eligibility.reason === 'blocked' ? 'ACCESS_DENIED' : 'CHAT_EXPIRED';
+
+    if (!eligibility.eligible) {
+      return responseFactory.build({
+        key: 'chat.sendMessageWithLifecycle',
+        data: {
+          chatId: request.chatId,
+          messageId: '',
+          status: 'sent',
+          sentAt: clock.now(),
+        } satisfies ChatSendMessageResult,
+        scenario: failureScenario,
+        errorMessage: 'Chat eligibility requirements are not satisfied for message send.',
+        details: {
+          reason: eligibility.reason,
+        },
+      });
+    }
+
+    const sentAt = clock.now();
+    const messageId = `${request.chatId}-msg-${Date.now()}`;
+    const newMessage: ChatMessageRecord = {
+      messageId,
+      chatId: request.chatId,
+      senderUserId: currentUser.uid,
+      text: request.messageText,
+      sentAt,
+      deliveryStatus: 'sent',
+    };
+
+    const currentMessages = listChatMessages(request.chatId);
+    chatMessagesByChatId.set(request.chatId, [...currentMessages, newMessage]);
+
+    return responseFactory.build({
+      key: 'chat.sendMessageWithLifecycle',
+      data: {
+        chatId: request.chatId,
+        messageId,
+        status: 'sent',
+        sentAt,
+      } satisfies ChatSendMessageResult,
+    });
+  };
+
+  const markMessageLifecycle = (
+    chatId: string,
+    messageId: string,
+    status: ChatMessageLifecycleResult['status']
+  ) => {
+    const messages = listChatMessages(chatId);
+    const message = messages.find((entry) => entry.messageId === messageId);
+
+    if (!message) {
+      return responseFactory.build({
+        key: `chat.markMessage.${status}`,
+        data: {
+          chatId,
+          messageId,
+          status,
+          updatedAt: clock.now(),
+        } satisfies ChatMessageLifecycleResult,
+        scenario: 'NOT_FOUND',
+        errorMessage: 'Message not found in mock chat timeline.',
+      });
+    }
+
+    const updatedAt = clock.now();
+    const updatedMessages = messages.map((entry) => {
+      if (entry.messageId !== messageId) {
+        return entry;
+      }
+
+      if (status === 'delivered') {
+        return {
+          ...entry,
+          deliveryStatus: 'delivered' as const,
+          deliveredAt: updatedAt,
+        };
+      }
+
+      return {
+        ...entry,
+        deliveryStatus: 'read' as const,
+        deliveredAt: entry.deliveredAt ?? updatedAt,
+        readAt: updatedAt,
+      };
+    });
+
+    chatMessagesByChatId.set(chatId, updatedMessages);
+
+    return responseFactory.build({
+      key: `chat.markMessage.${status}`,
+      data: {
+        chatId,
+        messageId,
+        status,
+        updatedAt,
+      } satisfies ChatMessageLifecycleResult,
+    });
+  };
 
   const submitInteraction = (action: 'LIKE' | 'PASS', request: { targetUserId: string; venueId: string; idempotencyKey?: string }) => {
     applyDeterministicSessionTimeouts();
@@ -1142,60 +1375,55 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       },
     },
     chat: {
-      getThreads: async () => {
-        const matches = computeMatchRecords(currentUser.uid);
+      getThreads: async () => responseFactory.build({ key: 'chat.getThreads', data: getChatThreads() }),
+      getEligibility: async (chatId) =>
+        responseFactory.build({
+          key: 'chat.getEligibility',
+          data: resolveChatEligibility(chatId),
+        }),
+      listMessages: async (chatId) =>
+        responseFactory.build({
+          key: 'chat.listMessages',
+          data: listChatMessages(chatId),
+        }),
+      sendMessageWithLifecycle: async (request) => sendLifecycleMessage(request),
+      markMessageDelivered: async (chatId, messageId) => markMessageLifecycle(chatId, messageId, 'delivered'),
+      markMessageRead: async (chatId, messageId) => markMessageLifecycle(chatId, messageId, 'read'),
+      setTypingIndicator: async (chatId, typing) => {
+        const nowIso = clock.now();
+        const expiresAt = new Date(new Date(nowIso).getTime() + 5_000).toISOString();
 
-        const toThreadStatus = (status: (typeof matches)[number]['status']): ChatThread['status'] => {
-          if (status === 'matched') {
-            return 'active';
-          }
-
-          if (status === 'expired') {
-            return 'expired';
-          }
-
-          return 'blocked';
-        };
-
-        const buildLatestMessage = (matchId: string, status: ChatThread['status']): ChatThread['latestMessage'] => {
-          const statusToDelivery: Record<ChatThread['status'], ChatThread['latestMessage']['deliveryStatus']> = {
-            active: 'delivered',
-            expired: 'read',
-            blocked: 'sent',
-          };
-
-          const statusToText: Record<ChatThread['status'], string> = {
-            active: 'See you near the dance floor.',
-            expired: 'Looks like the venue session ended.',
-            blocked: 'This conversation is currently restricted.',
-          };
-
-          return {
-            messageId: `msg-${matchId}-latest`,
-            text: statusToText[status],
-            sentAt: clock.now(),
-            deliveryStatus: statusToDelivery[status],
-          };
-        };
-
-        const threads: ChatThread[] = matches.map((match) => ({
-          chatId: `chat-${match.matchId}`,
-          matchId: match.matchId,
-          participants: [match.users[0], match.users[1]],
-          counterpart: {
-            userId: match.counterpart.userId,
-            displayName: match.counterpart.displayName,
-            age: match.counterpart.age,
-            gender: match.counterpart.gender,
-          },
-          latestMessage: buildLatestMessage(match.matchId, toThreadStatus(match.status)),
-          unreadCount: match.status === 'matched' ? 1 : 0,
-          status: toThreadStatus(match.status),
-        }));
-
-        return responseFactory.build({ key: 'chat.getThreads', data: threads });
+        return responseFactory.build({
+          key: 'chat.setTypingIndicator',
+          data: {
+            chatId,
+            userId: currentUser.uid,
+            typing,
+            expiresAt,
+          } satisfies ChatTypingIndicatorResult,
+        });
       },
-      sendMessage: async (chatId) => responseFactory.build({ key: 'chat.sendMessage', data: { chatId, sent: true } }),
+      sendMessage: async (chatId, message) => {
+        const sendResult = sendLifecycleMessage({
+          chatId,
+          messageText: message,
+        });
+
+        if (sendResult.status === 'FAIL') {
+          return responseFactory.build({
+            key: 'chat.sendMessage',
+            data: {
+              chatId,
+              sent: true,
+            },
+            scenario: sendResult.error.code,
+            errorMessage: sendResult.error.message,
+            details: sendResult.error.details,
+          });
+        }
+
+        return responseFactory.build({ key: 'chat.sendMessage', data: { chatId, sent: true } });
+      },
     },
     safety: {
       blockUser: async (targetUserId) => responseFactory.build({ key: 'safety.blockUser', data: { blocked: true, targetUserId } }),

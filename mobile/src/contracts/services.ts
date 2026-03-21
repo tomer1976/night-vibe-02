@@ -228,8 +228,67 @@ export interface MatchService {
   getMatches(): Promise<ApiResponse<MatchRecord[]>>;
 }
 
+export type ChatEligibilityFailureReason =
+  | 'left_venue'
+  | 'match_expired'
+  | 'blocked'
+  | 'moderation_action'
+  | 'not_checked_in';
+
+export type ChatEligibilityResult = {
+  chatId: string;
+  eligible: boolean;
+  reason?: ChatEligibilityFailureReason;
+  evaluatedAt: string;
+};
+
+export type ChatMessageRecord = {
+  messageId: string;
+  chatId: string;
+  senderUserId: string;
+  text: string;
+  sentAt: string;
+  deliveryStatus: 'sent' | 'delivered' | 'read' | 'failed';
+  deliveredAt?: string;
+  readAt?: string;
+};
+
+export type ChatSendMessageRequest = {
+  chatId: string;
+  messageText: string;
+};
+
+export type ChatSendMessageResult = {
+  chatId: string;
+  messageId: string;
+  status: 'sent';
+  sentAt: string;
+};
+
+export type ChatMessageLifecycleResult = {
+  chatId: string;
+  messageId: string;
+  status: 'delivered' | 'read';
+  updatedAt: string;
+};
+
+export type ChatTypingIndicatorResult = {
+  chatId: string;
+  userId: string;
+  typing: boolean;
+  expiresAt: string;
+};
+
 export interface ChatService {
   getThreads(): Promise<ApiResponse<ChatThread[]>>;
+  getEligibility(chatId: string): Promise<ApiResponse<ChatEligibilityResult>>;
+  listMessages(chatId: string): Promise<ApiResponse<ChatMessageRecord[]>>;
+  sendMessageWithLifecycle(request: ChatSendMessageRequest): Promise<ApiResponse<ChatSendMessageResult>>;
+  markMessageDelivered(chatId: string, messageId: string): Promise<ApiResponse<ChatMessageLifecycleResult>>;
+  markMessageRead(chatId: string, messageId: string): Promise<ApiResponse<ChatMessageLifecycleResult>>;
+  setTypingIndicator(chatId: string, typing: boolean): Promise<ApiResponse<ChatTypingIndicatorResult>>;
+
+  // Legacy Sprint-05 compatibility shim used by existing UI screens.
   sendMessage(chatId: string, message: string): Promise<ApiResponse<{ chatId: string; sent: true }>>;
 }
 
