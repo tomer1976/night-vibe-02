@@ -59,7 +59,7 @@
 - [x] Implement Chat Threads list with latest message and status preview.
 - [x] Implement Chat Conversation UI with composer, bubbles, and message states.
 - [x] Implement Report User and Block Confirmation flows.
-- [ ] Implement Blocked Users and Safety Center screens.
+- [x] Implement Blocked Users and Safety Center screens.
 - [ ] Implement Notification Center and Notification Preferences screens.
 
 ## Backend Tasks (if applicable)

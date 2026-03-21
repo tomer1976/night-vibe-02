@@ -4,7 +4,7 @@ import { fireEvent, render } from '@testing-library/react-native';
 
 import { BackendServiceContracts } from '../src/contracts';
 import { ROUTE_NAMES } from '../src/navigation';
-import { BlockUserConfirmationScreen, ReportUserScreen } from '../src/screens';
+import { BlockUserConfirmationScreen, BlockedUsersScreen, ReportUserScreen, SafetyCenterScreen } from '../src/screens';
 import { createMockBackendServiceLocator, ServiceLocatorProvider } from '../src/services';
 import { AppStateProvider } from '../src/state';
 import { ThemeProvider } from '../src/theme';
@@ -16,7 +16,11 @@ function SafetyFlowTestNavigator({
   initialParams,
   servicesOverride,
 }: {
-  initialRoute: typeof ROUTE_NAMES.ReportUser | typeof ROUTE_NAMES.BlockUserConfirmation;
+  initialRoute:
+    | typeof ROUTE_NAMES.ReportUser
+    | typeof ROUTE_NAMES.BlockUserConfirmation
+    | typeof ROUTE_NAMES.BlockedUsers
+    | typeof ROUTE_NAMES.SafetyCenter;
   initialParams?: Record<string, unknown>;
   servicesOverride: BackendServiceContracts;
 }) {
@@ -32,6 +36,8 @@ function SafetyFlowTestNavigator({
                 initialParams={initialParams}
                 name={ROUTE_NAMES.BlockUserConfirmation}
               />
+              <Stack.Screen component={BlockedUsersScreen} initialParams={initialParams} name={ROUTE_NAMES.BlockedUsers} />
+              <Stack.Screen component={SafetyCenterScreen} initialParams={initialParams} name={ROUTE_NAMES.SafetyCenter} />
             </Stack.Navigator>
           </NavigationContainer>
         </ServiceLocatorProvider>
@@ -92,5 +98,34 @@ describe('safety report and block flows', () => {
 
     expect(await screen.findByText('Result: Blocked')).toBeTruthy();
     expect(blockUserMock).toHaveBeenCalledWith('u-target-99');
+  });
+
+  it('opens blocked users from safety center', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const screen = render(
+      <SafetyFlowTestNavigator initialRoute={ROUTE_NAMES.SafetyCenter} servicesOverride={locator.services} />
+    );
+
+    expect(await screen.findByText('Safety Center Screen')).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText('Blocked Users Screen, Review and unblock users from your blocked list'));
+
+    expect(await screen.findByText('Blocked Users Screen')).toBeTruthy();
+  });
+
+  it('unblocks a user from blocked users screen', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const screen = render(
+      <SafetyFlowTestNavigator initialRoute={ROUTE_NAMES.BlockedUsers} servicesOverride={locator.services} />
+    );
+
+    expect(await screen.findByText('Blocked Users Screen')).toBeTruthy();
+    expect(screen.getByText('1 blocked')).toBeTruthy();
+
+    fireEvent.press(screen.getByText('Unblock'));
+
+    expect(await screen.findByText('No Blocked Users')).toBeTruthy();
   });
 });

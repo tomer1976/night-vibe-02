@@ -138,6 +138,8 @@ export function canAccessRoute(routeName: AppRouteName, context: SimulatedRoleCo
     case ROUTE_NAMES.ChatConversation:
     case ROUTE_NAMES.ReportUser:
     case ROUTE_NAMES.BlockUserConfirmation:
+    case ROUTE_NAMES.BlockedUsers:
+    case ROUTE_NAMES.SafetyCenter:
     case ROUTE_NAMES.CheckInConfirmation:
     case ROUTE_NAMES.CheckoutConfirmation:
     case ROUTE_NAMES.UserProfile:

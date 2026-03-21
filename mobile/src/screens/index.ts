@@ -13,6 +13,8 @@ export { ChatThreadsScreen } from './ChatThreadsScreen';
 export { ChatConversationScreen } from './ChatConversationScreen';
 export { ReportUserScreen } from './ReportUserScreen';
 export { BlockUserConfirmationScreen } from './BlockUserConfirmationScreen';
+export { BlockedUsersScreen } from './BlockedUsersScreen';
+export { SafetyCenterScreen } from './SafetyCenterScreen';
 export { EditProfileScreen } from './EditProfileScreen';
 export { LinkedAccountsScreen } from './LinkedAccountsScreen';
 export { LoginScreen } from './LoginScreen';

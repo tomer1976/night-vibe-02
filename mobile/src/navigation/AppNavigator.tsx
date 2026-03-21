@@ -17,6 +17,8 @@ import { ChatConversationScreen } from '../screens/ChatConversationScreen';
 import { ChatThreadsScreen } from '../screens/ChatThreadsScreen';
 import { ReportUserScreen } from '../screens/ReportUserScreen';
 import { BlockUserConfirmationScreen } from '../screens/BlockUserConfirmationScreen';
+import { BlockedUsersScreen } from '../screens/BlockedUsersScreen';
+import { SafetyCenterScreen } from '../screens/SafetyCenterScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { LinkedAccountsScreen } from '../screens/LinkedAccountsScreen';
 import { ModeratorEntryScreen } from '../screens/ModeratorEntryScreen';
@@ -168,6 +170,8 @@ export function AppNavigator() {
         <Stack.Screen name={ROUTE_NAMES.BlockUserConfirmation}>
           {() => renderProtectedRoute('BlockUserConfirmation', BlockUserConfirmationScreen)}
         </Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.BlockedUsers}>{() => renderProtectedRoute('BlockedUsers', BlockedUsersScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.SafetyCenter}>{() => renderProtectedRoute('SafetyCenter', SafetyCenterScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.CheckInConfirmation}>{() => renderProtectedRoute('CheckInConfirmation', CheckInConfirmationScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.CheckoutConfirmation}>{() => renderProtectedRoute('CheckoutConfirmation', CheckoutConfirmationScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.UserProfile}>{() => renderProtectedRoute('UserProfile', UserProfileScreen)}</Stack.Screen>

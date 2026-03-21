@@ -26,6 +26,8 @@ describe('route groups', () => {
       'ChatConversation',
       'ReportUser',
       'BlockUserConfirmation',
+      'BlockedUsers',
+      'SafetyCenter',
       'CheckInConfirmation',
       'CheckoutConfirmation',
       'UserProfile',
@@ -78,6 +80,8 @@ describe('route groups', () => {
       ChatConversation: 'user',
       ReportUser: 'user',
       BlockUserConfirmation: 'user',
+      BlockedUsers: 'user',
+      SafetyCenter: 'user',
       CheckInConfirmation: 'user',
       CheckoutConfirmation: 'user',
       UserProfile: 'user',
@@ -112,6 +116,8 @@ describe('route groups', () => {
     expect(canAccessRoute(ROUTE_NAMES.ChatConversation, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.ReportUser, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.BlockUserConfirmation, regularUser)).toBe(true);
+    expect(canAccessRoute(ROUTE_NAMES.BlockedUsers, regularUser)).toBe(true);
+    expect(canAccessRoute(ROUTE_NAMES.SafetyCenter, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.CheckInConfirmation, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.CheckoutConfirmation, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.OwnerGroup, venueOwner)).toBe(true);
