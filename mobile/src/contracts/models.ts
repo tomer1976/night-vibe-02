@@ -95,7 +95,24 @@ export type NotificationRecord = {
   notificationId: string;
   userId: string;
   type: 'match_notification' | 'message_notification' | 'venue_activity_notification' | 'safety_notification' | 'system_notification';
+  title?: string;
+  body?: string;
+  eventId?: string;
+  eventType?: string;
+  dedupKey?: string;
   read: boolean;
+  readAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type NotificationPreferences = {
+  matchNotifications: boolean;
+  messageNotifications: boolean;
+  venueNotifications: boolean;
+  safetyNotifications: boolean;
+  systemNotifications: boolean;
+  updatedAt: string;
 };
 
 export type VenueAnalyticsSnapshot = {

@@ -5,6 +5,7 @@ import {
   ChatThread,
   DiscoveryCandidate,
   MatchRecord,
+  NotificationPreferences,
   NotificationRecord,
   Role,
   SafetyReport,
@@ -313,10 +314,61 @@ export type SafetyEnforcementEvent = {
 
 export type SafetyEnforcementCallback = (event: SafetyEnforcementEvent) => void;
 
-export interface NotificationsService {
+export type NotificationPreferenceCategory = 'match' | 'message' | 'venue' | 'safety' | 'system';
+
+export type NotificationDedupWindowConfig = {
+  dedupWindowSeconds: number;
+  maxNotificationsPerMinute: number;
+};
+
+export type NotificationListRequest = {
+  cursor?: string;
+  pageSize?: number;
+  unreadOnly?: boolean;
+};
+
+export type NotificationListResult = {
+  items: NotificationRecord[];
+  nextCursor?: string;
+};
+
+export type NotificationMarkReadResult = {
+  notificationId: string;
+  read: true;
+  readAt: string;
+};
+
+export type NotificationPublishRequest = {
+  type: NotificationRecord['type'];
+  title: string;
+  body: string;
+  eventId: string;
+  eventType: string;
+};
+
+export type NotificationPublishResult = {
+  outcome: 'created' | 'suppressed_deduplicated' | 'suppressed_preference_filtered' | 'suppressed_rate_limited';
+  notificationId?: string;
+  dedupKey: string;
+  occurredAt: string;
+};
+
+export type NotificationPreferencesUpdate = Partial<Omit<NotificationPreferences, 'updatedAt'>>;
+
+export interface NotificationService {
+  listNotifications(request?: NotificationListRequest): Promise<ApiResponse<NotificationListResult>>;
+  markNotificationRead(notificationId: string): Promise<ApiResponse<NotificationMarkReadResult>>;
+  getNotificationPreferences(): Promise<ApiResponse<NotificationPreferences>>;
+  updateNotificationPreferences(preferences: NotificationPreferencesUpdate): Promise<ApiResponse<NotificationPreferences>>;
+  getDedupWindowConfig(): Promise<ApiResponse<NotificationDedupWindowConfig>>;
+  publishInAppNotification(request: NotificationPublishRequest): Promise<ApiResponse<NotificationPublishResult>>;
+
+  // Legacy Sprint-05 compatibility shims used by existing screens.
   getNotifications(): Promise<ApiResponse<NotificationRecord[]>>;
   markAsRead(notificationId: string): Promise<ApiResponse<{ notificationId: string; read: true }>>;
 }
+
+export type NotificationsService = NotificationService;
 
 export interface AnalyticsService {
   getVenueAnalytics(venueId: string): Promise<ApiResponse<VenueAnalyticsSnapshot>>;
@@ -334,6 +386,6 @@ export type BackendServiceContracts = {
   match: MatchService;
   chat: ChatService;
   safety: SafetyService;
-  notifications: NotificationsService;
+  notifications: NotificationService;
   analytics: AnalyticsService;
 };

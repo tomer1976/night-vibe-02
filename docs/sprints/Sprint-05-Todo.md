@@ -65,7 +65,7 @@
 ## Backend Tasks (if applicable)
 - [x] Define `ChatService` interface including eligibility checks and message lifecycle methods.
 - [x] Define `SafetyService` interface for block/report actions and enforcement callbacks.
-- [ ] Define `NotificationService` interface for list/read/preferences/dedup operations.
+- [x] Define `NotificationService` interface for list/read/preferences/dedup operations.
 
 ## Firebase Tasks (if applicable)
 - [ ] Keep Firebase adapters disabled in Phase 1 mode.

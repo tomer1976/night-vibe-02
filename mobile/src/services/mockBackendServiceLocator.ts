@@ -10,6 +10,10 @@ import {
   ChatTypingIndicatorResult,
   DiscoveryCandidate,
   MatchRecord,
+  NotificationMarkReadResult,
+  NotificationPreferences,
+  NotificationPublishRequest,
+  NotificationPublishResult,
   NotificationRecord,
   InteractionResult,
   PresenceCheckInResult,
@@ -64,6 +68,8 @@ const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const CHECKIN_RADIUS_METERS = 75;
 const STALE_LOCATION_THRESHOLD_MS = 5 * 60 * 1000;
 const SESSION_TIMEOUT_MS = 4 * 60 * 60 * 1000;
+const NOTIFICATION_DEDUP_WINDOW_SECONDS = 30;
+const NOTIFICATION_RATE_LIMIT_PER_MINUTE = 20;
 
 type MockInteractionRecord = {
   interactionId: string;
@@ -266,6 +272,16 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
   const interactionRecords: MockInteractionRecord[] = [];
   const chatMessagesByChatId = new Map<string, ChatMessageRecord[]>();
   const safetyEnforcementSubscribers = new Set<SafetyEnforcementCallback>();
+  const notificationRecords: NotificationRecord[] = [];
+  const notificationPublishHistory: { dedupKey: string; createdAtMs: number }[] = [];
+  let notificationPreferences: NotificationPreferences = {
+    matchNotifications: true,
+    messageNotifications: true,
+    venueNotifications: true,
+    safetyNotifications: true,
+    systemNotifications: true,
+    updatedAt: clock.peek(),
+  };
 
   if (!Number.isInteger(accessTokenTtlMs) || accessTokenTtlMs <= 0) {
     throw new Error('Invalid accessTokenTtlMs. Use a positive integer milliseconds value.');
@@ -765,6 +781,152 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
     for (const subscriber of safetyEnforcementSubscribers) {
       subscriber(event);
     }
+  };
+
+  const notificationPreferenceEnabledByType = (type: NotificationRecord['type']) => {
+    const preferenceByType: Record<NotificationRecord['type'], keyof NotificationPreferences> = {
+      match_notification: 'matchNotifications',
+      message_notification: 'messageNotifications',
+      venue_activity_notification: 'venueNotifications',
+      safety_notification: 'safetyNotifications',
+      system_notification: 'systemNotifications',
+    };
+
+    return notificationPreferences[preferenceByType[type]];
+  };
+
+  const listNotifications = (request?: { cursor?: string; pageSize?: number; unreadOnly?: boolean }) => {
+    const sorted = [...notificationRecords].sort((left, right) => {
+      const leftMs = left.createdAt ? asMillis(left.createdAt) : 0;
+      const rightMs = right.createdAt ? asMillis(right.createdAt) : 0;
+      return rightMs - leftMs;
+    });
+
+    const filtered = request?.unreadOnly ? sorted.filter((entry) => !entry.read) : sorted;
+    const pageSize = request?.pageSize && request.pageSize > 0 ? request.pageSize : filtered.length || 20;
+    const startOffset = request?.cursor ? Number.parseInt(request.cursor, 10) : 0;
+    const safeStartOffset = Number.isFinite(startOffset) && startOffset >= 0 ? startOffset : 0;
+    const items = filtered.slice(safeStartOffset, safeStartOffset + pageSize);
+    const nextOffset = safeStartOffset + items.length;
+
+    return {
+      items,
+      nextCursor: nextOffset < filtered.length ? String(nextOffset) : undefined,
+    };
+  };
+
+  const markNotificationRead = (notificationId: string) => {
+    const existing = notificationRecords.find((entry) => entry.notificationId === notificationId);
+
+    if (!existing) {
+      return responseFactory.build({
+        key: 'notifications.markNotificationRead',
+        data: {
+          notificationId,
+          read: true,
+          readAt: clock.now(),
+        } satisfies NotificationMarkReadResult,
+        scenario: 'NOT_FOUND',
+        errorMessage: 'Notification not found for read-state transition.',
+      });
+    }
+
+    const readAt = clock.now();
+    for (let index = 0; index < notificationRecords.length; index += 1) {
+      if (notificationRecords[index].notificationId !== notificationId) {
+        continue;
+      }
+
+      notificationRecords[index] = {
+        ...notificationRecords[index],
+        read: true,
+        readAt,
+        updatedAt: readAt,
+      };
+      break;
+    }
+
+    return responseFactory.build({
+      key: 'notifications.markNotificationRead',
+      data: {
+        notificationId,
+        read: true,
+        readAt,
+      } satisfies NotificationMarkReadResult,
+    });
+  };
+
+  const publishInAppNotification = (request: NotificationPublishRequest) => {
+    const nowIso = clock.now();
+    const nowMs = asMillis(nowIso);
+    const dedupKey = `${currentUser.uid}+${request.eventType}+${request.eventId}`;
+    const dedupWindowMs = NOTIFICATION_DEDUP_WINDOW_SECONDS * 1000;
+
+    if (!notificationPreferenceEnabledByType(request.type)) {
+      return responseFactory.build({
+        key: 'notifications.publishInAppNotification',
+        data: {
+          outcome: 'suppressed_preference_filtered',
+          dedupKey,
+          occurredAt: nowIso,
+        } satisfies NotificationPublishResult,
+      });
+    }
+
+    const withinCurrentMinute = notificationPublishHistory.filter((entry) => nowMs - entry.createdAtMs < 60_000);
+    if (withinCurrentMinute.length >= NOTIFICATION_RATE_LIMIT_PER_MINUTE) {
+      return responseFactory.build({
+        key: 'notifications.publishInAppNotification',
+        data: {
+          outcome: 'suppressed_rate_limited',
+          dedupKey,
+          occurredAt: nowIso,
+        } satisfies NotificationPublishResult,
+      });
+    }
+
+    const duplicate = notificationRecords.find((entry) => {
+      const createdAtMs = entry.createdAt ? asMillis(entry.createdAt) : 0;
+      return entry.dedupKey === dedupKey && nowMs - createdAtMs <= dedupWindowMs;
+    });
+
+    if (duplicate) {
+      return responseFactory.build({
+        key: 'notifications.publishInAppNotification',
+        data: {
+          outcome: 'suppressed_deduplicated',
+          notificationId: duplicate.notificationId,
+          dedupKey,
+          occurredAt: nowIso,
+        } satisfies NotificationPublishResult,
+      });
+    }
+
+    const notificationId = `notification-${notificationRecords.length + 1}`;
+    notificationRecords.push({
+      notificationId,
+      userId: currentUser.uid,
+      type: request.type,
+      title: request.title,
+      body: request.body,
+      eventId: request.eventId,
+      eventType: request.eventType,
+      dedupKey,
+      read: false,
+      createdAt: nowIso,
+      updatedAt: nowIso,
+    });
+    notificationPublishHistory.push({ dedupKey, createdAtMs: nowMs });
+
+    return responseFactory.build({
+      key: 'notifications.publishInAppNotification',
+      data: {
+        outcome: 'created',
+        notificationId,
+        dedupKey,
+        occurredAt: nowIso,
+      } satisfies NotificationPublishResult,
+    });
   };
 
   const services: BackendServiceContracts = {
@@ -1478,15 +1640,61 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       },
     },
     notifications: {
-      getNotifications: async () => {
-        const notifications: NotificationRecord[] = [];
-        return responseFactory.build({ key: 'notifications.getNotifications', data: notifications });
-      },
-      markAsRead: async (notificationId) =>
+      listNotifications: async (request) =>
         responseFactory.build({
+          key: 'notifications.listNotifications',
+          data: listNotifications(request),
+        }),
+      markNotificationRead: async (notificationId) => markNotificationRead(notificationId),
+      getNotificationPreferences: async () =>
+        responseFactory.build({
+          key: 'notifications.getNotificationPreferences',
+          data: notificationPreferences,
+        }),
+      updateNotificationPreferences: async (preferences) => {
+        notificationPreferences = {
+          ...notificationPreferences,
+          ...preferences,
+          updatedAt: clock.now(),
+        };
+
+        return responseFactory.build({
+          key: 'notifications.updateNotificationPreferences',
+          data: notificationPreferences,
+        });
+      },
+      getDedupWindowConfig: async () =>
+        responseFactory.build({
+          key: 'notifications.getDedupWindowConfig',
+          data: {
+            dedupWindowSeconds: NOTIFICATION_DEDUP_WINDOW_SECONDS,
+            maxNotificationsPerMinute: NOTIFICATION_RATE_LIMIT_PER_MINUTE,
+          },
+        }),
+      publishInAppNotification: async (request) => publishInAppNotification(request),
+      getNotifications: async () =>
+        responseFactory.build({
+          key: 'notifications.getNotifications',
+          data: listNotifications().items,
+        }),
+      markAsRead: async (notificationId) => {
+        const response = markNotificationRead(notificationId);
+
+        if (response.status === 'FAIL') {
+          return responseFactory.build({
+            key: 'notifications.markAsRead',
+            data: { notificationId, read: true },
+            scenario: response.error.code,
+            errorMessage: response.error.message,
+            details: response.error.details,
+          });
+        }
+
+        return responseFactory.build({
           key: 'notifications.markAsRead',
           data: { notificationId, read: true },
-        }),
+        });
+      },
     },
     analytics: {
       getVenueAnalytics: async (venueId) => {

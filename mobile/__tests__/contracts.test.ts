@@ -195,6 +195,54 @@ describe('backend service contracts', () => {
         onEnforcementEvent: () => () => {},
       },
       notifications: {
+        listNotifications: async () => ({ status: 'SUCCESS', request_id: 'req-20a', data: { items: [] } }),
+        markNotificationRead: async () => ({
+          status: 'SUCCESS',
+          request_id: 'req-20b',
+          data: { notificationId: 'n1', read: true, readAt: '2026-03-18T00:00:00Z' },
+        }),
+        getNotificationPreferences: async () => ({
+          status: 'SUCCESS',
+          request_id: 'req-20c',
+          data: {
+            matchNotifications: true,
+            messageNotifications: true,
+            venueNotifications: true,
+            safetyNotifications: true,
+            systemNotifications: true,
+            updatedAt: '2026-03-18T00:00:00Z',
+          },
+        }),
+        updateNotificationPreferences: async () => ({
+          status: 'SUCCESS',
+          request_id: 'req-20d',
+          data: {
+            matchNotifications: true,
+            messageNotifications: false,
+            venueNotifications: true,
+            safetyNotifications: true,
+            systemNotifications: true,
+            updatedAt: '2026-03-18T00:01:00Z',
+          },
+        }),
+        getDedupWindowConfig: async () => ({
+          status: 'SUCCESS',
+          request_id: 'req-20e',
+          data: {
+            dedupWindowSeconds: 30,
+            maxNotificationsPerMinute: 20,
+          },
+        }),
+        publishInAppNotification: async () => ({
+          status: 'SUCCESS',
+          request_id: 'req-20f',
+          data: {
+            outcome: 'created',
+            notificationId: 'n-created-1',
+            dedupKey: 'u1+MESSAGE_SENT+evt-1',
+            occurredAt: '2026-03-18T00:02:00Z',
+          },
+        }),
         getNotifications: async () => ({ status: 'SUCCESS', request_id: 'req-20', data: [] }),
         markAsRead: async () => ({ status: 'SUCCESS', request_id: 'req-21', data: { notificationId: 'n1', read: true } }),
       },
