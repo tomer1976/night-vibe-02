@@ -69,7 +69,7 @@
 
 ## Firebase Tasks (if applicable)
 - [x] Keep Firebase adapters disabled in Phase 1 mode.
-- [ ] Add placeholder DTO mappings for future chat/safety/notification endpoints.
+- [x] Add placeholder DTO mappings for future chat/safety/notification endpoints.
 
 ## Mock-Data Tasks
 - [ ] Create mock chat thread/message fixture sets with delivery/read states.
