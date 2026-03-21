@@ -10,6 +10,9 @@ export type AdapterPlaceholderConfig = {
   discoveryAdapterMode: AdapterMode;
   interactionsAdapterMode: AdapterMode;
   matchAdapterMode: AdapterMode;
+  chatAdapterMode: AdapterMode;
+  safetyAdapterMode: AdapterMode;
+  notificationsAdapterMode: AdapterMode;
 };
 
 function readEnvVariable(variableName: string): string {
@@ -37,6 +40,9 @@ export function readAdapterPlaceholderConfig(): AdapterPlaceholderConfig {
     discoveryAdapterMode: resolveAdapterMode(readEnvVariable('EXPO_PUBLIC_DISCOVERY_ADAPTER')),
     interactionsAdapterMode: resolveAdapterMode(readEnvVariable('EXPO_PUBLIC_INTERACTIONS_ADAPTER')),
     matchAdapterMode: resolveAdapterMode(readEnvVariable('EXPO_PUBLIC_MATCH_ADAPTER')),
+    chatAdapterMode: resolveAdapterMode(readEnvVariable('EXPO_PUBLIC_CHAT_ADAPTER')),
+    safetyAdapterMode: resolveAdapterMode(readEnvVariable('EXPO_PUBLIC_SAFETY_ADAPTER')),
+    notificationsAdapterMode: resolveAdapterMode(readEnvVariable('EXPO_PUBLIC_NOTIFICATIONS_ADAPTER')),
   };
 }
 
@@ -50,11 +56,14 @@ export function assertPhase1AdapterSafety(runtimeMode: RuntimeMode, adapterConfi
       adapterConfig.presenceAdapterMode !== 'mock' ||
       adapterConfig.discoveryAdapterMode !== 'mock' ||
       adapterConfig.interactionsAdapterMode !== 'mock' ||
-      adapterConfig.matchAdapterMode !== 'mock'
+      adapterConfig.matchAdapterMode !== 'mock' ||
+      adapterConfig.chatAdapterMode !== 'mock' ||
+      adapterConfig.safetyAdapterMode !== 'mock' ||
+      adapterConfig.notificationsAdapterMode !== 'mock'
     )
   ) {
     throw new Error(
-      'Phase 1 mock mode requires mock auth/profile/venues/presence/discovery/interactions/match adapters. Set EXPO_PUBLIC_AUTH_ADAPTER, EXPO_PUBLIC_PROFILE_ADAPTER, EXPO_PUBLIC_VENUES_ADAPTER, EXPO_PUBLIC_PRESENCE_ADAPTER, EXPO_PUBLIC_DISCOVERY_ADAPTER, EXPO_PUBLIC_INTERACTIONS_ADAPTER, and EXPO_PUBLIC_MATCH_ADAPTER to mock.'
+      'Phase 1 mock mode requires mock auth/profile/venues/presence/discovery/interactions/match/chat/safety/notifications adapters. Set EXPO_PUBLIC_AUTH_ADAPTER, EXPO_PUBLIC_PROFILE_ADAPTER, EXPO_PUBLIC_VENUES_ADAPTER, EXPO_PUBLIC_PRESENCE_ADAPTER, EXPO_PUBLIC_DISCOVERY_ADAPTER, EXPO_PUBLIC_INTERACTIONS_ADAPTER, EXPO_PUBLIC_MATCH_ADAPTER, EXPO_PUBLIC_CHAT_ADAPTER, EXPO_PUBLIC_SAFETY_ADAPTER, and EXPO_PUBLIC_NOTIFICATIONS_ADAPTER to mock.'
     );
   }
 }

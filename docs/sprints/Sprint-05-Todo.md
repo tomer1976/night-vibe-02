@@ -68,7 +68,7 @@
 - [x] Define `NotificationService` interface for list/read/preferences/dedup operations.
 
 ## Firebase Tasks (if applicable)
-- [ ] Keep Firebase adapters disabled in Phase 1 mode.
+- [x] Keep Firebase adapters disabled in Phase 1 mode.
 - [ ] Add placeholder DTO mappings for future chat/safety/notification endpoints.
 
 ## Mock-Data Tasks

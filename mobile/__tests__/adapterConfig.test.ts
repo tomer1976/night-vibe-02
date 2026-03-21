@@ -18,6 +18,9 @@ describe('adapter placeholder config', () => {
     delete process.env.EXPO_PUBLIC_DISCOVERY_ADAPTER;
     delete process.env.EXPO_PUBLIC_INTERACTIONS_ADAPTER;
     delete process.env.EXPO_PUBLIC_MATCH_ADAPTER;
+    delete process.env.EXPO_PUBLIC_CHAT_ADAPTER;
+    delete process.env.EXPO_PUBLIC_SAFETY_ADAPTER;
+    delete process.env.EXPO_PUBLIC_NOTIFICATIONS_ADAPTER;
   });
 
   afterAll(() => {
@@ -37,6 +40,9 @@ describe('adapter placeholder config', () => {
       discoveryAdapterMode: 'mock',
       interactionsAdapterMode: 'mock',
       matchAdapterMode: 'mock',
+      chatAdapterMode: 'mock',
+      safetyAdapterMode: 'mock',
+      notificationsAdapterMode: 'mock',
     });
   });
 
@@ -48,6 +54,9 @@ describe('adapter placeholder config', () => {
     process.env.EXPO_PUBLIC_DISCOVERY_ADAPTER = 'firebase';
     process.env.EXPO_PUBLIC_INTERACTIONS_ADAPTER = 'firebase';
     process.env.EXPO_PUBLIC_MATCH_ADAPTER = 'firebase';
+    process.env.EXPO_PUBLIC_CHAT_ADAPTER = 'firebase';
+    process.env.EXPO_PUBLIC_SAFETY_ADAPTER = 'firebase';
+    process.env.EXPO_PUBLIC_NOTIFICATIONS_ADAPTER = 'firebase';
 
     expect(readAdapterPlaceholderConfig()).toEqual({
       authAdapterMode: 'firebase',
@@ -57,6 +66,9 @@ describe('adapter placeholder config', () => {
       discoveryAdapterMode: 'firebase',
       interactionsAdapterMode: 'firebase',
       matchAdapterMode: 'firebase',
+      chatAdapterMode: 'firebase',
+      safetyAdapterMode: 'firebase',
+      notificationsAdapterMode: 'firebase',
     });
   });
 
@@ -70,8 +82,11 @@ describe('adapter placeholder config', () => {
         discoveryAdapterMode: 'mock',
         interactionsAdapterMode: 'mock',
         matchAdapterMode: 'mock',
+        chatAdapterMode: 'mock',
+        safetyAdapterMode: 'mock',
+        notificationsAdapterMode: 'mock',
       })
-    ).toThrow('Phase 1 mock mode requires mock auth/profile/venues/presence/discovery/interactions/match adapters.');
+    ).toThrow('Phase 1 mock mode requires mock auth/profile/venues/presence/discovery/interactions/match/chat/safety/notifications adapters.');
 
     expect(() =>
       assertPhase1AdapterSafety('phase1-mock', {
@@ -82,8 +97,11 @@ describe('adapter placeholder config', () => {
         discoveryAdapterMode: 'mock',
         interactionsAdapterMode: 'mock',
         matchAdapterMode: 'mock',
+        chatAdapterMode: 'mock',
+        safetyAdapterMode: 'mock',
+        notificationsAdapterMode: 'mock',
       })
-    ).toThrow('Phase 1 mock mode requires mock auth/profile/venues/presence/discovery/interactions/match adapters.');
+    ).toThrow('Phase 1 mock mode requires mock auth/profile/venues/presence/discovery/interactions/match/chat/safety/notifications adapters.');
 
     expect(() =>
       assertPhase1AdapterSafety('phase1-mock', {
@@ -94,8 +112,56 @@ describe('adapter placeholder config', () => {
         discoveryAdapterMode: 'firebase',
         interactionsAdapterMode: 'mock',
         matchAdapterMode: 'mock',
+        chatAdapterMode: 'mock',
+        safetyAdapterMode: 'mock',
+        notificationsAdapterMode: 'mock',
       })
-    ).toThrow('Phase 1 mock mode requires mock auth/profile/venues/presence/discovery/interactions/match adapters.');
+    ).toThrow('Phase 1 mock mode requires mock auth/profile/venues/presence/discovery/interactions/match/chat/safety/notifications adapters.');
+
+    expect(() =>
+      assertPhase1AdapterSafety('phase1-mock', {
+        authAdapterMode: 'mock',
+        profileAdapterMode: 'mock',
+        venuesAdapterMode: 'mock',
+        presenceAdapterMode: 'mock',
+        discoveryAdapterMode: 'mock',
+        interactionsAdapterMode: 'mock',
+        matchAdapterMode: 'mock',
+        chatAdapterMode: 'firebase',
+        safetyAdapterMode: 'mock',
+        notificationsAdapterMode: 'mock',
+      })
+    ).toThrow('Phase 1 mock mode requires mock auth/profile/venues/presence/discovery/interactions/match/chat/safety/notifications adapters.');
+
+    expect(() =>
+      assertPhase1AdapterSafety('phase1-mock', {
+        authAdapterMode: 'mock',
+        profileAdapterMode: 'mock',
+        venuesAdapterMode: 'mock',
+        presenceAdapterMode: 'mock',
+        discoveryAdapterMode: 'mock',
+        interactionsAdapterMode: 'mock',
+        matchAdapterMode: 'mock',
+        chatAdapterMode: 'mock',
+        safetyAdapterMode: 'firebase',
+        notificationsAdapterMode: 'mock',
+      })
+    ).toThrow('Phase 1 mock mode requires mock auth/profile/venues/presence/discovery/interactions/match/chat/safety/notifications adapters.');
+
+    expect(() =>
+      assertPhase1AdapterSafety('phase1-mock', {
+        authAdapterMode: 'mock',
+        profileAdapterMode: 'mock',
+        venuesAdapterMode: 'mock',
+        presenceAdapterMode: 'mock',
+        discoveryAdapterMode: 'mock',
+        interactionsAdapterMode: 'mock',
+        matchAdapterMode: 'mock',
+        chatAdapterMode: 'mock',
+        safetyAdapterMode: 'mock',
+        notificationsAdapterMode: 'firebase',
+      })
+    ).toThrow('Phase 1 mock mode requires mock auth/profile/venues/presence/discovery/interactions/match/chat/safety/notifications adapters.');
   });
 
   it('allows firebase placeholders outside phase1 mock mode', () => {
@@ -108,6 +174,9 @@ describe('adapter placeholder config', () => {
         discoveryAdapterMode: 'firebase',
         interactionsAdapterMode: 'firebase',
         matchAdapterMode: 'firebase',
+        chatAdapterMode: 'firebase',
+        safetyAdapterMode: 'firebase',
+        notificationsAdapterMode: 'firebase',
       })
     ).not.toThrow();
   });
