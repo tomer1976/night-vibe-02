@@ -110,6 +110,7 @@ describe('venue details screen', () => {
     await enterFirstVenueDetailsViaCheckIn(screen);
     expect(await findByText('Matches')).toBeTruthy();
     fireEvent.press(getByText('Matches'));
+    expect(await findByText('Active Matches')).toBeTruthy();
     expect(getAllByText('View profile').length).toBeGreaterThan(0);
     fireEvent.press(await findByText('Jordan • 27 • female'));
 
@@ -319,6 +320,7 @@ describe('venue details screen', () => {
     await enterFirstVenueDetailsViaCheckIn(screen);
     fireEvent.press(await screen.findByText('Matches'));
 
+    expect(await screen.findByText('Expired Matches')).toBeTruthy();
     expect(await screen.findByText('Sky • 27 • female')).toBeTruthy();
     expect(await screen.findByText('Match Status: expired')).toBeTruthy();
   });

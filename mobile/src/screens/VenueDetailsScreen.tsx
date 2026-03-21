@@ -283,6 +283,21 @@ export function VenueDetailsScreen() {
     [interactionSnapshot.hiddenMatchIds, matches]
   );
 
+  const activeMatches = useMemo(
+    () => visibleMatches.filter((match) => match.status === 'matched'),
+    [visibleMatches]
+  );
+
+  const expiredMatches = useMemo(
+    () => visibleMatches.filter((match) => match.status === 'expired'),
+    [visibleMatches]
+  );
+
+  const blockedMatches = useMemo(
+    () => visibleMatches.filter((match) => match.status === 'blocked'),
+    [visibleMatches]
+  );
+
   const handleVenueAction = useCallback(async () => {
     if (!venue || isSubmittingAction) {
       return;
@@ -494,58 +509,159 @@ export function VenueDetailsScreen() {
                       onAction={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))}
                       title="No Matches"
                     />
+                  ) : visibleMatches.length === 0 ? (
+                    <EmptyStateTemplate
+                      actionLabel="Open Nearby Venues"
+                      message="No matches are available in this venue right now."
+                      onAction={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))}
+                      title="No Matches"
+                    />
                   ) : (
-                    visibleMatches.length === 0 ? (
-                      <EmptyStateTemplate
-                        actionLabel="Open Nearby Venues"
-                        message="No matches are available in this venue right now."
-                        onAction={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))}
-                        title="No Matches"
-                      />
-                    ) : (
-                      <View style={{ gap: theme.spacing.sm }}>
-                        {visibleMatches.map((match) => {
-                          return (
-                            <View key={match.matchId} style={{ gap: theme.spacing.xs }}>
-                              <DiscoveryCandidateCard
-                                actionLabel="View profile"
-                                imageSource={resolveUserPhotoSource(match.counterpart)}
-                                onPress={() => {
-                                  navigation.dispatch(
-                                    StackActions.push(ROUTE_NAMES.DiscoveryProfilePreview, {
-                                      venueId: match.venueId,
-                                      source: 'match',
-                                      userId: match.counterpart.userId,
-                                      displayName: match.counterpart.displayName,
-                                      age: match.counterpart.age,
-                                      gender: match.counterpart.gender,
-                                      profilePhotoUrl: match.counterpart.profilePhotoUrl,
-                                      matchId: match.matchId,
-                                    })
-                                  );
-                                }}
-                                statusLabel={`Match Status: ${formatMatchStatusLabel(match.status)}`}
-                                statusTone={toMatchStatusTone(match.status)}
-                                title={`${match.counterpart.displayName} • ${match.counterpart.age} • ${formatGenderLabel(match.counterpart.gender)}`}
-                              />
-                              <Button
-                                label="Open chat"
-                                onPress={() => {
-                                  navigation.dispatch(
-                                    StackActions.push(ROUTE_NAMES.ChatThreads, {
-                                      venueId: match.venueId,
-                                      matchId: match.matchId,
-                                      openConversation: true,
-                                    })
-                                  );
-                                }}
-                                variant="secondary"
-                              />
-                            </View>
-                          );
-                        })}
-                      </View>
-                    )
+                    <View style={{ gap: theme.spacing.md }}>
+                      {activeMatches.length > 0 ? (
+                        <View style={{ gap: theme.spacing.sm }}>
+                          <Text accessibilityRole="header" style={{ color: theme.colors.textPrimary, fontSize: theme.typography.body }}>
+                            Active Matches
+                          </Text>
+                          {activeMatches.map((match) => {
+                            return (
+                              <View key={match.matchId} style={{ gap: theme.spacing.xs }}>
+                                <DiscoveryCandidateCard
+                                  actionLabel="View profile"
+                                  imageSource={resolveUserPhotoSource(match.counterpart)}
+                                  onPress={() => {
+                                    navigation.dispatch(
+                                      StackActions.push(ROUTE_NAMES.DiscoveryProfilePreview, {
+                                        venueId: match.venueId,
+                                        source: 'match',
+                                        userId: match.counterpart.userId,
+                                        displayName: match.counterpart.displayName,
+                                        age: match.counterpart.age,
+                                        gender: match.counterpart.gender,
+                                        profilePhotoUrl: match.counterpart.profilePhotoUrl,
+                                        matchId: match.matchId,
+                                      })
+                                    );
+                                  }}
+                                  statusLabel={`Match Status: ${formatMatchStatusLabel(match.status)}`}
+                                  statusTone={toMatchStatusTone(match.status)}
+                                  title={`${match.counterpart.displayName} • ${match.counterpart.age} • ${formatGenderLabel(match.counterpart.gender)}`}
+                                />
+                                <Button
+                                  label="Open chat"
+                                  onPress={() => {
+                                    navigation.dispatch(
+                                      StackActions.push(ROUTE_NAMES.ChatThreads, {
+                                        venueId: match.venueId,
+                                        matchId: match.matchId,
+                                        openConversation: true,
+                                      })
+                                    );
+                                  }}
+                                  variant="secondary"
+                                />
+                              </View>
+                            );
+                          })}
+                        </View>
+                      ) : null}
+
+                      {expiredMatches.length > 0 ? (
+                        <View style={{ gap: theme.spacing.sm }}>
+                          <Text accessibilityRole="header" style={{ color: theme.colors.textPrimary, fontSize: theme.typography.body }}>
+                            Expired Matches
+                          </Text>
+                          {expiredMatches.map((match) => {
+                            return (
+                              <View key={match.matchId} style={{ gap: theme.spacing.xs }}>
+                                <DiscoveryCandidateCard
+                                  actionLabel="View profile"
+                                  imageSource={resolveUserPhotoSource(match.counterpart)}
+                                  onPress={() => {
+                                    navigation.dispatch(
+                                      StackActions.push(ROUTE_NAMES.DiscoveryProfilePreview, {
+                                        venueId: match.venueId,
+                                        source: 'match',
+                                        userId: match.counterpart.userId,
+                                        displayName: match.counterpart.displayName,
+                                        age: match.counterpart.age,
+                                        gender: match.counterpart.gender,
+                                        profilePhotoUrl: match.counterpart.profilePhotoUrl,
+                                        matchId: match.matchId,
+                                      })
+                                    );
+                                  }}
+                                  statusLabel={`Match Status: ${formatMatchStatusLabel(match.status)}`}
+                                  statusTone={toMatchStatusTone(match.status)}
+                                  title={`${match.counterpart.displayName} • ${match.counterpart.age} • ${formatGenderLabel(match.counterpart.gender)}`}
+                                />
+                                <Button
+                                  label="Open chat"
+                                  onPress={() => {
+                                    navigation.dispatch(
+                                      StackActions.push(ROUTE_NAMES.ChatThreads, {
+                                        venueId: match.venueId,
+                                        matchId: match.matchId,
+                                        openConversation: true,
+                                      })
+                                    );
+                                  }}
+                                  variant="secondary"
+                                />
+                              </View>
+                            );
+                          })}
+                        </View>
+                      ) : null}
+
+                      {blockedMatches.length > 0 ? (
+                        <View style={{ gap: theme.spacing.sm }}>
+                          <Text accessibilityRole="header" style={{ color: theme.colors.textPrimary, fontSize: theme.typography.body }}>
+                            Blocked Matches
+                          </Text>
+                          {blockedMatches.map((match) => {
+                            return (
+                              <View key={match.matchId} style={{ gap: theme.spacing.xs }}>
+                                <DiscoveryCandidateCard
+                                  actionLabel="View profile"
+                                  imageSource={resolveUserPhotoSource(match.counterpart)}
+                                  onPress={() => {
+                                    navigation.dispatch(
+                                      StackActions.push(ROUTE_NAMES.DiscoveryProfilePreview, {
+                                        venueId: match.venueId,
+                                        source: 'match',
+                                        userId: match.counterpart.userId,
+                                        displayName: match.counterpart.displayName,
+                                        age: match.counterpart.age,
+                                        gender: match.counterpart.gender,
+                                        profilePhotoUrl: match.counterpart.profilePhotoUrl,
+                                        matchId: match.matchId,
+                                      })
+                                    );
+                                  }}
+                                  statusLabel={`Match Status: ${formatMatchStatusLabel(match.status)}`}
+                                  statusTone={toMatchStatusTone(match.status)}
+                                  title={`${match.counterpart.displayName} • ${match.counterpart.age} • ${formatGenderLabel(match.counterpart.gender)}`}
+                                />
+                                <Button
+                                  label="Open chat"
+                                  onPress={() => {
+                                    navigation.dispatch(
+                                      StackActions.push(ROUTE_NAMES.ChatThreads, {
+                                        venueId: match.venueId,
+                                        matchId: match.matchId,
+                                        openConversation: true,
+                                      })
+                                    );
+                                  }}
+                                  variant="secondary"
+                                />
+                              </View>
+                            );
+                          })}
+                        </View>
+                      ) : null}
+                    </View>
                   )}
 
                 </View>

@@ -55,7 +55,7 @@
 - [x] Add regression tests for startup route, tab persistence, venue-only matches placement, and back-arrow behavior.
 
 ## Frontend Tasks
-- [ ] Refactor matches UI into Venue Details -> Matches tab (active/expired states).
+- [x] Refactor matches UI into Venue Details -> Matches tab (active/expired states).
 - [x] Implement Chat Threads list with latest message and status preview.
 - [ ] Implement Chat Conversation UI with composer, bubbles, and message states.
 - [ ] Implement Report User and Block Confirmation flows.
