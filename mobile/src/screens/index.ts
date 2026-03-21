@@ -1,6 +1,8 @@
 export { AccessDeniedScreen } from './AccessDeniedScreen';
 export { AccountDeletionRecoveryScreen } from './AccountDeletionRecoveryScreen';
 export { AccountSettingsScreen } from './AccountSettingsScreen';
+export { NotificationCenterScreen } from './NotificationCenterScreen';
+export { NotificationPreferencesScreen } from './NotificationPreferencesScreen';
 export { AdminEntryScreen } from './AdminEntryScreen';
 export { AuthEntryScreen } from './AuthEntryScreen';
 export { CheckInConfirmationScreen } from './CheckInConfirmationScreen';

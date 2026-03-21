@@ -8,6 +8,8 @@ import {
   DEFAULT_ACCOUNT_SETTINGS_DRAFT,
   DeleteAccountScreen,
   LinkedAccountsScreen,
+  NotificationCenterScreen,
+  NotificationPreferencesScreen,
   UserProfileScreen,
 } from '../src/screens';
 import { AppStateProvider } from '../src/state';
@@ -22,6 +24,8 @@ function AccountSettingsTestNavigator() {
         <NavigationContainer>
           <Stack.Navigator initialRouteName="AccountSettings" screenOptions={{ headerShown: false }}>
             <Stack.Screen component={AccountSettingsScreen} initialParams={{ draft: DEFAULT_ACCOUNT_SETTINGS_DRAFT }} name="AccountSettings" />
+            <Stack.Screen component={NotificationCenterScreen} name="NotificationCenter" />
+            <Stack.Screen component={NotificationPreferencesScreen} name="NotificationPreferences" />
             <Stack.Screen component={LinkedAccountsScreen} name="LinkedAccounts" />
             <Stack.Screen component={DeleteAccountScreen} name="DeleteAccount" />
             <Stack.Screen component={AccountDeletionRecoveryScreen} name="AccountDeletionRecovery" />
@@ -61,6 +65,17 @@ describe('account/settings screens', () => {
     fireEvent.press(getByText('Google Provider'));
 
     expect(getByText('At least one provider must remain linked.')).toBeTruthy();
+  });
+
+  it('navigates to notification center and preferences from account settings', async () => {
+    const { findByText, getByText } = render(<AccountSettingsTestNavigator />);
+
+    fireEvent.press(getByText('Notification Center Screen'));
+    expect(await findByText('Notification Center Screen')).toBeTruthy();
+
+    fireEvent.press(getByText('Notification Preferences'));
+    expect(await findByText('Notification Preferences Screen')).toBeTruthy();
+    expect(getByText('Match Notifications')).toBeTruthy();
   });
 
   it('validates deletion request confirmation token', () => {

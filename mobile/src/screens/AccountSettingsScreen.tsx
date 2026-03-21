@@ -72,6 +72,18 @@ export function AccountSettingsScreen() {
         </Card>
 
         <ListItem
+          onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.NotificationCenter))}
+          subtitle="Review in-app notifications and unread/read transitions"
+          title="Notification Center Screen"
+          trailingText="Open"
+        />
+        <ListItem
+          onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.NotificationPreferences))}
+          subtitle="Manage notification category preferences"
+          title="Notification Preferences Screen"
+          trailingText="Open"
+        />
+        <ListItem
           onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.LinkedAccounts))}
           subtitle="Link and unlink provider accounts"
           title="Linked Accounts Screen"

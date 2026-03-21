@@ -31,6 +31,8 @@ import { OnboardingPhotoUploadScreen } from '../screens/OnboardingPhotoUploadScr
 import { OnboardingPreferencesScreen } from '../screens/OnboardingPreferencesScreen';
 import { OnboardingTermsScreen } from '../screens/OnboardingTermsScreen';
 import { EditProfileScreen } from '../screens/EditProfileScreen';
+import { NotificationCenterScreen } from '../screens/NotificationCenterScreen';
+import { NotificationPreferencesScreen } from '../screens/NotificationPreferencesScreen';
 import { ProfilePhotosManagementScreen } from '../screens/ProfilePhotosManagementScreen';
 import { OwnerEntryScreen } from '../screens/OwnerEntryScreen';
 import { ProfileCompletionRequiredScreen } from '../screens/ProfileCompletionRequiredScreen';
@@ -180,6 +182,10 @@ export function AppNavigator() {
           {() => renderProtectedRoute('ProfilePhotosManagement', ProfilePhotosManagementScreen)}
         </Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.AccountSettings}>{() => renderProtectedRoute('AccountSettings', AccountSettingsScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.NotificationCenter}>{() => renderProtectedRoute('NotificationCenter', NotificationCenterScreen)}</Stack.Screen>
+        <Stack.Screen name={ROUTE_NAMES.NotificationPreferences}>
+          {() => renderProtectedRoute('NotificationPreferences', NotificationPreferencesScreen)}
+        </Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.LinkedAccounts}>{() => renderProtectedRoute('LinkedAccounts', LinkedAccountsScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.DeleteAccount}>{() => renderProtectedRoute('DeleteAccount', DeleteAccountScreen)}</Stack.Screen>
         <Stack.Screen name={ROUTE_NAMES.AccountDeletionRecovery}>

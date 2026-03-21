@@ -34,6 +34,8 @@ describe('route groups', () => {
       'EditProfile',
       'ProfilePhotosManagement',
       'AccountSettings',
+      'NotificationCenter',
+      'NotificationPreferences',
       'LinkedAccounts',
       'DeleteAccount',
       'AccountDeletionRecovery',
@@ -88,6 +90,8 @@ describe('route groups', () => {
       EditProfile: 'user',
       ProfilePhotosManagement: 'user',
       AccountSettings: 'user',
+      NotificationCenter: 'user',
+      NotificationPreferences: 'user',
       LinkedAccounts: 'user',
       DeleteAccount: 'user',
       AccountDeletionRecovery: 'user',
@@ -120,6 +124,8 @@ describe('route groups', () => {
     expect(canAccessRoute(ROUTE_NAMES.SafetyCenter, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.CheckInConfirmation, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.CheckoutConfirmation, regularUser)).toBe(true);
+    expect(canAccessRoute(ROUTE_NAMES.NotificationCenter, regularUser)).toBe(true);
+    expect(canAccessRoute(ROUTE_NAMES.NotificationPreferences, regularUser)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.OwnerGroup, venueOwner)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.ModeratorGroup, moderator)).toBe(true);
     expect(canAccessRoute(ROUTE_NAMES.AdminGroup, administrator)).toBe(true);
