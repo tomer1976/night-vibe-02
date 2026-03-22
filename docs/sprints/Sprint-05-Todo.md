@@ -93,7 +93,7 @@
 - [x] Implement top banner variant for main pages and back-arrow variant for non-main pages.
 
 ## State-Management Tasks
-- [ ] Implement chat store for threads, messages, and eligibility state.
+- [x] Implement chat store for threads, messages, and eligibility state.
 - [ ] Implement safety store for block/report and enforcement outcomes.
 - [ ] Implement notification store for read state and preference filters.
 - [ ] Implement event-bus handling for cross-surface state updates.

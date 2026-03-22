@@ -18,6 +18,18 @@ export {
   type VenueDiscoveryState,
 } from './AppStateProvider';
 export {
+  chatStoreReducer,
+  computeChatEligibilityResult,
+  createInitialChatStoreState,
+  selectChatEligibilityByChatId,
+  selectChatMessagesByChatId,
+  selectChatThreadById,
+  selectOrderedChatThreads,
+  type ChatEligibilityComputationInput,
+  type ChatStoreAction,
+  type ChatStoreState,
+} from './chatStore';
+export {
   createInitialDiscoveryFeedFilters,
   createInitialDiscoveryFeedStoreState,
   discoveryFeedStoreReducer,
