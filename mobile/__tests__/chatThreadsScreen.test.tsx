@@ -377,6 +377,15 @@ describe('chat threads screen', () => {
           },
           request_id: 'req-chat-send-expired',
         }),
+        getEligibility: async (chatId) => ({
+          status: 'SUCCESS',
+          data: {
+            chatId,
+            eligible: true,
+            evaluatedAt: '2026-03-22T10:00:00.000Z',
+          },
+          request_id: 'req-chat-eligibility-active',
+        }),
       },
     };
 

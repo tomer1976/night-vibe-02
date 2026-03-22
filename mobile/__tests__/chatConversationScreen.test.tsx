@@ -62,6 +62,23 @@ describe('chat conversation screen', () => {
   it('shows disabled composer reason when thread is blocked', async () => {
     const locator = createMockBackendServiceLocator();
 
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      chat: {
+        ...locator.services.chat,
+        getEligibility: async (chatId) => ({
+          status: 'SUCCESS',
+          data: {
+            chatId,
+            eligible: false,
+            reason: 'blocked',
+            evaluatedAt: '2026-03-22T10:00:00.000Z',
+          },
+          request_id: 'req-chat-eligibility-blocked',
+        }),
+      },
+    };
+
     const screen = render(
       <ChatConversationTestNavigator
         initialParams={{
@@ -71,7 +88,7 @@ describe('chat conversation screen', () => {
           threadStatus: 'blocked',
           venueId: 'v-midtown',
         }}
-        servicesOverride={locator.services}
+        servicesOverride={servicesOverride}
       />
     );
 
@@ -79,6 +96,86 @@ describe('chat conversation screen', () => {
     expect(await screen.findByText('Status: blocked')).toBeTruthy();
     expect(
       await screen.findByText('Chat is disabled because a safety block is active.')
+    ).toBeTruthy();
+    expect(screen.getByPlaceholderText('Chat is disabled.')).toBeTruthy();
+  });
+
+  it('shows not checked-in disabled reason when eligibility returns not_checked_in', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      chat: {
+        ...locator.services.chat,
+        getEligibility: async (chatId) => ({
+          status: 'SUCCESS',
+          data: {
+            chatId,
+            eligible: false,
+            reason: 'not_checked_in',
+            evaluatedAt: '2026-03-22T10:00:00.000Z',
+          },
+          request_id: 'req-chat-eligibility-not-checked-in',
+        }),
+      },
+    };
+
+    const screen = render(
+      <ChatConversationTestNavigator
+        initialParams={{
+          chatId: 'chat-no-session',
+          counterpartName: 'Parker',
+          matchId: 'match-no-session',
+          threadStatus: 'active',
+          venueId: 'v-midtown',
+        }}
+        servicesOverride={servicesOverride}
+      />
+    );
+
+    expect(await screen.findByText('Parker Conversation')).toBeTruthy();
+    expect(
+      await screen.findByText('Chat is disabled because no active venue session was found.')
+    ).toBeTruthy();
+    expect(screen.getByPlaceholderText('Chat is disabled.')).toBeTruthy();
+  });
+
+  it('shows moderation-action disabled reason when eligibility returns moderation_action', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      chat: {
+        ...locator.services.chat,
+        getEligibility: async (chatId) => ({
+          status: 'SUCCESS',
+          data: {
+            chatId,
+            eligible: false,
+            reason: 'moderation_action',
+            evaluatedAt: '2026-03-22T10:00:00.000Z',
+          },
+          request_id: 'req-chat-eligibility-moderation-action',
+        }),
+      },
+    };
+
+    const screen = render(
+      <ChatConversationTestNavigator
+        initialParams={{
+          chatId: 'chat-moderation',
+          counterpartName: 'Parker',
+          matchId: 'match-moderation',
+          threadStatus: 'active',
+          venueId: 'v-midtown',
+        }}
+        servicesOverride={servicesOverride}
+      />
+    );
+
+    expect(await screen.findByText('Parker Conversation')).toBeTruthy();
+    expect(
+      await screen.findByText('Chat is disabled due to a moderation action on this conversation.')
     ).toBeTruthy();
     expect(screen.getByPlaceholderText('Chat is disabled.')).toBeTruthy();
   });

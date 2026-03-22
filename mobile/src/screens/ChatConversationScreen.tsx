@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge, BottomNavShell, Button, Card, Input, TopBar } from '../components';
+import { ChatEligibilityFailureReason } from '../contracts';
 import { isChatEligibilityFailureCode, resolveChatEligibilityFallbackRoute } from '../navigation/chatEligibilityRouteGuard';
 import { isMainTabKey, MAIN_TAB_ITEMS, resolveMainTabRouteName } from '../navigation/mainTabs';
 import { shouldReplaceRoute } from '../navigation/replaceRouteGuard';
@@ -42,13 +43,25 @@ const DELIVERY_TONE: Record<LocalMessage['deliveryStatus'], 'info' | 'success' |
   failed: 'danger',
 };
 
-const getDisabledReasonLabel = (status: ChatConversationRouteParams['threadStatus']) => {
-  if (status === 'blocked') {
+const getDisabledReasonLabel = (reason: ChatEligibilityFailureReason | 'thread_blocked' | 'thread_expired' | undefined) => {
+  if (reason === 'blocked' || reason === 'thread_blocked') {
     return 'Chat is disabled because a safety block is active.';
   }
 
-  if (status === 'expired') {
-    return 'Chat is disabled because venue co-location or match eligibility ended.';
+  if (reason === 'moderation_action') {
+    return 'Chat is disabled due to a moderation action on this conversation.';
+  }
+
+  if (reason === 'left_venue') {
+    return 'Chat is disabled because you are no longer checked in at this venue.';
+  }
+
+  if (reason === 'not_checked_in') {
+    return 'Chat is disabled because no active venue session was found.';
+  }
+
+  if (reason === 'match_expired' || reason === 'thread_expired') {
+    return 'Chat is disabled because the match or co-location eligibility expired.';
   }
 
   return 'Send a mock message.';
@@ -78,7 +91,10 @@ const toStatusTone = (status: ChatConversationRouteParams['threadStatus']): 'suc
   return 'danger';
 };
 
-const isComposerDisabled = (status: ChatConversationRouteParams['threadStatus']) => status === 'expired' || status === 'blocked';
+const isComposerDisabled = (
+  status: ChatConversationRouteParams['threadStatus'],
+  reason: ChatEligibilityFailureReason | undefined
+) => status === 'expired' || status === 'blocked' || Boolean(reason);
 
 const formatStatusLabel = (status: ChatConversationRouteParams['threadStatus']) => {
   if (!status) {
@@ -103,6 +119,7 @@ export function ChatConversationScreen() {
 
   const [draftMessage, setDraftMessage] = useState('');
   const [sendStateText, setSendStateText] = useState<string | undefined>();
+  const [eligibilityFailureReason, setEligibilityFailureReason] = useState<ChatEligibilityFailureReason | undefined>();
   const [localMessages, setLocalMessages] = useState<LocalMessage[]>([
     {
       id: `${chatId}-seed-1`,
@@ -114,7 +131,25 @@ export function ChatConversationScreen() {
   ]);
   const activeDeliveryTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  const composerDisabled = isComposerDisabled(threadStatus);
+  const statusFallbackReason = useMemo<
+    ChatEligibilityFailureReason | 'thread_blocked' | 'thread_expired' | undefined
+  >(() => {
+    if (eligibilityFailureReason) {
+      return eligibilityFailureReason;
+    }
+
+    if (threadStatus === 'blocked') {
+      return 'thread_blocked';
+    }
+
+    if (threadStatus === 'expired') {
+      return 'thread_expired';
+    }
+
+    return undefined;
+  }, [eligibilityFailureReason, threadStatus]);
+
+  const composerDisabled = isComposerDisabled(threadStatus, eligibilityFailureReason);
 
   const canSend = useMemo(
     () => !composerDisabled && draftMessage.trim().length > 0,
@@ -131,7 +166,12 @@ export function ChatConversationScreen() {
 
       const response = await services.chat.getEligibility(params.chatId);
 
-      if (cancelled || response.status === 'SUCCESS') {
+      if (cancelled) {
+        return;
+      }
+
+      if (response.status === 'SUCCESS') {
+        setEligibilityFailureReason(response.data.eligible ? undefined : response.data.reason);
         return;
       }
 
@@ -298,7 +338,7 @@ export function ChatConversationScreen() {
 
             <Input
               editable={!composerDisabled}
-              helperText={getDisabledReasonLabel(threadStatus)}
+              helperText={getDisabledReasonLabel(statusFallbackReason)}
               label="Message"
               multiline
               onChangeText={setDraftMessage}

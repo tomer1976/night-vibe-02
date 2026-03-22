@@ -85,7 +85,7 @@
 - [x] Add route guards for ineligible chat sessions.
 
 ## UI Tasks
-- [ ] Build message composer disabled-state UI with reason labels.
+- [x] Build message composer disabled-state UI with reason labels.
 - [ ] Build delivery/read status indicators for message rows.
 - [ ] Build safety status banners and confirmation modals.
 - [ ] Build notification item variants by type and read status.
