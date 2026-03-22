@@ -203,6 +203,36 @@ export type Sprint05TypingIndicatorScenarioFixture = {
   expectedExpiresInMs: number;
 };
 
+export type Sprint05SafetyBlockFixture = {
+  fixtureId: string;
+  actorUserId: string;
+  targetUserId: string;
+  appliedAt: string;
+  chatAccessRevoked: boolean;
+  discoveryVisibilityRevoked: boolean;
+};
+
+export type Sprint05SafetyReportFixture = {
+  fixtureId: string;
+  reportId: string;
+  reporterUserId: string;
+  reportedUserId: string;
+  reason: string;
+  createdAt: string;
+  status: 'pending' | 'resolved';
+  moderationOutcomeId?: string;
+};
+
+export type Sprint05ModerationOutcomePlaceholderFixture = {
+  fixtureId: string;
+  moderationOutcomeId: string;
+  reportId: string;
+  action: 'warning' | 'suspension' | 'ban' | 'no_action';
+  status: 'pending' | 'resolved';
+  resolutionSummary: string;
+  resolvedAt?: string;
+};
+
 export type MockFixtureSet = {
   users: readonly MockFixtureUser[];
   roleContexts: readonly MockFixtureRoleContext[];
@@ -896,6 +926,84 @@ export const sprint05TypingIndicatorScenarioFixtures: readonly Sprint05TypingInd
     expectedExpiresInMs: 0,
   }),
 ]);
+
+export const sprint05SafetyBlockFixtures: readonly Sprint05SafetyBlockFixture[] = Object.freeze([
+  Object.freeze({
+    fixtureId: 's5-block-regular-owner',
+    actorUserId: 'u-regular-1',
+    targetUserId: 'u-owner-1',
+    appliedAt: '2026-03-08T19:40:00.000Z',
+    chatAccessRevoked: true,
+    discoveryVisibilityRevoked: true,
+  }),
+  Object.freeze({
+    fixtureId: 's5-block-owner-active',
+    actorUserId: 'u-owner-1',
+    targetUserId: 'u-persona-active-1',
+    appliedAt: '2026-03-08T20:10:00.000Z',
+    chatAccessRevoked: true,
+    discoveryVisibilityRevoked: true,
+  }),
+]);
+
+export const sprint05SafetyReportFixtures: readonly Sprint05SafetyReportFixture[] = Object.freeze([
+  Object.freeze({
+    fixtureId: 's5-report-pending-spam',
+    reportId: 'report-s5-001',
+    reporterUserId: 'u-regular-1',
+    reportedUserId: 'u-owner-1',
+    reason: 'spam',
+    createdAt: '2026-03-08T19:41:00.000Z',
+    status: 'pending',
+  }),
+  Object.freeze({
+    fixtureId: 's5-report-resolved-harassment',
+    reportId: 'report-s5-002',
+    reporterUserId: 'u-owner-1',
+    reportedUserId: 'u-persona-active-1',
+    reason: 'harassment',
+    createdAt: '2026-03-08T20:12:00.000Z',
+    status: 'resolved',
+    moderationOutcomeId: 'mod-outcome-s5-002',
+  }),
+]);
+
+export const sprint05ModerationOutcomePlaceholderFixtures: readonly Sprint05ModerationOutcomePlaceholderFixture[] =
+  Object.freeze([
+    Object.freeze({
+      fixtureId: 's5-mod-outcome-warning',
+      moderationOutcomeId: 'mod-outcome-s5-002',
+      reportId: 'report-s5-002',
+      action: 'warning',
+      status: 'resolved',
+      resolutionSummary: 'Warning issued after evidence review.',
+      resolvedAt: '2026-03-08T20:20:00.000Z',
+    }),
+    Object.freeze({
+      fixtureId: 's5-mod-outcome-suspension-placeholder',
+      moderationOutcomeId: 'mod-outcome-s5-003',
+      reportId: 'report-s5-003',
+      action: 'suspension',
+      status: 'pending',
+      resolutionSummary: 'Placeholder outcome pending moderation review workflow.',
+    }),
+    Object.freeze({
+      fixtureId: 's5-mod-outcome-ban-placeholder',
+      moderationOutcomeId: 'mod-outcome-s5-004',
+      reportId: 'report-s5-004',
+      action: 'ban',
+      status: 'pending',
+      resolutionSummary: 'Placeholder outcome pending escalation decision.',
+    }),
+    Object.freeze({
+      fixtureId: 's5-mod-outcome-no-action-placeholder',
+      moderationOutcomeId: 'mod-outcome-s5-005',
+      reportId: 'report-s5-005',
+      action: 'no_action',
+      status: 'pending',
+      resolutionSummary: 'Placeholder outcome pending insufficient evidence review.',
+    }),
+  ]);
 
 export const sprint02AuthPersonaFixtures: readonly Sprint02AuthPersonaFixture[] = Object.freeze([
   Object.freeze({

@@ -14,6 +14,9 @@ import {
   sprint04ReciprocalLikeScenarioFixtures,
   sprint04VenueSessionCandidateFixtures,
   sprint05TypingIndicatorScenarioFixtures,
+  sprint05SafetyBlockFixtures,
+  sprint05SafetyReportFixtures,
+  sprint05ModerationOutcomePlaceholderFixtures,
 } from '../src/mocks';
 
 describe('sprint01 fixtures', () => {
@@ -290,6 +293,57 @@ describe('sprint01 fixtures', () => {
     for (const scenario of sprint05TypingIndicatorScenarioFixtures) {
       expect(scenario.timeoutMs).toBeGreaterThanOrEqual(0);
       expect(scenario.timeoutMs).toBe(scenario.expectedExpiresInMs);
+    }
+  });
+
+  it('includes Sprint-05 block fixtures with immediate chat and discovery revocation flags', () => {
+    expect(sprint05SafetyBlockFixtures.length).toBeGreaterThanOrEqual(2);
+
+    const fixtureUserIds = new Set(sprint01Fixtures.users.map((user) => user.uid));
+
+    for (const fixture of sprint05SafetyBlockFixtures) {
+      expect(fixtureUserIds.has(fixture.actorUserId)).toBe(true);
+      expect(fixtureUserIds.has(fixture.targetUserId)).toBe(true);
+      expect(fixture.actorUserId).not.toBe(fixture.targetUserId);
+      expect(fixture.chatAccessRevoked).toBe(true);
+      expect(fixture.discoveryVisibilityRevoked).toBe(true);
+    }
+  });
+
+  it('includes Sprint-05 report fixtures with pending and resolved moderation linkage coverage', () => {
+    expect(sprint05SafetyReportFixtures.length).toBeGreaterThanOrEqual(2);
+
+    const fixtureUserIds = new Set(sprint01Fixtures.users.map((user) => user.uid));
+    const statuses = new Set(sprint05SafetyReportFixtures.map((fixture) => fixture.status));
+
+    expect(statuses).toEqual(new Set(['pending', 'resolved']));
+
+    for (const fixture of sprint05SafetyReportFixtures) {
+      expect(fixtureUserIds.has(fixture.reporterUserId)).toBe(true);
+      expect(fixtureUserIds.has(fixture.reportedUserId)).toBe(true);
+      expect(fixture.reporterUserId).not.toBe(fixture.reportedUserId);
+      expect(fixture.reason.length).toBeGreaterThan(0);
+      if (fixture.status === 'resolved') {
+        expect(fixture.moderationOutcomeId).toBeDefined();
+      }
+    }
+  });
+
+  it('includes Sprint-05 moderation outcome placeholders for all action categories', () => {
+    expect(sprint05ModerationOutcomePlaceholderFixtures.length).toBeGreaterThanOrEqual(4);
+
+    const reportIds = new Set(sprint05SafetyReportFixtures.map((fixture) => fixture.reportId));
+    const actions = new Set(sprint05ModerationOutcomePlaceholderFixtures.map((fixture) => fixture.action));
+    const linkedToKnownReport = sprint05ModerationOutcomePlaceholderFixtures.some((fixture) => reportIds.has(fixture.reportId));
+
+    expect(actions).toEqual(new Set(['warning', 'suspension', 'ban', 'no_action']));
+    expect(linkedToKnownReport).toBe(true);
+
+    for (const fixture of sprint05ModerationOutcomePlaceholderFixtures) {
+      if (fixture.status === 'resolved') {
+        expect(fixture.resolvedAt).toBeDefined();
+      }
+      expect(fixture.resolutionSummary.length).toBeGreaterThan(0);
     }
   });
 });
