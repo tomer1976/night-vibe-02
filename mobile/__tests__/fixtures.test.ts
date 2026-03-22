@@ -13,6 +13,7 @@ import {
   sprint04PreferenceCompatibilityFixtures,
   sprint04ReciprocalLikeScenarioFixtures,
   sprint04VenueSessionCandidateFixtures,
+  sprint05TypingIndicatorScenarioFixtures,
 } from '../src/mocks';
 
 describe('sprint01 fixtures', () => {
@@ -266,6 +267,29 @@ describe('sprint01 fixtures', () => {
       expect(sessionIds.has(interaction.actorSessionId)).toBe(true);
       expect(sessionIds.has(interaction.targetSessionId)).toBe(true);
       expect(interaction.actorUserId).not.toBe(interaction.targetUserId);
+    }
+  });
+
+  it('includes Sprint-05 typing indicator timeout scenarios for active, blocked, and expired states', () => {
+    expect(sprint05TypingIndicatorScenarioFixtures.length).toBeGreaterThanOrEqual(4);
+
+    const startScenarioStatuses = new Set(
+      sprint05TypingIndicatorScenarioFixtures
+        .filter((fixture) => fixture.typing)
+        .map((fixture) => fixture.threadStatus)
+    );
+
+    expect(startScenarioStatuses).toEqual(new Set(['active', 'expired', 'blocked']));
+
+    const hasImmediateStopScenario = sprint05TypingIndicatorScenarioFixtures.some(
+      (fixture) => !fixture.typing && fixture.threadStatus === 'any' && fixture.timeoutMs === 0
+    );
+
+    expect(hasImmediateStopScenario).toBe(true);
+
+    for (const scenario of sprint05TypingIndicatorScenarioFixtures) {
+      expect(scenario.timeoutMs).toBeGreaterThanOrEqual(0);
+      expect(scenario.timeoutMs).toBe(scenario.expectedExpiresInMs);
     }
   });
 });

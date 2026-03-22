@@ -1,4 +1,5 @@
 import { createMockBackendServiceLocator } from '../src/services';
+import { sprint05TypingIndicatorScenarioFixtures } from '../src/mocks';
 
 describe('chat service lifecycle contract', () => {
   it('returns chat eligibility and lifecycle transitions for active thread messages', async () => {
@@ -83,5 +84,52 @@ describe('chat service lifecycle contract', () => {
     }
 
     expect(response.error.code).toBe('CHAT_EXPIRED');
+  });
+
+  it('uses deterministic typing indicator timeout fixtures', async () => {
+    const locator = createMockBackendServiceLocator();
+    const threadsResponse = await locator.services.chat.getThreads();
+
+    expect(threadsResponse.status).toBe('SUCCESS');
+    if (threadsResponse.status !== 'SUCCESS') {
+      throw new Error('Expected successful threads response.');
+    }
+
+    const [thread] = threadsResponse.data;
+    const activeStartScenario = sprint05TypingIndicatorScenarioFixtures.find(
+      (fixture) => fixture.typing && fixture.threadStatus === 'active'
+    );
+    const stopScenario = sprint05TypingIndicatorScenarioFixtures.find(
+      (fixture) => !fixture.typing && fixture.threadStatus === 'any'
+    );
+
+    expect(activeStartScenario).toBeDefined();
+    expect(stopScenario).toBeDefined();
+
+    const startBaselineIso = locator.clock.peek();
+    const startResponse = await locator.services.chat.setTypingIndicator(thread.chatId, true);
+
+    expect(startResponse.status).toBe('SUCCESS');
+    if (startResponse.status !== 'SUCCESS' || !activeStartScenario) {
+      throw new Error('Expected successful typing start response.');
+    }
+
+    expect(startResponse.data.typing).toBe(true);
+    expect(startResponse.data.expiresAt).toBe(
+      new Date(new Date(startBaselineIso).getTime() + activeStartScenario.timeoutMs).toISOString()
+    );
+
+    const stopBaselineIso = locator.clock.peek();
+    const stopResponse = await locator.services.chat.setTypingIndicator(thread.chatId, false);
+
+    expect(stopResponse.status).toBe('SUCCESS');
+    if (stopResponse.status !== 'SUCCESS' || !stopScenario) {
+      throw new Error('Expected successful typing stop response.');
+    }
+
+    expect(stopResponse.data.typing).toBe(false);
+    expect(stopResponse.data.expiresAt).toBe(
+      new Date(new Date(stopBaselineIso).getTime() + stopScenario.timeoutMs).toISOString()
+    );
   });
 });

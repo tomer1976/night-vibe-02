@@ -30,6 +30,7 @@ export {
   sprint02ProfileFixtures,
   sprint05ChatMessageFixturesByStatus,
   sprint05ChatThreadFixtures,
+  sprint05TypingIndicatorScenarioFixtures,
   type MockDiscoveryCoordinates,
   type MockFixtureInteraction,
   type MockFixtureRoleContext,
@@ -55,4 +56,5 @@ export {
   type Sprint05ChatSenderRole,
   type Sprint05ChatThreadFixture,
   type Sprint05ChatThreadStatus,
+  type Sprint05TypingIndicatorScenarioFixture,
 } from './fixtures';

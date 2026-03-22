@@ -195,6 +195,14 @@ export type Sprint05ChatThreadFixture = {
   latestMessageKey: string;
 };
 
+export type Sprint05TypingIndicatorScenarioFixture = {
+  scenarioId: string;
+  threadStatus: Sprint05ChatThreadStatus | 'any';
+  typing: boolean;
+  timeoutMs: number;
+  expectedExpiresInMs: number;
+};
+
 export type MockFixtureSet = {
   users: readonly MockFixtureUser[];
   roleContexts: readonly MockFixtureRoleContext[];
@@ -857,6 +865,37 @@ export const sprint05ChatMessageFixturesByStatus: Record<Sprint05ChatThreadStatu
     }),
   ]),
 });
+
+export const sprint05TypingIndicatorScenarioFixtures: readonly Sprint05TypingIndicatorScenarioFixture[] = Object.freeze([
+  Object.freeze({
+    scenarioId: 's5-typing-active-start',
+    threadStatus: 'active',
+    typing: true,
+    timeoutMs: 5_000,
+    expectedExpiresInMs: 5_000,
+  }),
+  Object.freeze({
+    scenarioId: 's5-typing-expired-start',
+    threadStatus: 'expired',
+    typing: true,
+    timeoutMs: 1_000,
+    expectedExpiresInMs: 1_000,
+  }),
+  Object.freeze({
+    scenarioId: 's5-typing-blocked-start',
+    threadStatus: 'blocked',
+    typing: true,
+    timeoutMs: 1_000,
+    expectedExpiresInMs: 1_000,
+  }),
+  Object.freeze({
+    scenarioId: 's5-typing-stop-immediate',
+    threadStatus: 'any',
+    typing: false,
+    timeoutMs: 0,
+    expectedExpiresInMs: 0,
+  }),
+]);
 
 export const sprint02AuthPersonaFixtures: readonly Sprint02AuthPersonaFixture[] = Object.freeze([
   Object.freeze({

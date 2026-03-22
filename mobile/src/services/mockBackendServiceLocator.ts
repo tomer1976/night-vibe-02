@@ -44,6 +44,7 @@ import {
   sprint02ProfileFixtures,
   sprint05ChatMessageFixturesByStatus,
   sprint05ChatThreadFixtures,
+  sprint05TypingIndicatorScenarioFixtures,
 } from '../mocks';
 
 type MockServiceLocatorOptions = {
@@ -585,6 +586,23 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
         sentAt,
       } satisfies ChatSendMessageResult,
     });
+  };
+
+  const resolveTypingIndicatorTimeoutMs = (chatId: string, typing: boolean) => {
+    const threadStatus = getChatThreads().find((entry) => entry.chatId === chatId)?.status ?? 'active';
+    const statusScenario = sprint05TypingIndicatorScenarioFixtures.find(
+      (fixture) => fixture.typing === typing && fixture.threadStatus === threadStatus
+    );
+
+    if (statusScenario) {
+      return statusScenario.timeoutMs;
+    }
+
+    const anyScenario = sprint05TypingIndicatorScenarioFixtures.find(
+      (fixture) => fixture.typing === typing && fixture.threadStatus === 'any'
+    );
+
+    return anyScenario?.timeoutMs ?? 0;
   };
 
   const markMessageLifecycle = (
@@ -1585,7 +1603,8 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       markMessageRead: async (chatId, messageId) => markMessageLifecycle(chatId, messageId, 'read'),
       setTypingIndicator: async (chatId, typing) => {
         const nowIso = clock.now();
-        const expiresAt = new Date(new Date(nowIso).getTime() + 5_000).toISOString();
+        const timeoutMs = resolveTypingIndicatorTimeoutMs(chatId, typing);
+        const expiresAt = new Date(new Date(nowIso).getTime() + timeoutMs).toISOString();
 
         return responseFactory.build({
           key: 'chat.setTypingIndicator',
