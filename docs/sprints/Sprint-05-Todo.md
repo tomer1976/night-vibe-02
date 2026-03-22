@@ -90,7 +90,7 @@
 - [x] Build safety status banners and confirmation modals.
 - [x] Build notification item variants by type and read status.
 - [x] Ensure dark-theme consistency and accessibility contrast.
-- [ ] Implement top banner variant for main pages and back-arrow variant for non-main pages.
+- [x] Implement top banner variant for main pages and back-arrow variant for non-main pages.
 
 ## State-Management Tasks
 - [ ] Implement chat store for threads, messages, and eligibility state.

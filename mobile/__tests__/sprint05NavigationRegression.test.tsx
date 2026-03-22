@@ -144,6 +144,49 @@ describe('sprint-05 navigation regressions', () => {
     expect(screen.getByTestId('bottom-nav-profile').props.accessibilityState?.selected).toBe(true);
   });
 
+  it('renders top banner variant on all main-tab pages without back arrow', async () => {
+    const servicesOverride = createMockBackendServiceLocator().services;
+    const screen = render(
+      <TestProviders servicesOverride={servicesOverride}>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName={ROUTE_NAMES.NearbyVenues} screenOptions={{ headerShown: false }}>
+            <Stack.Screen component={NearbyVenuesScreen} name={ROUTE_NAMES.NearbyVenues} />
+            <Stack.Screen component={ChatThreadsScreen} name={ROUTE_NAMES.ChatThreads} />
+            <Stack.Screen component={AccountSettingsScreen} name={ROUTE_NAMES.AccountSettings} />
+            <Stack.Screen component={UserProfileScreen} name={ROUTE_NAMES.UserProfile} />
+            <Stack.Screen component={VenueDetailsScreen} name={ROUTE_NAMES.VenueDetails} />
+            <Stack.Screen name={ROUTE_NAMES.CheckInConfirmation}>{() => <Text>Check-in Confirmation Stub</Text>}</Stack.Screen>
+            <Stack.Screen name={ROUTE_NAMES.ChatConversation}>{() => <Text>Chat Conversation Stub</Text>}</Stack.Screen>
+            <Stack.Screen name={ROUTE_NAMES.EditProfile}>{() => <Text>Edit Profile Stub</Text>}</Stack.Screen>
+            <Stack.Screen name={ROUTE_NAMES.ProfilePhotosManagement}>{() => <Text>Profile Photos Stub</Text>}</Stack.Screen>
+            <Stack.Screen name={ROUTE_NAMES.LinkedAccounts}>{() => <Text>Linked Accounts Stub</Text>}</Stack.Screen>
+            <Stack.Screen name={ROUTE_NAMES.DeleteAccount}>{() => <Text>Delete Account Stub</Text>}</Stack.Screen>
+            <Stack.Screen name={ROUTE_NAMES.AccountDeletionRecovery}>{() => <Text>Account Deletion Recovery Stub</Text>}</Stack.Screen>
+          </Stack.Navigator>
+        </NavigationContainer>
+      </TestProviders>
+    );
+
+    expect(await screen.findByText('Nearby Venues Screen')).toBeTruthy();
+    expect(screen.getByTestId('top-bar-main-tab-logo')).toBeTruthy();
+    expect(screen.queryByTestId('top-bar-back-button')).toBeNull();
+
+    fireEvent.press(screen.getByTestId('bottom-nav-chats'));
+    expect(await screen.findByText('Chat Threads Screen')).toBeTruthy();
+    expect(screen.getByTestId('top-bar-main-tab-logo')).toBeTruthy();
+    expect(screen.queryByTestId('top-bar-back-button')).toBeNull();
+
+    fireEvent.press(screen.getByTestId('bottom-nav-settings'));
+    expect(await screen.findByText('Account Settings Screen')).toBeTruthy();
+    expect(screen.getByTestId('top-bar-main-tab-logo')).toBeTruthy();
+    expect(screen.queryByTestId('top-bar-back-button')).toBeNull();
+
+    fireEvent.press(screen.getByTestId('bottom-nav-profile'));
+    expect(await screen.findByText('User Profile Screen')).toBeTruthy();
+    expect(screen.getByTestId('top-bar-main-tab-logo')).toBeTruthy();
+    expect(screen.queryByTestId('top-bar-back-button')).toBeNull();
+  });
+
   it('keeps matches placement venue-scoped and not as standalone user entry', async () => {
     const servicesOverride = createMockBackendServiceLocator().services;
     const screen = render(
