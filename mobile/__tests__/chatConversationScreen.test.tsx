@@ -94,9 +94,7 @@ describe('chat conversation screen', () => {
 
     expect(await screen.findByText('Parker Conversation')).toBeTruthy();
     expect(await screen.findByText('Status: blocked')).toBeTruthy();
-    expect(
-      await screen.findByText('Chat is disabled because a safety block is active.')
-    ).toBeTruthy();
+    expect(await screen.findAllByText('Chat is disabled because a safety block is active.')).toHaveLength(2);
     expect(screen.getByPlaceholderText('Chat is disabled.')).toBeTruthy();
   });
 
@@ -134,9 +132,7 @@ describe('chat conversation screen', () => {
     );
 
     expect(await screen.findByText('Parker Conversation')).toBeTruthy();
-    expect(
-      await screen.findByText('Chat is disabled because no active venue session was found.')
-    ).toBeTruthy();
+    expect(await screen.findAllByText('Chat is disabled because no active venue session was found.')).toHaveLength(2);
     expect(screen.getByPlaceholderText('Chat is disabled.')).toBeTruthy();
   });
 
@@ -174,9 +170,7 @@ describe('chat conversation screen', () => {
     );
 
     expect(await screen.findByText('Parker Conversation')).toBeTruthy();
-    expect(
-      await screen.findByText('Chat is disabled due to a moderation action on this conversation.')
-    ).toBeTruthy();
+    expect(await screen.findAllByText('Chat is disabled due to a moderation action on this conversation.')).toHaveLength(2);
     expect(screen.getByPlaceholderText('Chat is disabled.')).toBeTruthy();
   });
 

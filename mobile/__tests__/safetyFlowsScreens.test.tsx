@@ -69,6 +69,8 @@ describe('safety report and block flows', () => {
 
     fireEvent.press(screen.getByText('Spam'));
     fireEvent.press(screen.getByText('Submit Report'));
+    expect(await screen.findByText('Confirm Safety Report')).toBeTruthy();
+    fireEvent.press(screen.getAllByLabelText('Submit Report')[0]);
 
     expect(await screen.findByText('Result: Submitted')).toBeTruthy();
     expect(reportUserMock).toHaveBeenCalledWith('u-target-42', 'spam');
@@ -95,6 +97,8 @@ describe('safety report and block flows', () => {
     );
 
     fireEvent.press(screen.getByText('Confirm Block'));
+    expect(await screen.findByText('Confirm Safety Block')).toBeTruthy();
+    fireEvent.press(screen.getAllByLabelText('Confirm Block')[0]);
 
     expect(await screen.findByText('Result: Blocked')).toBeTruthy();
     expect(blockUserMock).toHaveBeenCalledWith('u-target-99');

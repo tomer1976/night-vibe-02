@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, Button, Card, TopBar } from '../components';
+import { Badge, Button, Card, ConfirmationModal, SafetyStatusBanner, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
 import { useTheme } from '../theme';
@@ -24,6 +24,7 @@ export function BlockUserConfirmationScreen() {
   const targetUserId = params.targetUserId;
   const targetDisplayName = params.targetDisplayName ?? 'Selected user';
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const [resultText, setResultText] = useState<string | undefined>();
 
@@ -61,6 +62,20 @@ export function BlockUserConfirmationScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
+      <ConfirmationModal
+        cancelLabel="Cancel"
+        confirmLabel="Confirm Block"
+        confirmVariant="destructive"
+        message={`Block ${targetDisplayName}? This immediately disables chat and discovery visibility with this user.`}
+        onCancel={() => setIsConfirmationOpen(false)}
+        onConfirm={() => {
+          setIsConfirmationOpen(false);
+          void handleConfirmBlock();
+        }}
+        title="Confirm Safety Block"
+        visible={isConfirmationOpen}
+      />
+
       <View style={[styles.top, { paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.lg }]}> 
         <TopBar subtitle="Block user confirmation" title="Night Vibe" />
       </View>
@@ -82,10 +97,17 @@ export function BlockUserConfirmationScreen() {
               This action immediately blocks future chat sends and discovery visibility for this user.
             </Text>
 
+            <SafetyStatusBanner
+              detail="Once confirmed, enforcement is immediate across the chat thread list, conversation composer, and discovery visibility."
+              statusLabel="Block Action Ready"
+              title="Safety Status"
+              tone="warning"
+            />
+
             <Button
               disabled={!canConfirm}
               label={isSubmitting ? 'Blocking...' : isBlocked ? 'User Blocked' : 'Confirm Block'}
-              onPress={() => void handleConfirmBlock()}
+              onPress={() => setIsConfirmationOpen(true)}
             />
 
             {resultText ? (

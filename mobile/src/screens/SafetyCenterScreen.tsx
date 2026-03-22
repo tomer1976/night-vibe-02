@@ -2,7 +2,7 @@ import { StackActions, useNavigation } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, Button, Card, ListItem, TopBar } from '../components';
+import { Badge, Button, Card, ListItem, SafetyStatusBanner, TopBar } from '../components';
 import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
 import { sprint04DiscoveryBlockSkipFixtures } from '../mocks';
 import { useTheme } from '../theme';
@@ -36,6 +36,15 @@ export function SafetyCenterScreen() {
           <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall, marginTop: theme.spacing.sm }}>
             Safety actions immediately impact chat eligibility and discovery visibility in Sprint-05 mock scenarios.
           </Text>
+
+          <View style={{ marginTop: theme.spacing.sm }}>
+            <SafetyStatusBanner
+              detail="Cross-surface enforcement is active: block/report actions immediately affect discovery and chat states."
+              statusLabel="Enforcement Active"
+              title="Safety Status"
+              tone="warning"
+            />
+          </View>
         </Card>
 
         <ListItem

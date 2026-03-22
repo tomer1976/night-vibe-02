@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, BottomNavShell, Button, Card, Input, TopBar } from '../components';
+import { Badge, BottomNavShell, Button, Card, Input, SafetyStatusBanner, TopBar } from '../components';
 import { ChatEligibilityFailureReason } from '../contracts';
 import { isChatEligibilityFailureCode, resolveChatEligibilityFallbackRoute } from '../navigation/chatEligibilityRouteGuard';
 import { isMainTabKey, MAIN_TAB_ITEMS, resolveMainTabRouteName } from '../navigation/mainTabs';
@@ -305,6 +305,22 @@ export function ChatConversationScreen() {
               <Badge label={`Status: ${formatStatusLabel(threadStatus)}`} tone={toStatusTone(threadStatus)} />
               {params.venueId ? <Badge label={`Venue: ${params.venueId}`} tone="info" /> : null}
             </View>
+
+            {statusFallbackReason ? (
+              <SafetyStatusBanner
+                detail={getDisabledReasonLabel(statusFallbackReason)}
+                statusLabel="Chat Disabled"
+                title="Safety Eligibility Status"
+                tone="warning"
+              />
+            ) : (
+              <SafetyStatusBanner
+                detail="Chat is active for this match and venue session."
+                statusLabel="Chat Enabled"
+                title="Safety Eligibility Status"
+                tone="success"
+              />
+            )}
 
             <ScrollView contentContainerStyle={{ gap: theme.spacing.sm }} style={styles.messagesScroll}>
               {localMessages.map((message) => (

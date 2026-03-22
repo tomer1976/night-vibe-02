@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, Button, Card, Input, TopBar } from '../components';
+import { Badge, Button, Card, ConfirmationModal, Input, SafetyStatusBanner, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
 import { useTheme } from '../theme';
@@ -38,6 +38,7 @@ export function ReportUserScreen() {
   const [selectedReason, setSelectedReason] = useState<ReportReason>('harassment');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [resultText, setResultText] = useState<string | undefined>();
   const [resultTone, setResultTone] = useState<'success' | 'danger' | undefined>();
 
@@ -77,6 +78,20 @@ export function ReportUserScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 
+      <ConfirmationModal
+        cancelLabel="Keep Editing"
+        confirmLabel="Submit Report"
+        confirmVariant="destructive"
+        message={`Submit ${REPORT_REASON_LABELS[selectedReason]} report for ${targetDisplayName}?`}
+        onCancel={() => setIsConfirmationOpen(false)}
+        onConfirm={() => {
+          setIsConfirmationOpen(false);
+          void handleSubmitReport();
+        }}
+        title="Confirm Safety Report"
+        visible={isConfirmationOpen}
+      />
+
       <View style={[styles.top, { paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.lg }]}> 
         <TopBar subtitle="Safety report submission" title="Night Vibe" />
       </View>
@@ -97,6 +112,13 @@ export function ReportUserScreen() {
             <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.bodySmall }}>
               Select one reason and submit a deterministic mock report.
             </Text>
+
+            <SafetyStatusBanner
+              detail="Reports immediately propagate to safety workflows and block eligible chat/discovery interactions when applicable."
+              statusLabel="Reporting Enabled"
+              title="Safety Status"
+              tone="info"
+            />
 
             {REPORT_REASONS.map((reason) => (
               <Button
@@ -119,7 +141,7 @@ export function ReportUserScreen() {
             <Button
               disabled={!canSubmit}
               label={isSubmitting ? 'Submitting...' : 'Submit Report'}
-              onPress={() => void handleSubmitReport()}
+              onPress={() => setIsConfirmationOpen(true)}
             />
 
             {resultText && resultTone ? (
