@@ -8,6 +8,7 @@ export { DiscoveryCandidateCard } from './DiscoveryCandidateCard';
 export { Input } from './Input';
 export { InlineErrorMessage } from './InlineErrorMessage';
 export { ListItem } from './ListItem';
+export { NotificationListItem } from './NotificationListItem';
 export { SafetyStatusBanner } from './SafetyStatusBanner';
 export { StateView } from './StateView';
 export { EmptyStateTemplate, ErrorStateTemplate, LoadingStateTemplate } from './StateTemplates';

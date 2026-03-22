@@ -3,22 +3,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, Button, Card, EmptyStateTemplate, ErrorStateTemplate, ListItem, LoadingStateTemplate, TopBar } from '../components';
+import { Badge, Button, Card, EmptyStateTemplate, ErrorStateTemplate, LoadingStateTemplate, NotificationListItem, TopBar } from '../components';
 import { NotificationRecord } from '../contracts';
 import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
 import { shouldReplaceRoute } from '../navigation/replaceRouteGuard';
 import { useServiceLocator } from '../services';
 import { useTheme } from '../theme';
-
-const formatTypeLabel = (type: NotificationRecord['type']) => type.replaceAll('_', ' ');
-
-const typeToneByType: Record<NotificationRecord['type'], 'info' | 'success' | 'warning' | 'danger'> = {
-  match_notification: 'success',
-  message_notification: 'info',
-  venue_activity_notification: 'info',
-  safety_notification: 'warning',
-  system_notification: 'danger',
-};
 
 export function NotificationCenterScreen() {
   const navigation = useNavigation();
@@ -144,18 +134,14 @@ export function NotificationCenterScreen() {
         ) : (
           <ScrollView contentContainerStyle={{ gap: theme.spacing.sm }} showsVerticalScrollIndicator={false}>
             {notifications.map((entry) => (
-              <View key={entry.notificationId} style={{ gap: theme.spacing.xs }}>
-                <ListItem
-                  onPress={entry.read ? undefined : () => void markAsRead(entry.notificationId)}
-                  subtitle={`Type: ${formatTypeLabel(entry.type)}`}
-                  title={`Notification ${entry.notificationId}`}
-                  trailingText={entry.read ? 'Read' : isMarkingRead === entry.notificationId ? 'Marking...' : 'Mark read'}
-                />
-                <View style={styles.notificationMeta}>
-                  <Badge label={entry.read ? 'Read' : 'Unread'} tone={entry.read ? 'success' : 'warning'} />
-                  <Badge label={formatTypeLabel(entry.type)} tone={typeToneByType[entry.type]} />
-                </View>
-              </View>
+              <NotificationListItem
+                isMarkingRead={isMarkingRead === entry.notificationId}
+                key={entry.notificationId}
+                notification={entry}
+                onMarkRead={(notificationId) => {
+                  void markAsRead(notificationId);
+                }}
+              />
             ))}
           </ScrollView>
         )}
@@ -196,11 +182,6 @@ const styles = StyleSheet.create({
   badgeRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
-  },
-  notificationMeta: {
-    alignItems: 'center',
-    flexDirection: 'row',
     gap: 8,
   },
 });
