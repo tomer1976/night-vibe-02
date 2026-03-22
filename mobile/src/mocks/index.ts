@@ -28,6 +28,8 @@ export {
   sprint02AuthPersonaFixtures,
   sprint02PhotoFixtures,
   sprint02ProfileFixtures,
+  sprint05ChatMessageFixturesByStatus,
+  sprint05ChatThreadFixtures,
   type MockDiscoveryCoordinates,
   type MockFixtureInteraction,
   type MockFixtureRoleContext,
@@ -49,4 +51,8 @@ export {
   type Sprint02PhotoFixture,
   type Sprint02PersonaKey,
   type Sprint02ProfileFixture,
+  type Sprint05ChatMessageFixture,
+  type Sprint05ChatSenderRole,
+  type Sprint05ChatThreadFixture,
+  type Sprint05ChatThreadStatus,
 } from './fixtures';

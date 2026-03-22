@@ -42,6 +42,8 @@ import {
   sprint03VenueDistanceOutputs,
   sprint02AuthPersonaFixtures,
   sprint02ProfileFixtures,
+  sprint05ChatMessageFixturesByStatus,
+  sprint05ChatThreadFixtures,
 } from '../mocks';
 
 type MockServiceLocatorOptions = {
@@ -427,41 +429,41 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       return 'blocked';
     };
 
-    const buildLatestMessage = (matchId: string, status: ChatThread['status']): ChatThread['latestMessage'] => {
-      const statusToDelivery: Record<ChatThread['status'], ChatThread['latestMessage']['deliveryStatus']> = {
-        active: 'delivered',
-        expired: 'read',
-        blocked: 'sent',
-      };
-
-      const statusToText: Record<ChatThread['status'], string> = {
-        active: 'See you near the dance floor.',
-        expired: 'Looks like the venue session ended.',
-        blocked: 'This conversation is currently restricted.',
-      };
+    const buildLatestMessage = (chatId: string, status: ChatThread['status']): ChatThread['latestMessage'] => {
+      const threadFixture = sprint05ChatThreadFixtures.find((fixture) => fixture.status === status);
+      const messageFixtures = sprint05ChatMessageFixturesByStatus[status];
+      const latestTemplate = messageFixtures.find((message) => message.messageKey === threadFixture?.latestMessageKey);
+      const fallbackTemplate = messageFixtures[messageFixtures.length - 1];
+      const selectedTemplate = latestTemplate ?? fallbackTemplate;
 
       return {
-        messageId: `msg-${matchId}-latest`,
-        text: statusToText[status],
-        sentAt: clock.now(),
-        deliveryStatus: statusToDelivery[status],
+        messageId: `${chatId}-${selectedTemplate.messageKey}`,
+        text: selectedTemplate.text,
+        sentAt: selectedTemplate.sentAt,
+        deliveryStatus: selectedTemplate.deliveryStatus,
       };
     };
 
-    return matches.map((match) => ({
-      chatId: `chat-${match.matchId}`,
-      matchId: match.matchId,
-      participants: [match.users[0], match.users[1]],
-      counterpart: {
-        userId: match.counterpart.userId,
-        displayName: match.counterpart.displayName,
-        age: match.counterpart.age,
-        gender: match.counterpart.gender,
-      },
-      latestMessage: buildLatestMessage(match.matchId, toThreadStatus(match.status)),
-      unreadCount: match.status === 'matched' ? 1 : 0,
-      status: toThreadStatus(match.status),
-    }));
+    return matches.map((match) => {
+      const chatId = `chat-${match.matchId}`;
+      const status = toThreadStatus(match.status);
+      const threadFixture = sprint05ChatThreadFixtures.find((fixture) => fixture.status === status);
+
+      return {
+        chatId,
+        matchId: match.matchId,
+        participants: [match.users[0], match.users[1]],
+        counterpart: {
+          userId: match.counterpart.userId,
+          displayName: match.counterpart.displayName,
+          age: match.counterpart.age,
+          gender: match.counterpart.gender,
+        },
+        latestMessage: buildLatestMessage(chatId, status),
+        unreadCount: threadFixture?.unreadCount ?? 0,
+        status,
+      };
+    });
   };
 
   const resolveChatEligibility = (chatId: string): ChatEligibilityResult => {
@@ -518,18 +520,22 @@ export function createMockBackendServiceLocator(options?: MockServiceLocatorOpti
       return existingMessages;
     }
 
-    const seededMessages: ChatMessageRecord[] = [
-      {
-        messageId: `${chatId}-seed-1`,
-        chatId,
-        senderUserId: currentUser.uid,
-        text: 'Mock seeded message.',
-        sentAt: clock.now(),
-        deliveryStatus: 'read',
-        deliveredAt: clock.now(),
-        readAt: clock.now(),
-      },
-    ];
+    const thread = getChatThreads().find((entry) => entry.chatId === chatId);
+    const status = thread?.status ?? 'active';
+    const messageTemplates = sprint05ChatMessageFixturesByStatus[status];
+    const counterpartUserId =
+      thread?.participants.find((participantId) => participantId !== currentUser.uid) ?? currentUser.uid;
+
+    const seededMessages: ChatMessageRecord[] = messageTemplates.map((template) => ({
+      messageId: `${chatId}-${template.messageKey}`,
+      chatId,
+      senderUserId: template.senderRole === 'self' ? currentUser.uid : counterpartUserId,
+      text: template.text,
+      sentAt: template.sentAt,
+      deliveryStatus: template.deliveryStatus,
+      deliveredAt: template.deliveredAt,
+      readAt: template.readAt,
+    }));
 
     chatMessagesByChatId.set(chatId, seededMessages);
     return seededMessages;

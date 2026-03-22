@@ -174,6 +174,27 @@ export type Sprint04PaginationCursorFixture = {
   expectedCursor: string;
 };
 
+export type Sprint05ChatThreadStatus = 'active' | 'expired' | 'blocked';
+
+export type Sprint05ChatSenderRole = 'self' | 'counterpart';
+
+export type Sprint05ChatMessageFixture = {
+  messageKey: string;
+  senderRole: Sprint05ChatSenderRole;
+  text: string;
+  sentAt: string;
+  deliveryStatus: 'sent' | 'delivered' | 'read' | 'failed';
+  deliveredAt?: string;
+  readAt?: string;
+};
+
+export type Sprint05ChatThreadFixture = {
+  fixtureId: string;
+  status: Sprint05ChatThreadStatus;
+  unreadCount: number;
+  latestMessageKey: string;
+};
+
 export type MockFixtureSet = {
   users: readonly MockFixtureUser[];
   roleContexts: readonly MockFixtureRoleContext[];
@@ -749,6 +770,93 @@ export const sprint04PaginationCursorFixtures: readonly Sprint04PaginationCursor
     expectedCursor: createSprint04DeterministicPaginationCursor('s4-v-luna-lounge-active', 0, 1),
   }),
 ]);
+
+export const sprint05ChatThreadFixtures: readonly Sprint05ChatThreadFixture[] = Object.freeze([
+  Object.freeze({
+    fixtureId: 's5-chat-thread-active',
+    status: 'active',
+    unreadCount: 1,
+    latestMessageKey: 'active-latest',
+  }),
+  Object.freeze({
+    fixtureId: 's5-chat-thread-expired',
+    status: 'expired',
+    unreadCount: 0,
+    latestMessageKey: 'expired-latest',
+  }),
+  Object.freeze({
+    fixtureId: 's5-chat-thread-blocked',
+    status: 'blocked',
+    unreadCount: 0,
+    latestMessageKey: 'blocked-latest',
+  }),
+]);
+
+export const sprint05ChatMessageFixturesByStatus: Record<Sprint05ChatThreadStatus, readonly Sprint05ChatMessageFixture[]> = Object.freeze({
+  active: Object.freeze([
+    Object.freeze({
+      messageKey: 'active-seed-1',
+      senderRole: 'counterpart',
+      text: 'I just got to the venue entrance.',
+      sentAt: '2026-03-08T19:18:00.000Z',
+      deliveryStatus: 'read',
+      deliveredAt: '2026-03-08T19:18:03.000Z',
+      readAt: '2026-03-08T19:18:10.000Z',
+    }),
+    Object.freeze({
+      messageKey: 'active-seed-2',
+      senderRole: 'self',
+      text: 'Perfect, I am near the dance floor.',
+      sentAt: '2026-03-08T19:18:30.000Z',
+      deliveryStatus: 'delivered',
+      deliveredAt: '2026-03-08T19:18:33.000Z',
+    }),
+    Object.freeze({
+      messageKey: 'active-latest',
+      senderRole: 'counterpart',
+      text: 'See you near the dance floor.',
+      sentAt: '2026-03-08T19:19:00.000Z',
+      deliveryStatus: 'sent',
+    }),
+  ]),
+  expired: Object.freeze([
+    Object.freeze({
+      messageKey: 'expired-seed-1',
+      senderRole: 'counterpart',
+      text: 'Looks like one of us checked out.',
+      sentAt: '2026-03-08T23:25:00.000Z',
+      deliveryStatus: 'read',
+      deliveredAt: '2026-03-08T23:25:03.000Z',
+      readAt: '2026-03-08T23:25:10.000Z',
+    }),
+    Object.freeze({
+      messageKey: 'expired-latest',
+      senderRole: 'self',
+      text: 'Looks like the venue session ended.',
+      sentAt: '2026-03-08T23:26:00.000Z',
+      deliveryStatus: 'read',
+      deliveredAt: '2026-03-08T23:26:02.000Z',
+      readAt: '2026-03-08T23:26:04.000Z',
+    }),
+  ]),
+  blocked: Object.freeze([
+    Object.freeze({
+      messageKey: 'blocked-seed-1',
+      senderRole: 'counterpart',
+      text: 'Conversation restricted by safety action.',
+      sentAt: '2026-03-08T19:39:40.000Z',
+      deliveryStatus: 'delivered',
+      deliveredAt: '2026-03-08T19:39:43.000Z',
+    }),
+    Object.freeze({
+      messageKey: 'blocked-latest',
+      senderRole: 'self',
+      text: 'This conversation is currently restricted.',
+      sentAt: '2026-03-08T19:40:00.000Z',
+      deliveryStatus: 'failed',
+    }),
+  ]),
+});
 
 export const sprint02AuthPersonaFixtures: readonly Sprint02AuthPersonaFixture[] = Object.freeze([
   Object.freeze({

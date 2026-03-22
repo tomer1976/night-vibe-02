@@ -13,6 +13,20 @@ describe('chat service lifecycle contract', () => {
     const [thread] = threadsResponse.data;
 
     expect(thread).toBeTruthy();
+    expect(thread.status).toBe('active');
+    expect(thread.latestMessage.text).toBe('See you near the dance floor.');
+    expect(thread.latestMessage.deliveryStatus).toBe('sent');
+
+    const seededMessagesResponse = await locator.services.chat.listMessages(thread.chatId);
+    expect(seededMessagesResponse.status).toBe('SUCCESS');
+    if (seededMessagesResponse.status !== 'SUCCESS') {
+      throw new Error('Expected successful seeded messages response.');
+    }
+
+    expect(seededMessagesResponse.data.length).toBeGreaterThanOrEqual(3);
+    expect(seededMessagesResponse.data.some((message) => message.deliveryStatus === 'read')).toBe(true);
+    expect(seededMessagesResponse.data.some((message) => message.deliveryStatus === 'delivered')).toBe(true);
+    expect(seededMessagesResponse.data.some((message) => message.deliveryStatus === 'sent')).toBe(true);
 
     const eligibilityResponse = await locator.services.chat.getEligibility(thread.chatId);
     expect(eligibilityResponse.status).toBe('SUCCESS');
