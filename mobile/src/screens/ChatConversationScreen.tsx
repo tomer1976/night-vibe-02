@@ -121,6 +121,43 @@ export function ChatConversationScreen() {
     [composerDisabled, draftMessage]
   );
 
+  useEffect(() => {
+    let cancelled = false;
+
+    async function validateConversationEntryEligibility() {
+      if (!params.chatId) {
+        return;
+      }
+
+      const response = await services.chat.getEligibility(params.chatId);
+
+      if (cancelled || response.status === 'SUCCESS') {
+        return;
+      }
+
+      if (isChatEligibilityFailureCode(response.error.code)) {
+        const fallbackRoute = resolveChatEligibilityFallbackRoute(response.error.code, params.venueId);
+
+        if (
+          shouldReplaceRoute(
+            ROUTE_NAMES.ChatConversation,
+            fallbackRoute.routeName,
+            undefined,
+            fallbackRoute.params
+          )
+        ) {
+          navigation.dispatch(StackActions.replace(fallbackRoute.routeName, fallbackRoute.params));
+        }
+      }
+    }
+
+    void validateConversationEntryEligibility();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigation, params.chatId, params.venueId, services.chat]);
+
   useEffect(
     () => () => {
       for (const timer of activeDeliveryTimers.current) {

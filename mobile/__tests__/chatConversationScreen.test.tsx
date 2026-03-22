@@ -34,6 +34,8 @@ function ChatConversationTestNavigator({
             <Stack.Navigator initialRouteName={ROUTE_NAMES.ChatConversation} screenOptions={{ headerShown: false }}>
               <Stack.Screen component={ChatConversationScreen} initialParams={initialParams} name={ROUTE_NAMES.ChatConversation} />
               <Stack.Screen component={() => <Text>Chat Threads Screen Stub</Text>} name={ROUTE_NAMES.ChatThreads} />
+              <Stack.Screen component={() => <Text>Nearby Venues Screen Stub</Text>} name={ROUTE_NAMES.NearbyVenues} />
+              <Stack.Screen component={() => <Text>Venue Details Screen Stub</Text>} name={ROUTE_NAMES.VenueDetails} />
               <Stack.Screen
                 name={ROUTE_NAMES.ReportUser}
               >
@@ -174,5 +176,72 @@ describe('chat conversation screen', () => {
         'Block User Stub:{"sourceRouteName":"ChatConversation","targetDisplayName":"Sky","targetUserId":"u-discovery-3","matchId":"match-safety-entry","venueId":"v-halo-club","chatId":"chat-safety-entry"}'
       )
     ).toBeTruthy();
+  });
+
+  it('redirects to venue details when entry eligibility fails with ACCESS_DENIED in venue context', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      chat: {
+        ...locator.services.chat,
+        getEligibility: async () => ({
+          status: 'FAIL',
+          error: {
+            code: 'ACCESS_DENIED',
+            message: 'Chat access denied for this session.',
+          },
+          request_id: 'req-chat-entry-access-denied',
+        }),
+      },
+    };
+
+    const screen = render(
+      <ChatConversationTestNavigator
+        initialParams={{
+          chatId: 'chat-guard',
+          matchId: 'match-guard',
+          counterpartName: 'Rae',
+          threadStatus: 'active',
+          venueId: 'v-halo-club',
+        }}
+        servicesOverride={servicesOverride}
+      />
+    );
+
+    expect(await screen.findByText('Venue Details Screen Stub')).toBeTruthy();
+  });
+
+  it('redirects to nearby venues when entry eligibility fails with NOT_CHECKED_IN', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      chat: {
+        ...locator.services.chat,
+        getEligibility: async () => ({
+          status: 'FAIL',
+          error: {
+            code: 'NOT_CHECKED_IN',
+            message: 'No active session.',
+          },
+          request_id: 'req-chat-entry-not-checked-in',
+        }),
+      },
+    };
+
+    const screen = render(
+      <ChatConversationTestNavigator
+        initialParams={{
+          chatId: 'chat-guard-no-session',
+          matchId: 'match-guard-no-session',
+          counterpartName: 'Rae',
+          threadStatus: 'active',
+        }}
+        servicesOverride={servicesOverride}
+      />
+    );
+
+    expect(await screen.findByText('Nearby Venues Screen Stub')).toBeTruthy();
   });
 });

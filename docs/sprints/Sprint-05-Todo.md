@@ -82,7 +82,7 @@
 - [x] Wire flow: Venue Details (Matches tab) -> Threads -> Conversation.
 - [x] Wire report/block entry from conversation and profile preview contexts.
 - [x] Wire notification entry points and return paths.
-- [ ] Add route guards for ineligible chat sessions.
+- [x] Add route guards for ineligible chat sessions.
 
 ## UI Tasks
 - [ ] Build message composer disabled-state UI with reason labels.

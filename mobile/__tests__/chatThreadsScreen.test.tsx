@@ -316,6 +316,36 @@ describe('chat threads screen', () => {
     expect(await screen.findByText('Nearby Venues Screen Stub')).toBeTruthy();
   });
 
+  it('redirects to venue details when threads fail with CHAT_EXPIRED and venue context exists', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      chat: {
+        ...locator.services.chat,
+        getThreads: async () => ({
+          status: 'FAIL',
+          error: {
+            code: 'CHAT_EXPIRED',
+            message: 'Chat eligibility no longer active.',
+          },
+          request_id: 'req-chat-threads-chat-expired',
+        }),
+      },
+    };
+
+    const screen = render(
+      <ChatThreadsTestNavigator
+        initialThreadParams={{
+          venueId: 'v-halo-club',
+        }}
+        servicesOverride={servicesOverride}
+      />
+    );
+
+    expect(await screen.findByText('Venue Details Screen Stub')).toBeTruthy();
+  });
+
   it('redirects to venue details when send fails with CHAT_EXPIRED and venue context exists', async () => {
     const locator = createMockBackendServiceLocator();
 
