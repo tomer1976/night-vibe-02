@@ -76,7 +76,7 @@
 - [x] Create typing indicator scenario fixtures with timeout behavior.
 - [x] Create block/report fixture states and moderation outcome placeholders.
 - [x] Create notification fixtures for unread/read, dedup, and rate-limit scenarios.
-- [ ] Add deterministic scenario packs for chat eligibility transitions.
+- [x] Add deterministic scenario packs for chat eligibility transitions.
 
 ## Navigation Tasks
 - [ ] Wire flow: Venue Details (Matches tab) -> Threads -> Conversation.

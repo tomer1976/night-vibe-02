@@ -20,6 +20,7 @@ import {
   sprint05NotificationFixtures,
   sprint05NotificationDedupScenarioFixtures,
   sprint05NotificationRateLimitScenarioFixtures,
+  sprint05ChatEligibilityTransitionFixtures,
 } from '../src/mocks';
 
 describe('sprint01 fixtures', () => {
@@ -389,6 +390,33 @@ describe('sprint01 fixtures', () => {
       );
       expect(fixture.expectedDeliveredCount).toBeLessThanOrEqual(fixture.maxNotificationsPerMinute);
       expect(fixture.expectedSuppressedCount).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it('includes deterministic Sprint-05 chat eligibility transition scenarios across failure reasons and recovery', () => {
+    expect(sprint05ChatEligibilityTransitionFixtures.length).toBeGreaterThanOrEqual(6);
+
+    const fixtureUserIds = new Set(sprint01Fixtures.users.map((user) => user.uid));
+    const reasons = new Set(
+      sprint05ChatEligibilityTransitionFixtures
+        .filter((fixture) => fixture.expectedReason)
+        .map((fixture) => fixture.expectedReason)
+    );
+    const hasRecoveryTransition = sprint05ChatEligibilityTransitionFixtures.some(
+      (fixture) => fixture.fromState === 'ineligible' && fixture.toState === 'eligible' && fixture.expectedEligible
+    );
+
+    expect(reasons).toEqual(new Set(['left_venue', 'match_expired', 'blocked', 'moderation_action']));
+    expect(hasRecoveryTransition).toBe(true);
+
+    for (const fixture of sprint05ChatEligibilityTransitionFixtures) {
+      expect(fixtureUserIds.has(fixture.userId)).toBe(true);
+
+      if (fixture.expectedEligible) {
+        expect(fixture.expectedReason).toBeUndefined();
+      } else {
+        expect(fixture.expectedReason).toBeDefined();
+      }
     }
   });
 });

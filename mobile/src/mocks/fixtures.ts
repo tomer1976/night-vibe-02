@@ -267,6 +267,24 @@ export type Sprint05NotificationRateLimitScenarioFixture = {
   expectedSuppressedCount: number;
 };
 
+export type Sprint05ChatEligibilityTransitionFixture = {
+  fixtureId: string;
+  chatId: string;
+  userId: string;
+  fromState: 'eligible' | 'ineligible';
+  toState: 'eligible' | 'ineligible';
+  transitionTrigger:
+    | 'session_activated'
+    | 'left_venue'
+    | 'match_expired'
+    | 'block_applied'
+    | 'moderation_action_applied'
+    | 'session_recovered';
+  expectedEligible: boolean;
+  expectedReason?: 'left_venue' | 'match_expired' | 'blocked' | 'moderation_action' | 'not_checked_in';
+  transitionedAt: string;
+};
+
 export type MockFixtureSet = {
   users: readonly MockFixtureUser[];
   roleContexts: readonly MockFixtureRoleContext[];
@@ -1122,6 +1140,73 @@ export const sprint05NotificationRateLimitScenarioFixtures: readonly Sprint05Not
       expectedSuppressedCount: 0,
     }),
   ]);
+
+export const sprint05ChatEligibilityTransitionFixtures: readonly Sprint05ChatEligibilityTransitionFixture[] = Object.freeze([
+  Object.freeze({
+    fixtureId: 's5-chat-eligibility-session-activated',
+    chatId: 'chat-match-u-owner-1-u-regular-1',
+    userId: 'u-regular-1',
+    fromState: 'ineligible',
+    toState: 'eligible',
+    transitionTrigger: 'session_activated',
+    expectedEligible: true,
+    transitionedAt: '2026-03-08T19:00:10.000Z',
+  }),
+  Object.freeze({
+    fixtureId: 's5-chat-eligibility-left-venue',
+    chatId: 'chat-match-u-owner-1-u-regular-1',
+    userId: 'u-regular-1',
+    fromState: 'eligible',
+    toState: 'ineligible',
+    transitionTrigger: 'left_venue',
+    expectedEligible: false,
+    expectedReason: 'left_venue',
+    transitionedAt: '2026-03-08T23:21:00.000Z',
+  }),
+  Object.freeze({
+    fixtureId: 's5-chat-eligibility-match-expired',
+    chatId: 'chat-match-u-owner-1-u-regular-1',
+    userId: 'u-regular-1',
+    fromState: 'eligible',
+    toState: 'ineligible',
+    transitionTrigger: 'match_expired',
+    expectedEligible: false,
+    expectedReason: 'match_expired',
+    transitionedAt: '2026-03-08T23:30:00.000Z',
+  }),
+  Object.freeze({
+    fixtureId: 's5-chat-eligibility-blocked',
+    chatId: 'chat-match-u-owner-1-u-regular-1',
+    userId: 'u-regular-1',
+    fromState: 'eligible',
+    toState: 'ineligible',
+    transitionTrigger: 'block_applied',
+    expectedEligible: false,
+    expectedReason: 'blocked',
+    transitionedAt: '2026-03-08T19:40:00.000Z',
+  }),
+  Object.freeze({
+    fixtureId: 's5-chat-eligibility-moderation-action',
+    chatId: 'chat-match-u-owner-1-u-regular-1',
+    userId: 'u-regular-1',
+    fromState: 'eligible',
+    toState: 'ineligible',
+    transitionTrigger: 'moderation_action_applied',
+    expectedEligible: false,
+    expectedReason: 'moderation_action',
+    transitionedAt: '2026-03-08T20:30:00.000Z',
+  }),
+  Object.freeze({
+    fixtureId: 's5-chat-eligibility-session-recovered',
+    chatId: 'chat-match-u-owner-1-u-regular-1',
+    userId: 'u-regular-1',
+    fromState: 'ineligible',
+    toState: 'eligible',
+    transitionTrigger: 'session_recovered',
+    expectedEligible: true,
+    transitionedAt: '2026-03-08T20:45:00.000Z',
+  }),
+]);
 
 export const sprint02AuthPersonaFixtures: readonly Sprint02AuthPersonaFixture[] = Object.freeze([
   Object.freeze({
