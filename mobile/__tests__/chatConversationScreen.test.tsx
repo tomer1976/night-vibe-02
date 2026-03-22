@@ -20,6 +20,7 @@ function ChatConversationTestNavigator({
     chatId?: string;
     matchId?: string;
     counterpartName?: string;
+    counterpartUserId?: string;
     threadStatus?: 'active' | 'expired' | 'blocked';
     venueId?: string;
   };
@@ -33,6 +34,16 @@ function ChatConversationTestNavigator({
             <Stack.Navigator initialRouteName={ROUTE_NAMES.ChatConversation} screenOptions={{ headerShown: false }}>
               <Stack.Screen component={ChatConversationScreen} initialParams={initialParams} name={ROUTE_NAMES.ChatConversation} />
               <Stack.Screen component={() => <Text>Chat Threads Screen Stub</Text>} name={ROUTE_NAMES.ChatThreads} />
+              <Stack.Screen
+                name={ROUTE_NAMES.ReportUser}
+              >
+                {(props) => <Text>{`Report User Stub:${JSON.stringify(props.route.params)}`}</Text>}
+              </Stack.Screen>
+              <Stack.Screen
+                name={ROUTE_NAMES.BlockUserConfirmation}
+              >
+                {(props) => <Text>{`Block User Stub:${JSON.stringify(props.route.params)}`}</Text>}
+              </Stack.Screen>
             </Stack.Navigator>
           </NavigationContainer>
         </ServiceLocatorProvider>
@@ -115,5 +126,53 @@ describe('chat conversation screen', () => {
     });
 
     expect(await screen.findByText('Read')).toBeTruthy();
+  });
+
+  it('opens report and block flows from conversation with target context', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const screen = render(
+      <ChatConversationTestNavigator
+        initialParams={{
+          chatId: 'chat-safety-entry',
+          counterpartName: 'Sky',
+          counterpartUserId: 'u-discovery-3',
+          matchId: 'match-safety-entry',
+          threadStatus: 'active',
+          venueId: 'v-halo-club',
+        }}
+        servicesOverride={locator.services}
+      />
+    );
+
+    fireEvent.press(await screen.findByText('Report User'));
+
+    expect(
+      await screen.findByText(
+        'Report User Stub:{"sourceRouteName":"ChatConversation","targetDisplayName":"Sky","targetUserId":"u-discovery-3","matchId":"match-safety-entry","venueId":"v-halo-club","chatId":"chat-safety-entry"}'
+      )
+    ).toBeTruthy();
+
+    const secondScreen = render(
+      <ChatConversationTestNavigator
+        initialParams={{
+          chatId: 'chat-safety-entry',
+          counterpartName: 'Sky',
+          counterpartUserId: 'u-discovery-3',
+          matchId: 'match-safety-entry',
+          threadStatus: 'active',
+          venueId: 'v-halo-club',
+        }}
+        servicesOverride={locator.services}
+      />
+    );
+
+    fireEvent.press(await secondScreen.findByText('Block User'));
+
+    expect(
+      await secondScreen.findByText(
+        'Block User Stub:{"sourceRouteName":"ChatConversation","targetDisplayName":"Sky","targetUserId":"u-discovery-3","matchId":"match-safety-entry","venueId":"v-halo-club","chatId":"chat-safety-entry"}'
+      )
+    ).toBeTruthy();
   });
 });

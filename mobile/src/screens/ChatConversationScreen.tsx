@@ -14,6 +14,7 @@ import { useTheme } from '../theme';
 type ChatConversationRouteParams = {
   chatId?: string;
   matchId?: string;
+  counterpartUserId?: string;
   counterpartName?: string;
   threadStatus?: 'active' | 'expired' | 'blocked';
   venueId?: string;
@@ -96,6 +97,7 @@ export function ChatConversationScreen() {
   const params = (route.params as ChatConversationRouteParams | undefined) ?? {};
   const chatId = params.chatId ?? 'unknown-chat';
   const matchId = params.matchId ?? 'unknown-match';
+  const counterpartUserId = params.counterpartUserId;
   const counterpartName = params.counterpartName ?? 'Match';
   const threadStatus = params.threadStatus ?? 'active';
 
@@ -274,6 +276,43 @@ export function ChatConversationScreen() {
               <Button
                 label="Open Threads"
                 onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.ChatThreads))}
+                variant="secondary"
+              />
+            </View>
+
+            <View style={styles.actionRow}>
+              <Button
+                disabled={!counterpartUserId}
+                label="Report User"
+                onPress={() =>
+                  navigation.dispatch(
+                    StackActions.push(ROUTE_NAMES.ReportUser, {
+                      sourceRouteName: ROUTE_NAMES.ChatConversation,
+                      targetDisplayName: counterpartName,
+                      targetUserId: counterpartUserId,
+                      matchId,
+                      venueId: params.venueId,
+                      chatId,
+                    })
+                  )
+                }
+                variant="secondary"
+              />
+              <Button
+                disabled={!counterpartUserId}
+                label="Block User"
+                onPress={() =>
+                  navigation.dispatch(
+                    StackActions.push(ROUTE_NAMES.BlockUserConfirmation, {
+                      sourceRouteName: ROUTE_NAMES.ChatConversation,
+                      targetDisplayName: counterpartName,
+                      targetUserId: counterpartUserId,
+                      matchId,
+                      venueId: params.venueId,
+                      chatId,
+                    })
+                  )
+                }
                 variant="secondary"
               />
             </View>

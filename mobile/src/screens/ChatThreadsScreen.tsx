@@ -97,6 +97,7 @@ export function ChatThreadsScreen() {
         StackActions.push(ROUTE_NAMES.ChatConversation, {
           chatId: thread.chatId,
           matchId: thread.matchId,
+          counterpartUserId: thread.counterpart.userId,
           counterpartName: thread.counterpart.displayName,
           threadStatus: thread.status,
           venueId: routeParams.venueId,

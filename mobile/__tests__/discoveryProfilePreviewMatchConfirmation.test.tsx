@@ -123,6 +123,12 @@ function DiscoveryProfilePreviewMatchNavigator({ matchCreated, withActiveSession
               />
               <Stack.Screen component={MatchConfirmationScreen} name={ROUTE_NAMES.MatchConfirmation} />
               <Stack.Screen component={NearbyVenuesGuardStub} name={ROUTE_NAMES.NearbyVenues} />
+              <Stack.Screen name={ROUTE_NAMES.ReportUser}>
+                {(props) => <Text>{`Report User Stub:${JSON.stringify(props.route.params)}`}</Text>}
+              </Stack.Screen>
+              <Stack.Screen name={ROUTE_NAMES.BlockUserConfirmation}>
+                {(props) => <Text>{`Block User Stub:${JSON.stringify(props.route.params)}`}</Text>}
+              </Stack.Screen>
             </Stack.Navigator>
           </NavigationContainer>
         </ServiceLocatorProvider>
@@ -155,6 +161,12 @@ function DiscoveryProfilePreviewMalformedMatchNavigator() {
               />
               <Stack.Screen component={MatchConfirmationScreen} name={ROUTE_NAMES.MatchConfirmation} />
               <Stack.Screen component={NearbyVenuesGuardStub} name={ROUTE_NAMES.NearbyVenues} />
+              <Stack.Screen name={ROUTE_NAMES.ReportUser}>
+                {(props) => <Text>{`Report User Stub:${JSON.stringify(props.route.params)}`}</Text>}
+              </Stack.Screen>
+              <Stack.Screen name={ROUTE_NAMES.BlockUserConfirmation}>
+                {(props) => <Text>{`Block User Stub:${JSON.stringify(props.route.params)}`}</Text>}
+              </Stack.Screen>
             </Stack.Navigator>
           </NavigationContainer>
         </ServiceLocatorProvider>
@@ -187,6 +199,12 @@ function DiscoveryProfilePreviewAsMatchNavigator() {
                 name={ROUTE_NAMES.DiscoveryProfilePreview}
               />
               <Stack.Screen component={NearbyVenuesGuardStub} name={ROUTE_NAMES.NearbyVenues} />
+              <Stack.Screen name={ROUTE_NAMES.ReportUser}>
+                {(props) => <Text>{`Report User Stub:${JSON.stringify(props.route.params)}`}</Text>}
+              </Stack.Screen>
+              <Stack.Screen name={ROUTE_NAMES.BlockUserConfirmation}>
+                {(props) => <Text>{`Block User Stub:${JSON.stringify(props.route.params)}`}</Text>}
+              </Stack.Screen>
             </Stack.Navigator>
           </NavigationContainer>
         </ServiceLocatorProvider>
@@ -238,5 +256,29 @@ describe('discovery profile preview to match confirmation', () => {
     expect(await screen.findByText('Eligibility: Active in Same Venue')).toBeTruthy();
     expect(await screen.findByText('Profile State: Match')).toBeTruthy();
     expect(await screen.findByText('Interaction State: Matched')).toBeTruthy();
+  });
+
+  it('opens report flow from profile preview with user context', async () => {
+    const screen = render(<DiscoveryProfilePreviewMatchNavigator matchCreated={false} />);
+
+    fireEvent.press(await screen.findByText('Report User'));
+
+    expect(
+      await screen.findByText(
+        'Report User Stub:{"sourceRouteName":"DiscoveryProfilePreview","targetUserId":"u-discovery-3","targetDisplayName":"Sky","venueId":"v-halo-club"}'
+      )
+    ).toBeTruthy();
+  });
+
+  it('opens block flow from match profile preview with match context', async () => {
+    const screen = render(<DiscoveryProfilePreviewAsMatchNavigator />);
+
+    fireEvent.press(await screen.findByText('Block User'));
+
+    expect(
+      await screen.findByText(
+        'Block User Stub:{"sourceRouteName":"DiscoveryProfilePreview","targetUserId":"u-discovery-3","targetDisplayName":"Sky","matchId":"match-u-regular-1-u-discovery-3","venueId":"v-halo-club"}'
+      )
+    ).toBeTruthy();
   });
 });

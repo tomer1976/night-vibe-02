@@ -325,6 +325,39 @@ export function DiscoveryProfilePreviewScreen() {
                 />
               )}
 
+              <View style={styles.actionRow}>
+                <Button
+                  label="Report User"
+                  onPress={() =>
+                    navigation.dispatch(
+                      StackActions.push(ROUTE_NAMES.ReportUser, {
+                        sourceRouteName: ROUTE_NAMES.DiscoveryProfilePreview,
+                        targetUserId: params.userId,
+                        targetDisplayName: params.displayName,
+                        matchId: params.matchId,
+                        venueId: params.venueId,
+                      })
+                    )
+                  }
+                  variant="secondary"
+                />
+                <Button
+                  label="Block User"
+                  onPress={() =>
+                    navigation.dispatch(
+                      StackActions.push(ROUTE_NAMES.BlockUserConfirmation, {
+                        sourceRouteName: ROUTE_NAMES.DiscoveryProfilePreview,
+                        targetUserId: params.userId,
+                        targetDisplayName: params.displayName,
+                        matchId: params.matchId,
+                        venueId: params.venueId,
+                      })
+                    )
+                  }
+                  variant="secondary"
+                />
+              </View>
+
               <Button label="Open Venue" onPress={goBackToVenue} variant="secondary" />
             </View>
           </Card>
@@ -347,5 +380,9 @@ const styles = StyleSheet.create({
   previewPhoto: {
     width: '100%',
     height: 220,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: 8,
   },
 });
