@@ -8,7 +8,7 @@ import { ChatThread } from '../contracts';
 import { isChatEligibilityFailureCode, resolveChatEligibilityFallbackRoute } from '../navigation/chatEligibilityRouteGuard';
 import { isMainTabKey, MAIN_TAB_ITEMS, resolveMainTabRouteName } from '../navigation/mainTabs';
 import { shouldReplaceRoute } from '../navigation/replaceRouteGuard';
-import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
 import { useTheme } from '../theme';
 
@@ -164,6 +164,22 @@ export function ChatThreadsScreen() {
               ))}
 
               <Button label="Open Nearby Venues" onPress={() => navigation.dispatch(StackActions.replace(ROUTE_NAMES.NearbyVenues))} variant="secondary" />
+              <Button
+                label="Notification Center"
+                onPress={() =>
+                  navigation.dispatch(
+                    StackActions.push(ROUTE_NAMES.NotificationCenter, {
+                      returnRouteName: ROUTE_NAMES.ChatThreads as AppRouteName,
+                      returnParams: routeParams.venueId
+                        ? {
+                            venueId: routeParams.venueId,
+                          }
+                        : undefined,
+                    })
+                  )
+                }
+                variant="secondary"
+              />
             </ScrollView>
           )}
         </Card>

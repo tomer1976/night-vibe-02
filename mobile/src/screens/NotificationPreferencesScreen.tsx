@@ -1,9 +1,12 @@
+import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge, Card, ListItem, TopBar } from '../components';
+import { Badge, Button, Card, ListItem, TopBar } from '../components';
 import { NotificationRecord } from '../contracts';
+import { shouldReplaceRoute } from '../navigation/replaceRouteGuard';
+import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
 import { useTheme } from '../theme';
 
 type PreferenceState = Record<NotificationRecord['type'], boolean>;
@@ -40,8 +43,17 @@ const preferenceCopy: Record<NotificationRecord['type'], { title: string; subtit
 };
 
 export function NotificationPreferencesScreen() {
+  const navigation = useNavigation();
+  const route = useRoute();
   const theme = useTheme();
   const [preferences, setPreferences] = useState<PreferenceState>(DEFAULT_PREFERENCES);
+  const routeParams =
+    (route.params as {
+      returnRouteName?: AppRouteName;
+      returnParams?: Record<string, unknown>;
+      returnToNotificationCenter?: boolean;
+    } | undefined) ?? {};
+  const returnRouteLabel = routeParams.returnRouteName?.replace(/([a-z])([A-Z])/g, '$1 $2') ?? 'Previous Screen';
 
   const enabledCount = useMemo(() => Object.values(preferences).filter(Boolean).length, [preferences]);
 
@@ -77,6 +89,65 @@ export function NotificationPreferencesScreen() {
             trailingText={preferences[type] ? 'Enabled' : 'Disabled'}
           />
         ))}
+
+        {routeParams.returnToNotificationCenter ? (
+          <Button
+            label="Back to Notification Center"
+            onPress={() => {
+              if (
+                shouldReplaceRoute(
+                  ROUTE_NAMES.NotificationPreferences,
+                  ROUTE_NAMES.NotificationCenter,
+                  undefined,
+                  {
+                    returnRouteName: routeParams.returnRouteName,
+                    returnParams: routeParams.returnParams,
+                  }
+                )
+              ) {
+                navigation.dispatch(
+                  StackActions.replace(ROUTE_NAMES.NotificationCenter, {
+                    returnRouteName: routeParams.returnRouteName,
+                    returnParams: routeParams.returnParams,
+                  })
+                );
+              }
+            }}
+            variant="secondary"
+          />
+        ) : null}
+
+        <Button
+          label={`Return to ${returnRouteLabel}`}
+          onPress={() => {
+            if (!routeParams.returnRouteName) {
+              if (
+                shouldReplaceRoute(
+                  ROUTE_NAMES.NotificationPreferences,
+                  ROUTE_NAMES.AccountSettings,
+                  undefined,
+                  undefined
+                )
+              ) {
+                navigation.dispatch(StackActions.replace(ROUTE_NAMES.AccountSettings));
+              }
+
+              return;
+            }
+
+            if (
+              shouldReplaceRoute(
+                ROUTE_NAMES.NotificationPreferences,
+                routeParams.returnRouteName,
+                undefined,
+                routeParams.returnParams
+              )
+            ) {
+              navigation.dispatch(StackActions.replace(routeParams.returnRouteName, routeParams.returnParams));
+            }
+          }}
+          variant="secondary"
+        />
       </View>
     </SafeAreaView>
   );

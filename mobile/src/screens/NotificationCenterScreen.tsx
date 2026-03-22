@@ -1,11 +1,12 @@
-import { StackActions, useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge, Button, Card, EmptyStateTemplate, ErrorStateTemplate, ListItem, LoadingStateTemplate, TopBar } from '../components';
 import { NotificationRecord } from '../contracts';
-import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
+import { shouldReplaceRoute } from '../navigation/replaceRouteGuard';
 import { useServiceLocator } from '../services';
 import { useTheme } from '../theme';
 
@@ -21,8 +22,13 @@ const typeToneByType: Record<NotificationRecord['type'], 'info' | 'success' | 'w
 
 export function NotificationCenterScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
   const services = useServiceLocator();
   const theme = useTheme();
+
+  const routeParams =
+    (route.params as { returnRouteName?: AppRouteName; returnParams?: Record<string, unknown> } | undefined) ?? {};
+  const returnRouteLabel = routeParams.returnRouteName?.replace(/([a-z])([A-Z])/g, '$1 $2') ?? 'Previous Screen';
 
   const [isLoading, setIsLoading] = useState(true);
   const [isMarkingRead, setIsMarkingRead] = useState<string | null>(null);
@@ -89,6 +95,27 @@ export function NotificationCenterScreen() {
     [services.notifications]
   );
 
+  const handleReturn = useCallback(() => {
+    if (!routeParams.returnRouteName) {
+      if (shouldReplaceRoute(ROUTE_NAMES.NotificationCenter, ROUTE_NAMES.AccountSettings, undefined, undefined)) {
+        navigation.dispatch(StackActions.replace(ROUTE_NAMES.AccountSettings));
+      }
+
+      return;
+    }
+
+    if (
+      shouldReplaceRoute(
+        ROUTE_NAMES.NotificationCenter,
+        routeParams.returnRouteName,
+        undefined,
+        routeParams.returnParams
+      )
+    ) {
+      navigation.dispatch(StackActions.replace(routeParams.returnRouteName, routeParams.returnParams));
+    }
+  }, [navigation, routeParams.returnParams, routeParams.returnRouteName]);
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}>
       <View style={[styles.top, { paddingHorizontal: theme.spacing.lg, paddingTop: theme.spacing.lg }]}>
@@ -135,7 +162,20 @@ export function NotificationCenterScreen() {
 
         <Button
           label="Notification Preferences"
-          onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.NotificationPreferences))}
+          onPress={() =>
+            navigation.dispatch(
+              StackActions.push(ROUTE_NAMES.NotificationPreferences, {
+                returnRouteName: routeParams.returnRouteName,
+                returnParams: routeParams.returnParams,
+                returnToNotificationCenter: true,
+              })
+            )
+          }
+          variant="secondary"
+        />
+        <Button
+          label={`Return to ${returnRouteLabel}`}
+          onPress={handleReturn}
           variant="secondary"
         />
       </View>

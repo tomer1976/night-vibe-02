@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge, Button, Card, ListItem, TopBar } from '../components';
-import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
 import { sprint04DiscoveryBlockSkipFixtures } from '../mocks';
 import { useTheme } from '../theme';
 
@@ -37,6 +37,19 @@ export function SafetyCenterScreen() {
             Safety actions immediately impact chat eligibility and discovery visibility in Sprint-05 mock scenarios.
           </Text>
         </Card>
+
+        <ListItem
+          onPress={() =>
+            navigation.dispatch(
+              StackActions.push(ROUTE_NAMES.NotificationCenter, {
+                returnRouteName: ROUTE_NAMES.SafetyCenter as AppRouteName,
+              })
+            )
+          }
+          subtitle="Review notification timeline for safety and chat events"
+          title="Notification Center Screen"
+          trailingText="Open"
+        />
 
         <ListItem
           onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.BlockedUsers))}

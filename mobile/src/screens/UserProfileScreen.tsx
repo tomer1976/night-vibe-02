@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Badge, BottomNavShell, Button, Card, EmptyStateTemplate, ListItem, TopBar } from '../components';
 import { isMainTabKey, MAIN_TAB_ITEMS, resolveMainTabRouteName } from '../navigation/mainTabs';
 import { shouldReplaceRoute } from '../navigation/replaceRouteGuard';
-import { ROUTE_NAMES } from '../navigation/routeGroups';
+import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
 import { useProfileDraftState } from '../state';
 import { useTheme } from '../theme';
 import { DEFAULT_ACCOUNT_SETTINGS_DRAFT } from './accountSettingsDraft';
@@ -97,6 +97,18 @@ export function UserProfileScreen() {
           onPress={() => navigation.dispatch(StackActions.push(ROUTE_NAMES.AccountSettings, { draft: DEFAULT_ACCOUNT_SETTINGS_DRAFT }))}
           subtitle="Manage linked accounts and deletion lifecycle"
           title="Account Settings Screen"
+          trailingText="Open"
+        />
+        <ListItem
+          onPress={() =>
+            navigation.dispatch(
+              StackActions.push(ROUTE_NAMES.NotificationCenter, {
+                returnRouteName: ROUTE_NAMES.UserProfile as AppRouteName,
+              })
+            )
+          }
+          subtitle="Review in-app events, read state, and notification categories"
+          title="Notification Center Screen"
           trailingText="Open"
         />
 
