@@ -79,7 +79,7 @@
 - [x] Add deterministic scenario packs for chat eligibility transitions.
 
 ## Navigation Tasks
-- [ ] Wire flow: Venue Details (Matches tab) -> Threads -> Conversation.
+- [x] Wire flow: Venue Details (Matches tab) -> Threads -> Conversation.
 - [ ] Wire report/block entry from conversation and profile preview contexts.
 - [ ] Wire notification entry points and return paths.
 - [ ] Add route guards for ineligible chat sessions.
