@@ -71,6 +71,16 @@ export {
   type MatchStoreState,
 } from './matchStore';
 export {
+  createInitialSafetyStoreState,
+  safetyStoreReducer,
+  selectBlockedUserIds,
+  selectIsUserBlocked,
+  selectLatestSafetyEnforcementEventByTargetUserId,
+  selectSafetyReports,
+  type SafetyStoreAction,
+  type SafetyStoreState,
+} from './safetyStore';
+export {
   selectCheckInEligibilityDisplayState,
   type CheckInEligibilityDisplayState,
   type CheckInEligibilityDisplayStateCode,
