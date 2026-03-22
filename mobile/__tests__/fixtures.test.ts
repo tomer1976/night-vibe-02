@@ -17,6 +17,9 @@ import {
   sprint05SafetyBlockFixtures,
   sprint05SafetyReportFixtures,
   sprint05ModerationOutcomePlaceholderFixtures,
+  sprint05NotificationFixtures,
+  sprint05NotificationDedupScenarioFixtures,
+  sprint05NotificationRateLimitScenarioFixtures,
 } from '../src/mocks';
 
 describe('sprint01 fixtures', () => {
@@ -344,6 +347,48 @@ describe('sprint01 fixtures', () => {
         expect(fixture.resolvedAt).toBeDefined();
       }
       expect(fixture.resolutionSummary.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('includes Sprint-05 notification fixtures with unread and read states', () => {
+    expect(sprint05NotificationFixtures.length).toBeGreaterThanOrEqual(3);
+
+    const fixtureUserIds = new Set(sprint01Fixtures.users.map((user) => user.uid));
+    const readStates = new Set(sprint05NotificationFixtures.map((fixture) => fixture.read));
+
+    expect(readStates).toEqual(new Set([true, false]));
+
+    for (const fixture of sprint05NotificationFixtures) {
+      expect(fixtureUserIds.has(fixture.userId)).toBe(true);
+      expect(fixture.title.length).toBeGreaterThan(0);
+      expect(fixture.body.length).toBeGreaterThan(0);
+      expect(fixture.dedupKey.length).toBeGreaterThan(0);
+      if (fixture.read) {
+        expect(fixture.readAt).toBeDefined();
+      }
+    }
+  });
+
+  it('includes Sprint-05 notification dedup scenarios with deterministic suppression counts', () => {
+    expect(sprint05NotificationDedupScenarioFixtures.length).toBeGreaterThanOrEqual(2);
+
+    for (const fixture of sprint05NotificationDedupScenarioFixtures) {
+      expect(fixture.replayCount).toBeGreaterThan(1);
+      expect(fixture.expectedCreatedCount).toBe(1);
+      expect(fixture.expectedSuppressedCount).toBe(fixture.replayCount - fixture.expectedCreatedCount);
+      expect(fixture.dedupWindowSeconds).toBeGreaterThan(0);
+    }
+  });
+
+  it('includes Sprint-05 notification rate-limit scenarios with delivered and suppressed outcomes', () => {
+    expect(sprint05NotificationRateLimitScenarioFixtures.length).toBeGreaterThanOrEqual(2);
+
+    for (const fixture of sprint05NotificationRateLimitScenarioFixtures) {
+      expect(fixture.attemptedCount).toBe(
+        fixture.expectedDeliveredCount + fixture.expectedSuppressedCount
+      );
+      expect(fixture.expectedDeliveredCount).toBeLessThanOrEqual(fixture.maxNotificationsPerMinute);
+      expect(fixture.expectedSuppressedCount).toBeGreaterThanOrEqual(0);
     }
   });
 });

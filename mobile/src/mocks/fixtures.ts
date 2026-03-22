@@ -233,6 +233,40 @@ export type Sprint05ModerationOutcomePlaceholderFixture = {
   resolvedAt?: string;
 };
 
+export type Sprint05NotificationFixture = {
+  fixtureId: string;
+  notificationId: string;
+  userId: string;
+  type: 'match_notification' | 'message_notification' | 'venue_activity_notification' | 'safety_notification' | 'system_notification';
+  title: string;
+  body: string;
+  read: boolean;
+  readAt?: string;
+  createdAt: string;
+  eventId: string;
+  eventType: string;
+  dedupKey: string;
+};
+
+export type Sprint05NotificationDedupScenarioFixture = {
+  scenarioId: string;
+  userId: string;
+  dedupKey: string;
+  dedupWindowSeconds: number;
+  replayCount: number;
+  expectedCreatedCount: number;
+  expectedSuppressedCount: number;
+};
+
+export type Sprint05NotificationRateLimitScenarioFixture = {
+  scenarioId: string;
+  userId: string;
+  maxNotificationsPerMinute: number;
+  attemptedCount: number;
+  expectedDeliveredCount: number;
+  expectedSuppressedCount: number;
+};
+
 export type MockFixtureSet = {
   users: readonly MockFixtureUser[];
   roleContexts: readonly MockFixtureRoleContext[];
@@ -1002,6 +1036,90 @@ export const sprint05ModerationOutcomePlaceholderFixtures: readonly Sprint05Mode
       action: 'no_action',
       status: 'pending',
       resolutionSummary: 'Placeholder outcome pending insufficient evidence review.',
+    }),
+  ]);
+
+export const sprint05NotificationFixtures: readonly Sprint05NotificationFixture[] = Object.freeze([
+  Object.freeze({
+    fixtureId: 's5-notification-match-unread',
+    notificationId: 'notif-s5-001',
+    userId: 'u-regular-1',
+    type: 'match_notification',
+    title: 'You have a new match',
+    body: 'Jordan matched with you at Halo Club.',
+    read: false,
+    createdAt: '2026-03-08T19:24:00.000Z',
+    eventId: 'event-s5-match-001',
+    eventType: 'match_created',
+    dedupKey: 'match_created:u-owner-1:u-regular-1:v-halo-club',
+  }),
+  Object.freeze({
+    fixtureId: 's5-notification-message-read',
+    notificationId: 'notif-s5-002',
+    userId: 'u-regular-1',
+    type: 'message_notification',
+    title: 'New message',
+    body: 'Jordan: See you near the dance floor.',
+    read: true,
+    readAt: '2026-03-08T19:20:10.000Z',
+    createdAt: '2026-03-08T19:19:05.000Z',
+    eventId: 'event-s5-message-001',
+    eventType: 'message_received',
+    dedupKey: 'message_received:chat-u-owner-1-u-regular-1:active-latest',
+  }),
+  Object.freeze({
+    fixtureId: 's5-notification-safety-unread',
+    notificationId: 'notif-s5-003',
+    userId: 'u-owner-1',
+    type: 'safety_notification',
+    title: 'Safety update',
+    body: 'A report was submitted and is pending review.',
+    read: false,
+    createdAt: '2026-03-08T20:12:10.000Z',
+    eventId: 'event-s5-safety-001',
+    eventType: 'report_submitted',
+    dedupKey: 'report_submitted:report-s5-002',
+  }),
+]);
+
+export const sprint05NotificationDedupScenarioFixtures: readonly Sprint05NotificationDedupScenarioFixture[] = Object.freeze([
+  Object.freeze({
+    scenarioId: 's5-notif-dedup-match-replay',
+    userId: 'u-regular-1',
+    dedupKey: 'match_created:u-owner-1:u-regular-1:v-halo-club',
+    dedupWindowSeconds: 30,
+    replayCount: 3,
+    expectedCreatedCount: 1,
+    expectedSuppressedCount: 2,
+  }),
+  Object.freeze({
+    scenarioId: 's5-notif-dedup-message-retry',
+    userId: 'u-regular-1',
+    dedupKey: 'message_received:chat-u-owner-1-u-regular-1:active-latest',
+    dedupWindowSeconds: 30,
+    replayCount: 2,
+    expectedCreatedCount: 1,
+    expectedSuppressedCount: 1,
+  }),
+]);
+
+export const sprint05NotificationRateLimitScenarioFixtures: readonly Sprint05NotificationRateLimitScenarioFixture[] =
+  Object.freeze([
+    Object.freeze({
+      scenarioId: 's5-notif-rate-limit-burst-25',
+      userId: 'u-regular-1',
+      maxNotificationsPerMinute: 20,
+      attemptedCount: 25,
+      expectedDeliveredCount: 20,
+      expectedSuppressedCount: 5,
+    }),
+    Object.freeze({
+      scenarioId: 's5-notif-rate-limit-at-threshold',
+      userId: 'u-owner-1',
+      maxNotificationsPerMinute: 20,
+      attemptedCount: 20,
+      expectedDeliveredCount: 20,
+      expectedSuppressedCount: 0,
     }),
   ]);
 

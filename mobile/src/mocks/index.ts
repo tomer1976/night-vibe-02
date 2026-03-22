@@ -33,6 +33,9 @@ export {
   sprint05SafetyReportFixtures,
   sprint05ChatThreadFixtures,
   sprint05ModerationOutcomePlaceholderFixtures,
+  sprint05NotificationDedupScenarioFixtures,
+  sprint05NotificationFixtures,
+  sprint05NotificationRateLimitScenarioFixtures,
   sprint05TypingIndicatorScenarioFixtures,
   type MockDiscoveryCoordinates,
   type MockFixtureInteraction,
@@ -62,5 +65,8 @@ export {
   type Sprint05ChatThreadFixture,
   type Sprint05ChatThreadStatus,
   type Sprint05ModerationOutcomePlaceholderFixture,
+  type Sprint05NotificationDedupScenarioFixture,
+  type Sprint05NotificationFixture,
+  type Sprint05NotificationRateLimitScenarioFixture,
   type Sprint05TypingIndicatorScenarioFixture,
 } from './fixtures';

@@ -75,7 +75,7 @@
 - [x] Create mock chat thread/message fixture sets with delivery/read states.
 - [x] Create typing indicator scenario fixtures with timeout behavior.
 - [x] Create block/report fixture states and moderation outcome placeholders.
-- [ ] Create notification fixtures for unread/read, dedup, and rate-limit scenarios.
+- [x] Create notification fixtures for unread/read, dedup, and rate-limit scenarios.
 - [ ] Add deterministic scenario packs for chat eligibility transitions.
 
 ## Navigation Tasks
