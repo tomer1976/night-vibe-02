@@ -95,7 +95,7 @@
 ## State-Management Tasks
 - [x] Implement chat store for threads, messages, and eligibility state.
 - [x] Implement safety store for block/report and enforcement outcomes.
-- [ ] Implement notification store for read state and preference filters.
+- [x] Implement notification store for read state and preference filters.
 - [ ] Implement event-bus handling for cross-surface state updates.
 
 ## Testing Tasks
