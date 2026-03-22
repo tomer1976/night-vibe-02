@@ -68,6 +68,19 @@ describe('dark-theme contrast and accessibility baseline', () => {
     });
   });
 
+  it('meets AA contrast for button text on primary and destructive variants', () => {
+    const { colors } = nightVibeDarkTheme;
+
+    const pairs = [
+      [colors.textOnAccent, colors.accentPrimary],
+      [colors.textOnAccent, colors.danger],
+    ] as const;
+
+    pairs.forEach(([foreground, background]) => {
+      expect(contrastRatio(foreground, background)).toBeGreaterThanOrEqual(4.5);
+    });
+  });
+
   it('exposes accessibility labels and roles on core interactive controls', () => {
     const { getByLabelText } = render(
       <ThemeProvider>

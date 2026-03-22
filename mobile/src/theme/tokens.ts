@@ -2,8 +2,10 @@ export type ThemeColors = {
   backgroundPrimary: string;
   backgroundSecondary: string;
   surfaceCard: string;
+  overlayScrim: string;
   textPrimary: string;
   textSecondary: string;
+  textOnAccent: string;
   accentPrimary: string;
   accentSecondary: string;
   success: string;
@@ -52,8 +54,10 @@ export const nightVibeDarkTheme: ThemeTokens = {
     backgroundPrimary: '#090B14',
     backgroundSecondary: '#11162A',
     surfaceCard: '#1A2034',
+    overlayScrim: 'rgba(9, 11, 20, 0.72)',
     textPrimary: '#F5F7FF',
     textSecondary: '#9AA6C2',
+    textOnAccent: '#06080F',
     accentPrimary: '#7A5CFF',
     accentSecondary: '#E64EC8',
     success: '#17C6A3',

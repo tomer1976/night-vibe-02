@@ -31,7 +31,7 @@ export function ConfirmationModal({
       <Pressable
         accessibilityLabel="Close confirmation modal"
         onPress={onCancel}
-        style={[styles.overlay, { backgroundColor: 'rgba(0, 0, 0, 0.55)' }]}
+        style={[styles.overlay, { backgroundColor: theme.colors.overlayScrim }]}
       >
         <Pressable
           onPress={(event) => event.stopPropagation()}

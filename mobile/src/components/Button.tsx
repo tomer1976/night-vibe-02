@@ -14,6 +14,12 @@ type ButtonProps = {
 export function Button({ label, onPress, variant = 'primary', disabled = false }: ButtonProps) {
   const theme = useTheme();
 
+  const labelColorByVariant: Record<ButtonVariant, string> = {
+    primary: theme.colors.textOnAccent,
+    secondary: theme.colors.textPrimary,
+    destructive: theme.colors.textOnAccent,
+  };
+
   const variantStyles: Record<ButtonVariant, ViewStyle> = {
     primary: {
       backgroundColor: theme.colors.accentPrimary,
@@ -40,7 +46,7 @@ export function Button({ label, onPress, variant = 'primary', disabled = false }
         variantStyles[variant],
       ]}
     >
-      <Text style={[styles.label, { color: theme.colors.textPrimary }]}>{label}</Text>
+      <Text style={[styles.label, { color: labelColorByVariant[variant] }]}>{label}</Text>
     </Pressable>
   );
 }

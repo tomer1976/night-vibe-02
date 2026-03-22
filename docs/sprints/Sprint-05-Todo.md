@@ -89,7 +89,7 @@
 - [x] Build delivery/read status indicators for message rows.
 - [x] Build safety status banners and confirmation modals.
 - [x] Build notification item variants by type and read status.
-- [ ] Ensure dark-theme consistency and accessibility contrast.
+- [x] Ensure dark-theme consistency and accessibility contrast.
 - [ ] Implement top banner variant for main pages and back-arrow variant for non-main pages.
 
 ## State-Management Tasks
