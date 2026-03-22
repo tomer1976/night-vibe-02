@@ -212,18 +212,21 @@ describe('chat conversation screen', () => {
     fireEvent.press(screen.getByText('Send'));
 
     expect(await screen.findByText('On my way')).toBeTruthy();
+    expect(await screen.findByText('Delivery: Sent')).toBeTruthy();
     expect(await screen.findByText('Sent')).toBeTruthy();
 
     await act(async () => {
       jest.advanceTimersByTime(700);
     });
 
+    expect(await screen.findByText('Delivery: Delivered')).toBeTruthy();
     expect(await screen.findByText('Delivered')).toBeTruthy();
 
     await act(async () => {
       jest.advanceTimersByTime(800);
     });
 
+    expect(await screen.findByText('Delivery: Read')).toBeTruthy();
     expect(await screen.findByText('Read')).toBeTruthy();
   });
 

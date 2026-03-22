@@ -43,6 +43,13 @@ const DELIVERY_TONE: Record<LocalMessage['deliveryStatus'], 'info' | 'success' |
   failed: 'danger',
 };
 
+const DELIVERY_ROW_LABEL: Record<LocalMessage['deliveryStatus'], string> = {
+  sent: 'Delivery: Sent',
+  delivered: 'Delivery: Delivered',
+  read: 'Delivery: Read',
+  failed: 'Delivery: Failed',
+};
+
 const getDisabledReasonLabel = (reason: ChatEligibilityFailureReason | 'thread_blocked' | 'thread_expired' | undefined) => {
   if (reason === 'blocked' || reason === 'thread_blocked') {
     return 'Chat is disabled because a safety block is active.';
@@ -325,10 +332,15 @@ export function ChatConversationScreen() {
                         {formatMessageTime(message.sentAtIso)}
                       </Text>
                       {message.sender === 'me' ? (
-                        <Badge
-                          label={DELIVERY_LABEL[message.deliveryStatus]}
-                          tone={DELIVERY_TONE[message.deliveryStatus]}
-                        />
+                        <View style={styles.deliveryStatusRow}>
+                          <Text style={{ color: theme.colors.textSecondary, fontSize: theme.typography.meta }}>
+                            {DELIVERY_ROW_LABEL[message.deliveryStatus]}
+                          </Text>
+                          <Badge
+                            label={DELIVERY_LABEL[message.deliveryStatus]}
+                            tone={DELIVERY_TONE[message.deliveryStatus]}
+                          />
+                        </View>
                       ) : null}
                     </View>
                   </View>
@@ -462,6 +474,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
     justifyContent: 'space-between',
+  },
+  deliveryStatusRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 6,
   },
   actionRow: {
     flexDirection: 'row',

@@ -86,7 +86,7 @@
 
 ## UI Tasks
 - [x] Build message composer disabled-state UI with reason labels.
-- [ ] Build delivery/read status indicators for message rows.
+- [x] Build delivery/read status indicators for message rows.
 - [ ] Build safety status banners and confirmation modals.
 - [ ] Build notification item variants by type and read status.
 - [ ] Ensure dark-theme consistency and accessibility contrast.
