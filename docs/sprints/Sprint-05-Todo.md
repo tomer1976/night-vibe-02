@@ -101,7 +101,7 @@
 ## Testing Tasks
 - [x] Add happy-path tests for message send/deliver/read flows.
 - [x] Add eligibility tests for `match_active + same_venue` constraints.
-- [ ] Add block/report action tests and immediate enforcement checks.
+- [x] Add block/report action tests and immediate enforcement checks.
 - [ ] Add typing indicator timeout tests.
 - [ ] Add notification dedup/rate-limit and preference tests.
 - [ ] Add regression tests for Sprint 03/04 integrations.
