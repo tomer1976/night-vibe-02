@@ -1,5 +1,5 @@
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -111,6 +111,8 @@ const formatStatusLabel = (status: ChatConversationRouteParams['threadStatus']) 
   return status;
 };
 
+const ELIGIBILITY_REFRESH_INTERVAL_MS = 5_000;
+
 export function ChatConversationScreen() {
   const navigation = useNavigation();
   const route = useRoute();
@@ -163,47 +165,55 @@ export function ChatConversationScreen() {
     [composerDisabled, draftMessage]
   );
 
+  const validateConversationEntryEligibility = useCallback(async () => {
+    if (!params.chatId) {
+      return;
+    }
+
+    const response = await services.chat.getEligibility(params.chatId);
+
+    if (response.status === 'SUCCESS') {
+      setEligibilityFailureReason(response.data.eligible ? undefined : response.data.reason);
+      return;
+    }
+
+    if (isChatEligibilityFailureCode(response.error.code)) {
+      const fallbackRoute = resolveChatEligibilityFallbackRoute(response.error.code, params.venueId);
+
+      if (
+        shouldReplaceRoute(
+          ROUTE_NAMES.ChatConversation,
+          fallbackRoute.routeName,
+          undefined,
+          fallbackRoute.params
+        )
+      ) {
+        navigation.dispatch(StackActions.replace(fallbackRoute.routeName, fallbackRoute.params));
+      }
+    }
+  }, [navigation, params.chatId, params.venueId, services.chat]);
+
   useEffect(() => {
     let cancelled = false;
 
-    async function validateConversationEntryEligibility() {
-      if (!params.chatId) {
-        return;
-      }
-
-      const response = await services.chat.getEligibility(params.chatId);
+    const refreshEligibility = async () => {
+      await validateConversationEntryEligibility();
 
       if (cancelled) {
         return;
       }
+    };
 
-      if (response.status === 'SUCCESS') {
-        setEligibilityFailureReason(response.data.eligible ? undefined : response.data.reason);
-        return;
-      }
-
-      if (isChatEligibilityFailureCode(response.error.code)) {
-        const fallbackRoute = resolveChatEligibilityFallbackRoute(response.error.code, params.venueId);
-
-        if (
-          shouldReplaceRoute(
-            ROUTE_NAMES.ChatConversation,
-            fallbackRoute.routeName,
-            undefined,
-            fallbackRoute.params
-          )
-        ) {
-          navigation.dispatch(StackActions.replace(fallbackRoute.routeName, fallbackRoute.params));
-        }
-      }
-    }
-
-    void validateConversationEntryEligibility();
+    void refreshEligibility();
+    const intervalId = setInterval(() => {
+      void refreshEligibility();
+    }, ELIGIBILITY_REFRESH_INTERVAL_MS);
 
     return () => {
       cancelled = true;
+      clearInterval(intervalId);
     };
-  }, [navigation, params.chatId, params.venueId, services.chat]);
+  }, [validateConversationEntryEligibility]);
 
   useEffect(
     () => () => {

@@ -338,4 +338,67 @@ describe('chat conversation screen', () => {
 
     expect(await screen.findByText('Nearby Venues Screen Stub')).toBeTruthy();
   });
+
+  it('refreshes eligibility while open and disables composer when session becomes ineligible', async () => {
+    jest.useFakeTimers();
+
+    const locator = createMockBackendServiceLocator();
+    let eligibilityCallCount = 0;
+
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      chat: {
+        ...locator.services.chat,
+        getEligibility: async (chatId) => {
+          eligibilityCallCount += 1;
+
+          if (eligibilityCallCount === 1) {
+            return {
+              status: 'SUCCESS',
+              data: {
+                chatId,
+                eligible: true,
+                evaluatedAt: '2026-03-22T10:00:00.000Z',
+              },
+              request_id: 'req-chat-eligibility-initial-eligible',
+            };
+          }
+
+          return {
+            status: 'SUCCESS',
+            data: {
+              chatId,
+              eligible: false,
+              reason: 'left_venue',
+              evaluatedAt: '2026-03-22T10:00:05.000Z',
+            },
+            request_id: 'req-chat-eligibility-refresh-ineligible',
+          };
+        },
+      },
+    };
+
+    const screen = render(
+      <ChatConversationTestNavigator
+        initialParams={{
+          chatId: 'chat-open-refresh',
+          counterpartName: 'Parker',
+          matchId: 'match-open-refresh',
+          threadStatus: 'active',
+          venueId: 'v-midtown',
+        }}
+        servicesOverride={servicesOverride}
+      />
+    );
+
+    expect(await screen.findByText('Parker Conversation')).toBeTruthy();
+    expect(screen.queryByPlaceholderText('Chat is disabled.')).toBeNull();
+
+    await act(async () => {
+      jest.advanceTimersByTime(5_500);
+    });
+
+    expect(await screen.findAllByText('Chat is disabled because you are no longer checked in at this venue.')).toHaveLength(2);
+    expect(screen.getByPlaceholderText('Chat is disabled.')).toBeTruthy();
+  });
 });

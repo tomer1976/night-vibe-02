@@ -107,7 +107,7 @@
 - [x] Add regression tests for Sprint 03/04 integrations.
 
 ## Bugfix/Stabilization Tasks
-- [ ] Resolve stale eligibility state in open chat threads.
+- [x] Resolve stale eligibility state in open chat threads.
 - [ ] Fix duplicate notification rendering under rapid events.
 - [ ] Fix inconsistent blocked-user visibility across screens.
 
