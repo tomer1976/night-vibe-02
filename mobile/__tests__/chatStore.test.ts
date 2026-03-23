@@ -231,4 +231,88 @@ describe('chatStore', () => {
       evaluatedAt: '2026-03-22T22:35:00.000Z',
     });
   });
+
+  it('enforces active-match plus same-venue as a combined eligibility gate', () => {
+    const scenarios = [
+      {
+        name: 'eligible only when matched and both users are in required venue',
+        input: {
+          chatId: 'chat-alpha',
+          requiredVenueId: 'v-halo-club',
+          matchStatus: 'matched' as const,
+          chatStatus: 'active' as const,
+          viewerSessionVenueId: 'v-halo-club',
+          counterpartSessionVenueId: 'v-halo-club',
+          hasActiveBlock: false,
+          hasModerationAction: false,
+          evaluatedAt: '2026-03-22T22:36:00.000Z',
+        },
+        expected: {
+          eligible: true,
+          reason: undefined,
+        },
+      },
+      {
+        name: 'inactive match denies chat even when co-located',
+        input: {
+          chatId: 'chat-alpha',
+          requiredVenueId: 'v-halo-club',
+          matchStatus: 'expired' as const,
+          chatStatus: 'active' as const,
+          viewerSessionVenueId: 'v-halo-club',
+          counterpartSessionVenueId: 'v-halo-club',
+          hasActiveBlock: false,
+          hasModerationAction: false,
+          evaluatedAt: '2026-03-22T22:37:00.000Z',
+        },
+        expected: {
+          eligible: false,
+          reason: 'match_expired' as const,
+        },
+      },
+      {
+        name: 'different venue denies chat despite active match',
+        input: {
+          chatId: 'chat-alpha',
+          requiredVenueId: 'v-halo-club',
+          matchStatus: 'matched' as const,
+          chatStatus: 'active' as const,
+          viewerSessionVenueId: 'v-luna-lounge',
+          counterpartSessionVenueId: 'v-halo-club',
+          hasActiveBlock: false,
+          hasModerationAction: false,
+          evaluatedAt: '2026-03-22T22:38:00.000Z',
+        },
+        expected: {
+          eligible: false,
+          reason: 'left_venue' as const,
+        },
+      },
+      {
+        name: 'missing counterpart session denies chat',
+        input: {
+          chatId: 'chat-alpha',
+          requiredVenueId: 'v-halo-club',
+          matchStatus: 'matched' as const,
+          chatStatus: 'active' as const,
+          viewerSessionVenueId: 'v-halo-club',
+          counterpartSessionVenueId: null,
+          hasActiveBlock: false,
+          hasModerationAction: false,
+          evaluatedAt: '2026-03-22T22:39:00.000Z',
+        },
+        expected: {
+          eligible: false,
+          reason: 'not_checked_in' as const,
+        },
+      },
+    ];
+
+    for (const scenario of scenarios) {
+      const result = computeChatEligibilityResult(scenario.input);
+
+      expect(result.eligible).toBe(scenario.expected.eligible);
+      expect(result.reason).toBe(scenario.expected.reason);
+    }
+  });
 });

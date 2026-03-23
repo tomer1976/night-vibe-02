@@ -180,4 +180,66 @@ describe('crossSurfaceEventBus', () => {
     expect(selectIsUserBlocked(replayed.safety, 'u-9')).toBe(false);
     expect(replayed.safety.reportsById['report-2']).toBeTruthy();
   });
+
+  it('recomputes eligibility deterministically during rapid venue and match transitions', () => {
+    const stores = {
+      chat: createInitialChatStoreState(),
+      safety: createInitialSafetyStoreState(),
+      discovery: createInitialDiscoveryFeedStoreState(),
+      notifications: createInitialNotificationStoreState('2026-03-23T22:04:00.000Z'),
+    };
+
+    const replayed = replayCrossSurfaceEvents(stores, [
+      {
+        eventId: 'evt-match-rapid-1',
+        occurredAt: '2026-03-23T22:04:00.000Z',
+        type: 'MATCH_STATUS_CHANGED',
+        payload: {
+          chatId: 'chat-u-1-u-5',
+          requiredVenueId: 'v-halo-club',
+          matchStatus: 'matched',
+          chatStatus: 'active',
+          viewerSessionVenueId: 'v-halo-club',
+          counterpartSessionVenueId: 'v-luna-lounge',
+          hasActiveBlock: false,
+          hasModerationAction: false,
+        },
+      },
+      {
+        eventId: 'evt-match-rapid-2',
+        occurredAt: '2026-03-23T22:04:05.000Z',
+        type: 'MATCH_STATUS_CHANGED',
+        payload: {
+          chatId: 'chat-u-1-u-5',
+          requiredVenueId: 'v-halo-club',
+          matchStatus: 'matched',
+          chatStatus: 'active',
+          viewerSessionVenueId: 'v-halo-club',
+          counterpartSessionVenueId: 'v-halo-club',
+          hasActiveBlock: false,
+          hasModerationAction: false,
+        },
+      },
+      {
+        eventId: 'evt-match-rapid-3',
+        occurredAt: '2026-03-23T22:04:10.000Z',
+        type: 'MATCH_STATUS_CHANGED',
+        payload: {
+          chatId: 'chat-u-1-u-5',
+          requiredVenueId: 'v-halo-club',
+          matchStatus: 'expired',
+          chatStatus: 'expired',
+          viewerSessionVenueId: 'v-halo-club',
+          counterpartSessionVenueId: 'v-halo-club',
+          hasActiveBlock: false,
+          hasModerationAction: false,
+        },
+      },
+    ]);
+
+    const finalEligibility = selectChatEligibilityByChatId(replayed.chat, 'chat-u-1-u-5');
+    expect(finalEligibility?.eligible).toBe(false);
+    expect(finalEligibility?.reason).toBe('match_expired');
+    expect(finalEligibility?.evaluatedAt).toBe('2026-03-23T22:04:10.000Z');
+  });
 });
