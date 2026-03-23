@@ -96,7 +96,7 @@
 - [x] Implement chat store for threads, messages, and eligibility state.
 - [x] Implement safety store for block/report and enforcement outcomes.
 - [x] Implement notification store for read state and preference filters.
-- [ ] Implement event-bus handling for cross-surface state updates.
+- [x] Implement event-bus handling for cross-surface state updates.
 
 ## Testing Tasks
 - [ ] Add happy-path tests for message send/deliver/read flows.

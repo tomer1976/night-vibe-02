@@ -91,6 +91,19 @@ export {
   type NotificationStoreState,
 } from './notificationStore';
 export {
+  createInitialCrossSurfaceEventBusState,
+  crossSurfaceEventBusReducer,
+  projectCrossSurfaceEvent,
+  replayCrossSurfaceEvents,
+  type CrossSurfaceEvent,
+  type CrossSurfaceEventBusAction,
+  type CrossSurfaceEventBusState,
+  type CrossSurfaceStores,
+  type MatchStatusChangedCrossSurfacePayload,
+  type NotificationEmittedCrossSurfacePayload,
+  type SafetyEnforcementCrossSurfacePayload,
+} from './crossSurfaceEventBus';
+export {
   selectCheckInEligibilityDisplayState,
   type CheckInEligibilityDisplayState,
   type CheckInEligibilityDisplayStateCode,
