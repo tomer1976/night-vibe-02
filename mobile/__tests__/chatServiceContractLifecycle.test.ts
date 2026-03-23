@@ -2,6 +2,70 @@ import { createMockBackendServiceLocator } from '../src/services';
 import { sprint05TypingIndicatorScenarioFixtures } from '../src/mocks';
 
 describe('chat service lifecycle contract', () => {
+  it('completes message happy-path lifecycle in deterministic sent->delivered->read order', async () => {
+    const locator = createMockBackendServiceLocator();
+    const threadsResponse = await locator.services.chat.getThreads();
+
+    expect(threadsResponse.status).toBe('SUCCESS');
+    if (threadsResponse.status !== 'SUCCESS') {
+      throw new Error('Expected successful threads response.');
+    }
+
+    const activeThread = threadsResponse.data.find((thread) => thread.status === 'active');
+    expect(activeThread).toBeTruthy();
+
+    if (!activeThread) {
+      throw new Error('Expected at least one active thread fixture.');
+    }
+
+    const sendResponse = await locator.services.chat.sendMessageWithLifecycle({
+      chatId: activeThread.chatId,
+      messageText: 'Happy path message',
+    });
+
+    expect(sendResponse.status).toBe('SUCCESS');
+    if (sendResponse.status !== 'SUCCESS') {
+      throw new Error('Expected successful send response.');
+    }
+
+    const deliveredResponse = await locator.services.chat.markMessageDelivered(
+      sendResponse.data.chatId,
+      sendResponse.data.messageId
+    );
+    expect(deliveredResponse.status).toBe('SUCCESS');
+    if (deliveredResponse.status !== 'SUCCESS') {
+      throw new Error('Expected successful delivered response.');
+    }
+
+    const readResponse = await locator.services.chat.markMessageRead(
+      sendResponse.data.chatId,
+      sendResponse.data.messageId
+    );
+    expect(readResponse.status).toBe('SUCCESS');
+    if (readResponse.status !== 'SUCCESS') {
+      throw new Error('Expected successful read response.');
+    }
+
+    expect(new Date(deliveredResponse.data.updatedAt).getTime()).toBeGreaterThanOrEqual(
+      new Date(sendResponse.data.sentAt).getTime()
+    );
+    expect(new Date(readResponse.data.updatedAt).getTime()).toBeGreaterThanOrEqual(
+      new Date(deliveredResponse.data.updatedAt).getTime()
+    );
+
+    const messagesResponse = await locator.services.chat.listMessages(activeThread.chatId);
+    expect(messagesResponse.status).toBe('SUCCESS');
+    if (messagesResponse.status !== 'SUCCESS') {
+      throw new Error('Expected successful messages response.');
+    }
+
+    const createdMessage = messagesResponse.data.find((message) => message.messageId === sendResponse.data.messageId);
+
+    expect(createdMessage?.deliveryStatus).toBe('read');
+    expect(createdMessage?.deliveredAt).toBeTruthy();
+    expect(createdMessage?.readAt).toBeTruthy();
+  });
+
   it('returns chat eligibility and lifecycle transitions for active thread messages', async () => {
     const locator = createMockBackendServiceLocator();
     const threadsResponse = await locator.services.chat.getThreads();
