@@ -196,4 +196,47 @@ describe('chat service lifecycle contract', () => {
       new Date(new Date(stopBaselineIso).getTime() + stopScenario.timeoutMs).toISOString()
     );
   });
+
+  it('falls back to deterministic active timeout fixture when thread status is unavailable', async () => {
+    const locator = createMockBackendServiceLocator();
+    const activeStartScenario = sprint05TypingIndicatorScenarioFixtures.find(
+      (fixture) => fixture.typing && fixture.threadStatus === 'active'
+    );
+    const stopScenario = sprint05TypingIndicatorScenarioFixtures.find(
+      (fixture) => !fixture.typing && fixture.threadStatus === 'any'
+    );
+
+    expect(activeStartScenario).toBeDefined();
+    expect(stopScenario).toBeDefined();
+
+    if (!activeStartScenario || !stopScenario) {
+      throw new Error('Expected typing start/stop fixtures to exist.');
+    }
+
+    const startBaselineIso = locator.clock.peek();
+    const startResponse = await locator.services.chat.setTypingIndicator('chat-unknown-fallback', true);
+
+    expect(startResponse.status).toBe('SUCCESS');
+    if (startResponse.status !== 'SUCCESS') {
+      throw new Error('Expected successful typing response for unknown thread start.');
+    }
+
+    expect(startResponse.data.typing).toBe(true);
+    expect(startResponse.data.expiresAt).toBe(
+      new Date(new Date(startBaselineIso).getTime() + activeStartScenario.timeoutMs).toISOString()
+    );
+
+    const stopBaselineIso = locator.clock.peek();
+    const stopResponse = await locator.services.chat.setTypingIndicator('chat-unknown-fallback', false);
+
+    expect(stopResponse.status).toBe('SUCCESS');
+    if (stopResponse.status !== 'SUCCESS') {
+      throw new Error('Expected successful typing response for unknown thread stop.');
+    }
+
+    expect(stopResponse.data.typing).toBe(false);
+    expect(stopResponse.data.expiresAt).toBe(
+      new Date(new Date(stopBaselineIso).getTime() + stopScenario.timeoutMs).toISOString()
+    );
+  });
 });
