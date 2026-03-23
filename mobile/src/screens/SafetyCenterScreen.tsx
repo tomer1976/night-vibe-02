@@ -1,24 +1,23 @@
+import { useEffect, useState } from 'react';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge, Button, Card, ListItem, SafetyStatusBanner, TopBar } from '../components';
 import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
-import { sprint04DiscoveryBlockSkipFixtures } from '../mocks';
+import { getMockBlockedUsers, subscribeToMockBlockedUsers } from '../state/mockBlockedUsersRegistry';
 import { useTheme } from '../theme';
-
-const ACTIVE_USER_ID = 'u-regular-1';
-
-function getBlockedCount() {
-  const fixture = sprint04DiscoveryBlockSkipFixtures.find((item) => item.viewerUserId === ACTIVE_USER_ID);
-  return fixture?.blockedUserIds.length ?? 0;
-}
 
 export function SafetyCenterScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
+  const [blockedCount, setBlockedCount] = useState(getMockBlockedUsers().length);
 
-  const blockedCount = getBlockedCount();
+  useEffect(() => {
+    return subscribeToMockBlockedUsers((entries) => {
+      setBlockedCount(entries.length);
+    });
+  }, []);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.backgroundPrimary }]}> 

@@ -8,6 +8,7 @@ import { ROUTE_NAMES } from '../src/navigation';
 import { ChatConversationScreen, ChatThreadsScreen, UserEntryScreen } from '../src/screens';
 import { createMockBackendServiceLocator, ServiceLocatorProvider } from '../src/services';
 import { AppStateProvider } from '../src/state';
+import { applyMockBlockUser, resetMockBlockedUsersRegistry } from '../src/state/mockBlockedUsersRegistry';
 import { ThemeProvider } from '../src/theme';
 
 const Stack = createNativeStackNavigator();
@@ -62,6 +63,10 @@ function ChatThreadsTestNavigator({
 }
 
 describe('chat threads screen', () => {
+  beforeEach(() => {
+    resetMockBlockedUsersRegistry();
+  });
+
   it('renders latest message previews and status badges', async () => {
     const locator = createMockBackendServiceLocator();
 
@@ -130,6 +135,51 @@ describe('chat threads screen', () => {
     expect(await screen.findByText('Status: expired')).toBeTruthy();
     expect(await screen.findByText('Threads: 2')).toBeTruthy();
     expect(await screen.findByText('Active: 1')).toBeTruthy();
+  });
+
+  it('filters blocked counterparts from thread visibility', async () => {
+    applyMockBlockUser({ userId: 'u-10', displayName: 'Jordan' });
+
+    const locator = createMockBackendServiceLocator();
+
+    const servicesOverride: BackendServiceContracts = {
+      ...locator.services,
+      chat: {
+        ...locator.services.chat,
+        getThreads: async () => ({
+          status: 'SUCCESS',
+          data: [
+            buildThread({
+              chatId: 'chat-blocked-target',
+              matchId: 'match-blocked-target',
+              counterpart: {
+                userId: 'u-10',
+                displayName: 'Jordan',
+                age: 27,
+                gender: 'female',
+              },
+            }),
+            buildThread({
+              chatId: 'chat-visible-target',
+              matchId: 'match-visible-target',
+              counterpart: {
+                userId: 'u-11',
+                displayName: 'Avery',
+                age: 31,
+                gender: 'male',
+              },
+            }),
+          ],
+          request_id: 'req-chat-threads-block-filter',
+        }),
+      },
+    };
+
+    const screen = render(<ChatThreadsTestNavigator servicesOverride={servicesOverride} />);
+
+    expect(await screen.findByText('Threads: 1')).toBeTruthy();
+    expect(screen.queryByText('Jordan • 27 • female')).toBeNull();
+    expect(await screen.findByText('Avery • 31 • male')).toBeTruthy();
   });
 
   it('renders empty state when no chat threads are available', async () => {

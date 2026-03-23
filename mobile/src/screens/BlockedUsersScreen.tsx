@@ -1,61 +1,67 @@
 import { StackActions, useNavigation } from '@react-navigation/native';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge, Button, Card, EmptyStateTemplate, ListItem, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
-import { sprint01Fixtures, sprint04DiscoveryBlockSkipFixtures } from '../mocks';
+import { sprint01Fixtures } from '../mocks';
+import {
+  applyMockUnblockUser,
+  getMockBlockedUsers,
+  subscribeToMockBlockedUsers,
+  type MockBlockedUserEntry,
+} from '../state/mockBlockedUsersRegistry';
 import { useTheme } from '../theme';
 
 type BlockedUserView = {
   userId: string;
   displayName: string;
-  age: number;
-  gender: 'male' | 'female' | 'non_binary';
+  age: number | null;
+  gender: 'male' | 'female' | 'non_binary' | 'unknown';
 };
 
-const ACTIVE_USER_ID = 'u-regular-1';
+function toBlockedUserView(entry: MockBlockedUserEntry): BlockedUserView {
+  const seededUser = sprint01Fixtures.users.find((user) => user.uid === entry.userId);
 
-function buildSeedBlockedUsers(): BlockedUserView[] {
-  const fixture = sprint04DiscoveryBlockSkipFixtures.find((item) => item.viewerUserId === ACTIVE_USER_ID);
-  const blockedUserIds = fixture?.blockedUserIds?.length
-    ? fixture.blockedUserIds
-    : sprint04DiscoveryBlockSkipFixtures[0]?.blockedUserIds ?? [];
+  if (seededUser) {
+    return {
+      userId: seededUser.uid,
+      displayName: seededUser.displayName,
+      age: seededUser.age,
+      gender: seededUser.gender,
+    };
+  }
 
-  return blockedUserIds
-    .map((userId) => {
-      const user = sprint01Fixtures.users.find((entry) => entry.uid === userId);
-
-      if (!user) {
-        return null;
-      }
-
-      return {
-        userId: user.uid,
-        displayName: user.displayName,
-        age: user.age,
-        gender: user.gender,
-      };
-    })
-    .filter((user): user is BlockedUserView => user !== null);
+  return {
+    userId: entry.userId,
+    displayName: entry.displayName ?? 'Unknown user',
+    age: null,
+    gender: 'unknown',
+  };
 }
 
 function formatGender(gender: BlockedUserView['gender']) {
-  return gender.replace('_', ' ');
+  return gender === 'unknown' ? 'unknown' : gender.replace('_', ' ');
 }
 
 export function BlockedUsersScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
-  const [blockedUsers, setBlockedUsers] = useState<BlockedUserView[]>(() => buildSeedBlockedUsers());
+  const [blockedUsers, setBlockedUsers] = useState<BlockedUserView[]>(() => getMockBlockedUsers().map(toBlockedUserView));
+
+  useEffect(() => {
+    return subscribeToMockBlockedUsers((entries) => {
+      setBlockedUsers(entries.map(toBlockedUserView));
+    });
+  }, []);
 
   const blockedCount = blockedUsers.length;
   const hasBlockedUsers = blockedCount > 0;
   const summaryLabel = useMemo(() => `${blockedCount} blocked`, [blockedCount]);
 
   const handleUnblock = (targetUserId: string) => {
-    setBlockedUsers((current) => current.filter((user) => user.userId !== targetUserId));
+    applyMockUnblockUser(targetUserId);
   };
 
   return (
@@ -73,7 +79,7 @@ export function BlockedUsersScreen() {
                 <View key={user.userId} style={{ gap: theme.spacing.xs }}>
                   <ListItem
                     subtitle={`User ID: ${user.userId}`}
-                    title={`${user.displayName} • ${user.age} • ${formatGender(user.gender)}`}
+                    title={`${user.displayName} • ${user.age ?? 'n/a'} • ${formatGender(user.gender)}`}
                     trailingText="Blocked"
                   />
                   <Button label="Unblock" onPress={() => handleUnblock(user.userId)} variant="secondary" />

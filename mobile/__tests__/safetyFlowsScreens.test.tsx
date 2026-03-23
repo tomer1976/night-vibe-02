@@ -7,6 +7,7 @@ import { ROUTE_NAMES } from '../src/navigation';
 import { BlockUserConfirmationScreen, BlockedUsersScreen, ReportUserScreen, SafetyCenterScreen } from '../src/screens';
 import { createMockBackendServiceLocator, ServiceLocatorProvider } from '../src/services';
 import { AppStateProvider } from '../src/state';
+import { resetMockBlockedUsersRegistry } from '../src/state/mockBlockedUsersRegistry';
 import { ThemeProvider } from '../src/theme';
 
 const Stack = createNativeStackNavigator();
@@ -47,6 +48,10 @@ function SafetyFlowTestNavigator({
 }
 
 describe('safety report and block flows', () => {
+  beforeEach(() => {
+    resetMockBlockedUsersRegistry();
+  });
+
   it('submits report with selected reason from report screen', async () => {
     const locator = createMockBackendServiceLocator();
     const reportUserMock = jest.fn(locator.services.safety.reportUser);
@@ -131,5 +136,31 @@ describe('safety report and block flows', () => {
     fireEvent.press(screen.getByText('Unblock'));
 
     expect(await screen.findByText('No Blocked Users')).toBeTruthy();
+  });
+
+  it('keeps blocked-user visibility consistent between block confirmation and blocked users screens', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const blockScreen = render(
+      <SafetyFlowTestNavigator
+        initialRoute={ROUTE_NAMES.BlockUserConfirmation}
+        initialParams={{ targetUserId: 'u-target-visibility', targetDisplayName: 'Visible Target', matchId: 'm-visibility' }}
+        servicesOverride={locator.services}
+      />
+    );
+
+    fireEvent.press(blockScreen.getByText('Confirm Block'));
+    fireEvent.press((await blockScreen.findAllByLabelText('Confirm Block'))[0]);
+    expect(await blockScreen.findByText('Result: Blocked')).toBeTruthy();
+
+    blockScreen.unmount();
+
+    const blockedUsersScreen = render(
+      <SafetyFlowTestNavigator initialRoute={ROUTE_NAMES.BlockedUsers} servicesOverride={locator.services} />
+    );
+
+    expect(await blockedUsersScreen.findByText('2 blocked')).toBeTruthy();
+    expect(await blockedUsersScreen.findByText('User ID: u-target-visibility')).toBeTruthy();
+    expect(await blockedUsersScreen.findByText('Visible Target • n/a • unknown')).toBeTruthy();
   });
 });

@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Badge, Button, Card, ConfirmationModal, SafetyStatusBanner, TopBar } from '../components';
 import { ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
+import { applyMockBlockUser } from '../state/mockBlockedUsersRegistry';
 import { useTheme } from '../theme';
 
 type BlockUserRouteParams = {
@@ -50,6 +51,10 @@ export function BlockUserConfirmationScreen() {
       }
 
       setIsBlocked(true);
+      applyMockBlockUser({
+        userId: response.data.targetUserId,
+        displayName: targetDisplayName,
+      });
       setResultText(
         `User blocked in mock mode. Target ${response.data.targetUserId} is now restricted across discovery and chat.`
       );

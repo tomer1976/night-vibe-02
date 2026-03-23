@@ -10,6 +10,7 @@ import { isMainTabKey, MAIN_TAB_ITEMS, resolveMainTabRouteName } from '../naviga
 import { shouldReplaceRoute } from '../navigation/replaceRouteGuard';
 import { AppRouteName, ROUTE_NAMES } from '../navigation/routeGroups';
 import { useServiceLocator } from '../services';
+import { getMockBlockedUserIds, subscribeToMockBlockedUsers } from '../state/mockBlockedUsersRegistry';
 import { useTheme } from '../theme';
 
 const formatGenderLabel = (gender: ChatThread['counterpart']['gender']) => gender.replace('_', ' ');
@@ -40,6 +41,13 @@ export function ChatThreadsScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorText, setErrorText] = useState<string | undefined>();
   const [threads, setThreads] = useState<ChatThread[]>([]);
+  const [blockedUserIds, setBlockedUserIds] = useState<readonly string[]>(() => getMockBlockedUserIds());
+
+  useEffect(() => {
+    return subscribeToMockBlockedUsers((entries) => {
+      setBlockedUserIds(entries.map((entry) => entry.userId));
+    });
+  }, []);
 
   const loadThreads = useCallback(async () => {
     setIsLoading(true);
@@ -85,8 +93,11 @@ export function ChatThreadsScreen() {
   }, [loadThreads]);
 
   const orderedThreads = useMemo(
-    () => [...threads].sort((left, right) => new Date(right.latestMessage.sentAt).getTime() - new Date(left.latestMessage.sentAt).getTime()),
-    [threads]
+    () =>
+      [...threads]
+        .filter((thread) => !blockedUserIds.includes(thread.counterpart.userId))
+        .sort((left, right) => new Date(right.latestMessage.sentAt).getTime() - new Date(left.latestMessage.sentAt).getTime()),
+    [blockedUserIds, threads]
   );
 
   const activeThreadCount = useMemo(() => threads.filter((thread) => thread.status === 'active').length, [threads]);

@@ -11,6 +11,7 @@ import {
 import { createMockBackendServiceLocator, ServiceLocatorProvider } from '../src/services';
 import { BackendServiceContracts } from '../src/contracts';
 import { AppStateProvider } from '../src/state';
+import { resetMockBlockedUsersRegistry } from '../src/state/mockBlockedUsersRegistry';
 import { ThemeProvider } from '../src/theme';
 import { dismissPotential, resetVenuePeopleInteractionState } from '../src/screens/venuePeopleInteractionState';
 
@@ -50,6 +51,7 @@ describe('venue details screen', () => {
   };
 
   beforeEach(() => {
+    resetMockBlockedUsersRegistry();
     resetVenuePeopleInteractionState();
   });
 
