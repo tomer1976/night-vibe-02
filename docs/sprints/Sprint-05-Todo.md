@@ -108,7 +108,7 @@
 
 ## Bugfix/Stabilization Tasks
 - [x] Resolve stale eligibility state in open chat threads.
-- [ ] Fix duplicate notification rendering under rapid events.
+- [x] Fix duplicate notification rendering under rapid events.
 - [ ] Fix inconsistent blocked-user visibility across screens.
 
 ## Documentation Tasks

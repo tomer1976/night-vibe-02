@@ -10,6 +10,41 @@ import { shouldReplaceRoute } from '../navigation/replaceRouteGuard';
 import { useServiceLocator } from '../services';
 import { useTheme } from '../theme';
 
+function toMillis(instant?: string) {
+  if (!instant) {
+    return Number.NaN;
+  }
+
+  return new Date(instant).getTime();
+}
+
+function normalizeNotifications(records: NotificationRecord[]): NotificationRecord[] {
+  const byId = records.reduce<Record<string, NotificationRecord>>((accumulator, record) => {
+    const existing = accumulator[record.notificationId];
+    if (!existing) {
+      accumulator[record.notificationId] = record;
+      return accumulator;
+    }
+
+    const existingUpdatedAtMs = toMillis(existing.updatedAt);
+    const nextUpdatedAtMs = toMillis(record.updatedAt);
+    const existingCreatedAtMs = toMillis(existing.createdAt);
+    const nextCreatedAtMs = toMillis(record.createdAt);
+
+    const shouldReplace =
+      nextUpdatedAtMs > existingUpdatedAtMs ||
+      (nextUpdatedAtMs === existingUpdatedAtMs && nextCreatedAtMs >= existingCreatedAtMs);
+
+    if (shouldReplace) {
+      accumulator[record.notificationId] = record;
+    }
+
+    return accumulator;
+  }, {});
+
+  return Object.values(byId).sort((left, right) => toMillis(right.createdAt) - toMillis(left.createdAt));
+}
+
 export function NotificationCenterScreen() {
   const navigation = useNavigation();
   const route = useRoute();
@@ -40,7 +75,7 @@ export function NotificationCenterScreen() {
         return;
       }
 
-      setNotifications(response.data);
+      setNotifications(normalizeNotifications(response.data));
     } catch {
       setNotifications([]);
       setErrorText('Unable to load notifications right now. Please try again.');
