@@ -104,7 +104,7 @@
 - [x] Add block/report action tests and immediate enforcement checks.
 - [x] Add typing indicator timeout tests.
 - [x] Add notification dedup/rate-limit and preference tests.
-- [ ] Add regression tests for Sprint 03/04 integrations.
+- [x] Add regression tests for Sprint 03/04 integrations.
 
 ## Bugfix/Stabilization Tasks
 - [ ] Resolve stale eligibility state in open chat threads.
