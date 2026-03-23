@@ -115,4 +115,119 @@ describe('notification service contract', () => {
 
     expect(rateLimitedPublish.data.outcome).toBe('suppressed_rate_limited');
   });
+
+  it('suppresses message notifications when message preference is disabled and keeps other categories enabled', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const updatePreferencesResponse = await locator.services.notifications.updateNotificationPreferences({
+      messageNotifications: false,
+    });
+
+    expect(updatePreferencesResponse.status).toBe('SUCCESS');
+    if (updatePreferencesResponse.status !== 'SUCCESS') {
+      throw new Error('Expected successful update preferences response.');
+    }
+
+    expect(updatePreferencesResponse.data.messageNotifications).toBe(false);
+    expect(updatePreferencesResponse.data.safetyNotifications).toBe(true);
+
+    const suppressedMessagePublish = await locator.services.notifications.publishInAppNotification({
+      type: 'message_notification',
+      title: 'Message should be filtered',
+      body: 'This should not be created.',
+      eventId: 'evt-pref-filter-message',
+      eventType: 'MESSAGE_SENT',
+    });
+
+    expect(suppressedMessagePublish.status).toBe('SUCCESS');
+    if (suppressedMessagePublish.status !== 'SUCCESS') {
+      throw new Error('Expected successful preference-filtered message publish response.');
+    }
+
+    expect(suppressedMessagePublish.data.outcome).toBe('suppressed_preference_filtered');
+
+    const allowedSafetyPublish = await locator.services.notifications.publishInAppNotification({
+      type: 'safety_notification',
+      title: 'Safety update',
+      body: 'This should still be delivered.',
+      eventId: 'evt-pref-filter-safety',
+      eventType: 'SAFETY_REPORT',
+    });
+
+    expect(allowedSafetyPublish.status).toBe('SUCCESS');
+    if (allowedSafetyPublish.status !== 'SUCCESS') {
+      throw new Error('Expected successful safety publish response.');
+    }
+
+    expect(allowedSafetyPublish.data.outcome).toBe('created');
+
+    const listResponse = await locator.services.notifications.listNotifications({ pageSize: 10 });
+    expect(listResponse.status).toBe('SUCCESS');
+    if (listResponse.status !== 'SUCCESS') {
+      throw new Error('Expected successful list response.');
+    }
+
+    expect(listResponse.data.items).toHaveLength(1);
+    expect(listResponse.data.items[0].type).toBe('safety_notification');
+  });
+
+  it('allows same event publication again after dedup window elapses', async () => {
+    const locator = createMockBackendServiceLocator();
+
+    const dedupConfigResponse = await locator.services.notifications.getDedupWindowConfig();
+    expect(dedupConfigResponse.status).toBe('SUCCESS');
+    if (dedupConfigResponse.status !== 'SUCCESS') {
+      throw new Error('Expected successful dedup config response.');
+    }
+
+    expect(dedupConfigResponse.data.dedupWindowSeconds).toBeGreaterThan(0);
+    expect(dedupConfigResponse.data.maxNotificationsPerMinute).toBeGreaterThan(0);
+
+    const firstPublish = await locator.services.notifications.publishInAppNotification({
+      type: 'message_notification',
+      title: 'First publish',
+      body: 'Created before dedup timeout.',
+      eventId: 'evt-dedup-expiry',
+      eventType: 'MESSAGE_SENT',
+    });
+
+    expect(firstPublish.status).toBe('SUCCESS');
+    if (firstPublish.status !== 'SUCCESS') {
+      throw new Error('Expected first publish to succeed.');
+    }
+
+    expect(firstPublish.data.outcome).toBe('created');
+
+    const duplicateWithinWindow = await locator.services.notifications.publishInAppNotification({
+      type: 'message_notification',
+      title: 'Duplicate publish',
+      body: 'Suppressed in dedup window.',
+      eventId: 'evt-dedup-expiry',
+      eventType: 'MESSAGE_SENT',
+    });
+
+    expect(duplicateWithinWindow.status).toBe('SUCCESS');
+    if (duplicateWithinWindow.status !== 'SUCCESS') {
+      throw new Error('Expected duplicate publish response to succeed.');
+    }
+
+    expect(duplicateWithinWindow.data.outcome).toBe('suppressed_deduplicated');
+
+    locator.clock.advanceBy(dedupConfigResponse.data.dedupWindowSeconds * 1000 + 1_000);
+
+    const publishAfterWindow = await locator.services.notifications.publishInAppNotification({
+      type: 'message_notification',
+      title: 'Post-window publish',
+      body: 'Should be created after dedup window.',
+      eventId: 'evt-dedup-expiry',
+      eventType: 'MESSAGE_SENT',
+    });
+
+    expect(publishAfterWindow.status).toBe('SUCCESS');
+    if (publishAfterWindow.status !== 'SUCCESS') {
+      throw new Error('Expected post-window publish response to succeed.');
+    }
+
+    expect(publishAfterWindow.data.outcome).toBe('created');
+  });
 });
